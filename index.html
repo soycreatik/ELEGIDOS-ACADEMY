@@ -195,12 +195,23 @@
             .live-container { max-width: 900px; margin: 0 auto 30px auto; }
         }
     </style>
+
 </head>
 <body>
+
+<!-- OVERLAY DEL ANUNCIO GLOBAL -->
+<div id="anuncio-global-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+    <div style="background: #042f2e; border: 2px solid #14b8a6; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <h2 style="color: #2dd4bf; margin-bottom: 15px; font-size: 1.5rem;">📢 AVISO IMPORTANTE</h2>
+        <p id="anuncio-global-texto" style="color: #ccfbf1; font-size: 1rem; line-height: 1.5; margin-bottom: 25px; white-space: pre-wrap; text-align: left;"></p>
+        <button onclick="document.getElementById('anuncio-global-overlay').style.display = 'none';" style="background: #0d9488; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;">Entendido</button>
+    </div>
+</div>
 
 <div class="app-container">
 
    <!-- LOGIN -->
+
     <div id="login-screen" style="width: 100%;">
         <div id="login-form">
             <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" class="login-logo" onerror="this.style.display='none'">
@@ -237,7 +248,7 @@
     <!-- DASHBOARD -->
     <div id="dashboard-screen">
         
-        <!-- SIDEBAR / BOTTOM NAV -->
+       <!-- SIDEBAR / BOTTOM NAV -->
         <div class="bottom-nav">
             
 <img src="ELEGIDOS_INSTITUCIONAL_NEGRO.png" alt="ELEGIDOS" class="logo-desktop" style="max-width: 140px; margin-bottom: 30px; padding-left: 10px; display: none;">
@@ -246,11 +257,15 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span class="nav-txt">Clases</span>
             </button>
-            <button class="nav-item" onclick="cambiarSeccion('qr', 1)">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                <span class="nav-txt">Pase QR</span>
+            <button class="nav-item" onclick="cambiarSeccion('boletos', 1)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16a2 2 0 0 1 2 2v6a3 3 0 0 0 0 6v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6a3 3 0 0 0 0-6V5a2 2 0 0 1 2-2z"></path><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                <span class="nav-txt">Boletos</span>
             </button>
-            <button class="nav-item" onclick="cambiarSeccion('recursos', 2)">
+            <button class="nav-item" onclick="cambiarSeccion('qr', 2)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span class="nav-txt">Mi QR</span>
+            </button>
+            <button class="nav-item" onclick="cambiarSeccion('recursos', 3)">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                 <span class="nav-txt">Más</span>
             </button>
@@ -281,11 +296,15 @@
                         <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
                         <div class="cat-label">Asistencia</div>
                     </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('qr', 1)">
+                    <div class="cat-btn" onclick="cambiarSeccion('boletos', 1)">
+                        <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16a2 2 0 0 1 2 2v6a3 3 0 0 0 0 6v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6a3 3 0 0 0 0-6V5a2 2 0 0 1 2-2z"></path><line x1="9" y1="3" x2="9" y2="21"></line></svg></div>
+                        <div class="cat-label">Boletos</div>
+                    </div>
+                    <div class="cat-btn" onclick="cambiarSeccion('qr', 2)">
                         <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
                         <div class="cat-label">Mi QR</div>
                     </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('recursos', 2)">
+                    <div class="cat-btn" onclick="cambiarSeccion('recursos', 3)">
                         <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
                         <div class="cat-label">Más</div>
                     </div>
@@ -328,6 +347,21 @@
                     <div class="section-header">Historial de Clases</div>               
 
                     <div class="class-list" id="contenedor-clases"></div>
+                </div>
+
+<!-- VISTA NUEVA: BOLETOS ESPECIALES -->
+                <div id="tab-boletos" class="tab-content">
+                    <div class="section-header">Mis Boletos Oficiales</div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Vincula los códigos de tus entradas físicas para validarlas digitalmente.</p>
+                    
+                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
+                        <input type="text" id="input-boleto" class="input-field" placeholder="Ingresa el código del boleto" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; text-transform: uppercase;">
+                        <button class="btn-main" id="btn-vincular-boleto" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #ea580c;" onclick="vincularBoleto()">Vincular Boleto</button>
+                    </div>
+
+                    <div id="contenedor-boletos" style="margin-top: 24px;">
+                        <!-- Aquí se inyectarán los boletos vinculados -->
+                    </div>
                 </div>
 
                 <!-- VISTA 2: QR -->
@@ -653,12 +687,13 @@ function mostrarRecuperacion(mostrar) {
         verificarBloqueoPerfil(data);
 
         renderizarListaClases();
+        renderizarBoletosVinculados();
 
         // Si el perfil no está lleno, obligar a ir a la pestaña de recursos al entrar
         if (!esInvitado && (!data.perfil || !data.perfil.edad)) {
             setTimeout(() => {
                 alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes los datos de tu perfil.");
-                cambiarSeccion('recursos', 2);
+                cambiarSeccion('recursos', 3);
             }, 300);
         }
     }
@@ -695,16 +730,23 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             // Verificar si hay asistencia registrada (Usa la variable asistenciasData global)
             const horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
 
-            // Separar la fecha y hora de la clase para comparar con la hora actual
+            // Separar la fecha y hora de la clase para comparar con la hora actual en El Salvador
+            const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
             const [year, month, day] = item.fecha.split('-').map(Number);
             const [hours, minutes] = item.hora.split(':').map(Number);
+            
+            // Creamos un string en formato 'YYYY-MM-DD' para la fecha salvadoreña actual
+            const hoyStr = fechaActualSV.getFullYear() + '-' + 
+                           String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(fechaActualSV.getDate()).padStart(2, '0');
+            
             const fechaHoraClase = new Date(year, month - 1, day, hours, minutes, 0);
 
-            // Determinar si la clase es hoy, anterior o futura
-            const esHoy = ahora.getFullYear() === year && ahora.getMonth() === (month - 1) && ahora.getDate() === day;
-            const esPasado = ahora > fechaHoraClase && !esHoy;
+            // Comparaciones lógicas basadas en fechas exactas
+            const esHoy = (hoyStr === item.fecha);
+            const esPasado = (hoyStr > item.fecha); // Solo si el día completo ya transcurrió
 
-           let statusBadge = ""; 
+            let statusBadge = ""; 
             let timeInfo = "";
 
             if (horaIngreso) {
@@ -740,19 +782,23 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                     timeInfo = `Inicia a las ${item.hora}`;
                 }
           
-} else if (esPasado || idx < ultimaClaseAsistidaIndex) {
+} else if (esPasado) {
+                // Solo cuenta inasistencia si la clase es de un día que ya transcurrió y el alumno no tiene registro
                 ausencias++; 
-                rachaActual = 0; // Agregado: Se rompe la racha si hay falta
+                rachaActual = 0; // Se rompe la racha si hay falta
                 statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
-                timeInfo = `Falta registrada (${item.hora})`;
-
+                timeInfo = `Falta registrada`;
+            } else {
+                // Si la clase es en el futuro y no es hoy, no cuenta ni como falta ni como asistencia
+                statusBadge = `<span class="status-badge" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-light);">Próximamente</span>`; 
+                timeInfo = `Inicia a las ${item.hora}`;
             }
 
             row.innerHTML = `<div class="class-info"><h5>${item.nombre} — ${formatearFecha(item.fecha)}</h5><p>${timeInfo}</p></div>${statusBadge}`;
             contenedor.appendChild(row);
         });
 
-document.getElementById("stat-asistidas").innerText = asistidas;
+        document.getElementById("stat-asistidas").innerText = asistidas;
         document.getElementById("stat-faltas").innerText = ausencias;
         document.getElementById("stat-permisos").innerText = permisos;
         document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
@@ -769,6 +815,22 @@ document.getElementById("stat-asistidas").innerText = asistidas;
             document.getElementById("badge-streak").classList.remove("active");
         }
 
+        // --- SISTEMA LECTOR DEL ANUNCIO GLOBAL ---
+        db.ref('configuracion/anuncioGlobal').once('value').then(snap => {
+            if (snap.exists()) {
+                const anuncio = snap.val();
+                if (anuncio.activo) {
+                    const ahoraSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+                    const fechaExp = new Date(anuncio.expiracion);
+                    
+                    // Si el anuncio aún no expira, lo mostramos
+                    if (ahoraSV < fechaExp) {
+                        document.getElementById("anuncio-global-texto").innerText = anuncio.mensaje;
+                        document.getElementById("anuncio-global-overlay").style.display = "flex";
+                    }
+                }
+            }
+        });
         // Evaluar Logro Flash Rápido
         if (tieneFlash) {
             document.getElementById("badge-flash").classList.add("active");
@@ -792,6 +854,155 @@ document.getElementById("stat-asistidas").innerText = asistidas;
         } else {
             if (meetContainer) meetContainer.style.display = "none";
         }
+    }
+
+// --- LÓGICA DE BOLETOS ESPECIALES ---
+    
+    // Configuración de fechas de eventos para validar si están vigentes
+    const FECHAS_EVENTOS = {
+        elegidos: "2026-10-04",
+        masterclass: "2026-10-27",
+        festival: "2026-11-08"
+    };
+
+    function renderizarBoletosVinculados() {
+        const contenedor = document.getElementById("contenedor-boletos");
+        contenedor.innerHTML = "";
+        
+        if (!datosEstudianteActual || !datosEstudianteActual.boletos) {
+            contenedor.innerHTML = "<p style='text-align: center; font-size: 0.85rem; color: #94a3b8; padding: 20px;'>No tienes ningún boleto vinculado a tu cuenta.</p>";
+            return;
+        }
+
+        const hoy = new Date().toISOString().split('T')[0];
+
+        Object.keys(datosEstudianteActual.boletos).forEach(codigoBoleto => {
+            const eventoId = datosEstudianteActual.boletos[codigoBoleto];
+            const fechaEvento = FECHAS_EVENTOS[eventoId];
+            
+            let estadoHTML = "";
+            let btnQRHTML = "";
+            
+            if (hoy < fechaEvento) {
+                estadoHTML = `<span class="status-badge" style="background: #e0f2fe; color: #0369a1;">Aún no inicia</span>`;
+                btnQRHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">El QR se habilita el día del evento</button>`;
+            } else if (hoy > fechaEvento) {
+                estadoHTML = `<span class="status-badge" style="background: #f1f5f9; color: #64748b;">Finalizado</span>`;
+                btnQRHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">Evento Terminado</button>`;
+            } else {
+                estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY</span>`;
+                btnQRHTML = `<button onclick="mostrarQRBoleto('${codigoBoleto}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer;">Mostrar Pase QR para Escanear</button>`;
+            }
+
+            const card = document.createElement("div");
+            card.className = "class-item";
+            card.style.flexDirection = "column";
+            card.style.alignItems = "flex-start";
+            card.style.marginBottom = "15px";
+            card.style.borderLeft = "4px solid #ea580c";
+            
+            card.innerHTML = `
+                <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="class-info">
+                        <h5 style="color: #ea580c; font-size: 1rem;">${codigoBoleto}</h5>
+                        <p style="text-transform: uppercase;">Evento: ${eventoId}</p>
+                    </div>
+                    ${estadoHTML}
+                </div>
+                ${btnQRHTML}
+                <div id="qr-container-${codigoBoleto}" style="width: 100%; display: none; justify-content: center; margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 12px;"></div>
+            `;
+            contenedor.appendChild(card);
+        });
+    }
+
+    function vincularBoleto() {
+        const inputField = document.getElementById("input-boleto");
+        const codigoBoleto = inputField.value.trim().toUpperCase();
+        const codigoEstudiante = localStorage.getItem("elegidos_student_code");
+
+        if (!codigoBoleto) return alert("Ingresa un código de boleto.");
+
+        let eventoDetectado = null;
+        if (codigoBoleto.startsWith("ELEGIDOS-2026-")) eventoDetectado = 'elegidos';
+        else if (codigoBoleto.startsWith("DREAMEZ-2026-")) eventoDetectado = 'masterclass';
+        else if (codigoBoleto.startsWith("FESTIVAL-2026-")) eventoDetectado = 'festival';
+        else return alert("❌ El código no corresponde a ningún evento oficial ELEGIDOS.");
+
+        const btn = document.getElementById("btn-vincular-boleto");
+        btn.innerText = "Verificando...";
+        btn.disabled = true;
+
+        db.ref(`${eventoDetectado}/${codigoBoleto}`).once('value').then(snap => {
+            if (!snap.exists()) {
+                alert("❌ Este boleto no existe en la base de datos oficial.");
+                resetBtnBoleto(btn);
+                return;
+            }
+
+            const dataBoleto = snap.val();
+
+            if (dataBoleto.vinculado_a) {
+                if (dataBoleto.vinculado_a === codigoEstudiante) {
+                    alert("Ya tienes este boleto vinculado a tu cuenta.");
+                } else {
+                    alert("❌ Este boleto ya fue registrado por otro estudiante y es intransferible.");
+                }
+                resetBtnBoleto(btn);
+                return;
+            }
+
+            // APLICAMOS LA LÓGICA DE UNIFICACIÓN:
+            // 1. Guardamos qué boleto compró en su perfil (solo para historial)
+            // 2. Marcamos en su perfil de 'clase' que tiene ACCESO PERMITIDO a ese evento
+            // 3. Bloqueamos el boleto original para que nadie más lo use
+            const updates = {};
+            updates[`clase/${codigoEstudiante}/boletos/${codigoBoleto}`] = eventoDetectado;
+            updates[`clase/${codigoEstudiante}/accesos_especiales/${eventoDetectado}`] = true; 
+            updates[`${eventoDetectado}/${codigoBoleto}/vinculado_a`] = codigoEstudiante;
+
+            db.ref().update(updates).then(() => {
+                alert(`✅ Boleto vinculado. Ahora tu QR general de estudiante (${codigoEstudiante}) funcionará como tu pase de acceso para este evento.`);
+                inputField.value = "";
+                
+                if(!datosEstudianteActual.boletos) datosEstudianteActual.boletos = {};
+                datosEstudianteActual.boletos[codigoBoleto] = eventoDetectado;
+                renderizarListaClases();
+                renderizarBoletosVinculados();
+                
+                resetBtnBoleto(btn);
+            }).catch(e => {
+                alert("Error al vincular: " + e);
+                resetBtnBoleto(btn);
+            });
+        });
+    }
+
+    function resetBtnBoleto(btn) {
+        btn.innerText = "Vincular Boleto";
+        btn.disabled = false;
+    }
+
+    function mostrarQRBoleto(codigoBoleto) {
+        const containerId = `qr-container-${codigoBoleto}`;
+        const container = document.getElementById(containerId);
+        
+        if (container.style.display === "flex") {
+            container.style.display = "none";
+            return;
+        }
+
+        container.style.display = "flex";
+        container.innerHTML = ""; // Limpiar por si acaso
+        
+        new QRCode(container, { 
+            text: codigoBoleto, 
+            width: 150, 
+            height: 150, 
+            colorDark : "#ea580c", 
+            colorLight : "#f8fafc", 
+            correctLevel : QRCode.CorrectLevel.H 
+        });
     }
 
     function cambiarSeccion(tab, index) {
