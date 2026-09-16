@@ -190,18 +190,39 @@
 
 <div class="app-container">
 
-    <!-- LOGIN -->
+   <!-- LOGIN -->
     <div id="login-screen" style="width: 100%;">
-        <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" class="login-logo" onerror="this.style.display='none'">
-        <h1 class="login-title">Portal Estudiantil</h1>
-        <p class="login-subtitle">Ingresa para ver tu asistencia, QR y clases de ELEGIDOS.</p>
+        <div id="login-form">
+            <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" class="login-logo" onerror="this.style.display='none'">
+            <h1 class="login-title">Portal Estudiantil</h1>
+            <p class="login-subtitle">Ingresa para ver tu asistencia, QR y clases.</p>
 
-        <input type="text" id="input-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
-        <input type="password" id="input-clave" class="input-field" placeholder="Contraseña">
-        
-        <button class="btn-main" onclick="iniciarSesion()">Acceder a mi perfil</button>
-        <div class="error-text" id="error-msg">Código o contraseña incorrectos.</div>
-    </div>
+            <input type="text" id="input-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
+            <input type="password" id="input-clave" class="input-field" placeholder="Contraseña (ELEGIDOS26)">
+            
+            <button class="btn-main" onclick="iniciarSesion()">Acceder a mi perfil</button>
+            <div class="error-text" id="error-msg">Código o contraseña incorrectos.</div>
+            
+            <a href="#" onclick="mostrarRecuperacion(true)" style="display: block; margin-top: 20px; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; font-weight: 500;">¿Olvidaste o quieres cambiar tu contraseña?</a>
+        </div>
+
+     <div id="recovery-form" style="display: none;">
+            <h1 class="login-title" style="font-size: 1.5rem;">Cambiar Contraseña</h1>
+            <p class="login-subtitle" style="padding: 0 10px;">Ingresa tu código y tu nueva contraseña.</p>
+
+            <input type="text" id="rec-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
+            
+            <div id="rec-antigua-container" style="display:none; width: 100%; justify-content: center;">
+                <input type="password" id="rec-antigua" class="input-field" placeholder="Contraseña Actual" style="margin-bottom: 16px;">
+            </div>
+            
+            <input type="password" id="rec-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)">
+            
+            <button class="btn-main" onclick="procesarCambioPassword()">Guardar Nueva Contraseña</button>
+            <button class="btn-main" onclick="mostrarRecuperacion(false)" style="background: #e2e8f0; color: #475569; margin-top: 10px;">Volver</button>
+            <div class="error-text" id="rec-error-msg"></div>
+        </div>
+    </div> <!-- ESTA ES LA ETIQUETA QUE FALTABA PARA CERRAR EL LOGIN-SCREEN -->
 
     <!-- DASHBOARD -->
     <div id="dashboard-screen">
@@ -260,14 +281,23 @@
                 </div>
 
                 <!-- VISTA 1: CLASES -->
-                <div id="tab-clases" class="tab-content active">
+
+<div id="tab-clases" class="tab-content active">
                     <div class="stats-grid">
                         <div class="stat-card stat-blue"><div class="num" id="stat-total">0</div><div class="label">Clases</div></div>
                         <div class="stat-card stat-green"><div class="num" id="stat-asistidas">0</div><div class="label">Asistidas</div></div>
                         <div class="stat-card stat-purple"><div class="num" id="stat-faltas">0</div><div class="label">Faltas</div></div>
                     </div>
 
-                    <div class="section-header">Historial de Clases</div>
+                    <!-- ENLACE DE CLASE ONLINE (MIÉRCOLES) -->
+                    <div id="meet-banner-container" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center;">
+                        <h4 style="color: var(--purple-main); font-weight: 800; font-size: 1.1rem; margin-bottom: 5px;">🎥 Clase en Vivo Activa</h4>
+                        <p style="font-size: 0.85rem; color: #4338ca; margin-bottom: 15px;">La sala de Google Meet está abierta.</p>
+                        <a href="https://meet.google.com/wvh-nhwv-uga" target="_blank" style="background: var(--purple-main); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);">Unirse a la Clase</a>
+                    </div>
+
+                    <div class="section-header">Historial de Clases</div>               
+
                     <div class="class-list" id="contenedor-clases"></div>
                 </div>
 
@@ -396,6 +426,98 @@
         return new Date(fechaString + 'T12:00:00Z').toLocaleDateString('es-ES', opciones);
     }
 
+function mostrarRecuperacion(mostrar) {
+        document.getElementById("login-form").style.display = mostrar ? "none" : "block";
+        document.getElementById("recovery-form").style.display = mostrar ? "block" : "none";
+        document.getElementById("rec-error-msg").style.display = "none";
+    }
+
+    // Event listener para detectar cuando ingresan el código y mostrar u ocultar el campo de "Contraseña Antigua"
+    document.getElementById("rec-codigo").addEventListener("blur", function() {
+        const codigo = this.value.trim().toUpperCase();
+        if(codigo.startsWith("CLASE-2026-")) {
+             db.ref('clase/' + codigo).once('value').then((snapshot) => {
+                 if(snapshot.exists()){
+                     const data = snapshot.val();
+                     const contraseñaActualDB = data.password;
+                     const containerAntigua = document.getElementById("rec-antigua-container");
+                     
+                     // Mostrar campo de contraseña antigua si ya la han cambiado
+                     if(contraseñaActualDB && contraseñaActualDB !== CLAVE_UNIVERSAL){
+                          containerAntigua.style.display = "flex";
+                     } else {
+                          containerAntigua.style.display = "none";
+                     }
+                 }
+             });
+        }
+    });
+
+    function procesarCambioPassword() {
+        const codigo = document.getElementById("rec-codigo").value.trim().toUpperCase();
+        const passAntigua = document.getElementById("rec-antigua").value.trim();
+        const nuevaPass = document.getElementById("rec-nueva").value.trim();
+        const errorMsg = document.getElementById("rec-error-msg");
+        const containerAntigua = document.getElementById("rec-antigua-container");
+
+        if (!codigo || nuevaPass.length < 4) {
+            errorMsg.innerText = "El código es obligatorio y la nueva contraseña debe tener al menos 4 caracteres.";
+            errorMsg.style.display = "block"; return;
+        }
+
+        db.ref('clase/' + codigo).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const contraseñaActualDB = data.password;
+
+                // Si nunca han cambiado la clave o es la universal
+                if (!contraseñaActualDB || contraseñaActualDB === CLAVE_UNIVERSAL) {
+                    if (confirm(`¿Confirmas que deseas establecer "${nuevaPass}" como tu nueva contraseña?`)) {
+                        guardarNuevaContraseña(codigo, nuevaPass);
+                    }
+                } else {
+                    // Si ya tenían clave, validamos la antigua
+                    if(containerAntigua.style.display === "none"){
+                        containerAntigua.style.display = "flex";
+                        errorMsg.innerText = "Por favor ingresa tu contraseña actual para confirmar el cambio.";
+                        errorMsg.style.display = "block";
+                        return;
+                    }
+                    
+                    if (passAntigua !== contraseñaActualDB) {
+                        errorMsg.innerText = "❌ La contraseña actual ingresada es incorrecta.";
+                        errorMsg.style.display = "block";
+                        return;
+                    }
+
+                    if (confirm(`¿Confirmas que deseas cambiar tu contraseña a "${nuevaPass}"?`)) {
+                        guardarNuevaContraseña(codigo, nuevaPass);
+                    }
+                }
+            } else {
+                errorMsg.innerText = `❌ El código ${codigo} no existe. Verifica el formato.`;
+                errorMsg.style.display = "block";
+            }
+        }).catch((error) => {
+             errorMsg.innerText = "Error al conectar con la base de datos.";
+             errorMsg.style.display = "block";
+        });
+    }
+
+    function guardarNuevaContraseña(codigo, nuevaPass) {
+        db.ref('clase/' + codigo).update({ password: nuevaPass }).then(() => {
+            alert("✅ Contraseña actualizada correctamente. Ahora inicia sesión con tu nueva contraseña.");
+            document.getElementById("input-codigo").value = codigo;
+            document.getElementById("input-clave").value = nuevaPass;
+            
+            document.getElementById("rec-codigo").value = "";
+            document.getElementById("rec-antigua").value = "";
+            document.getElementById("rec-nueva").value = "";
+            
+            mostrarRecuperacion(false);
+        });
+    }
+
     function iniciarSesion() {
         const codigoInput = document.getElementById("input-codigo").value.trim().toUpperCase();
         const claveInput = document.getElementById("input-clave").value.trim();
@@ -410,8 +532,11 @@
             return;
         }
 
-        if (claveInput !== CLAVE_UNIVERSAL) { errorMsg.innerText = "Contraseña incorrecta."; errorMsg.style.display = "block"; return; }
-        if (!codigoInput.startsWith("CLASE-2026-")) { errorMsg.innerText = "Código inválido."; errorMsg.style.display = "block"; return; }
+        if (!codigoInput.startsWith("CLASE-2026-")) { 
+            errorMsg.innerText = "Código inválido."; 
+            errorMsg.style.display = "block"; 
+            return; 
+        }
 
         btn.innerText = "Verificando...";
         
@@ -419,15 +544,30 @@
             if (snapshot.exists()) {
                 esInvitado = false;
                 datosEstudianteActual = snapshot.val();
+                
+                // Validar contraseña (la personalizada o la universal por defecto)
+                const passCorrecta = datosEstudianteActual.password || CLAVE_UNIVERSAL;
+                if (claveInput !== passCorrecta) {
+                    errorMsg.innerText = "Contraseña incorrecta."; 
+                    errorMsg.style.display = "block"; 
+                    btn.innerText = "Acceder a mi perfil";
+                    return;
+                }
+
                 cargarDashboard(codigoInput, datosEstudianteActual);
                 localStorage.setItem("elegidos_student_code", codigoInput);
             } else {
-                errorMsg.innerText = "El código no existe."; errorMsg.style.display = "block"; btn.innerText = "Acceder a mi perfil";
+                errorMsg.innerText = "El código no existe."; 
+                errorMsg.style.display = "block"; 
+                btn.innerText = "Acceder a mi perfil";
             }
         }).catch(() => {
-            errorMsg.innerText = "Error de red."; errorMsg.style.display = "block"; btn.innerText = "Acceder a mi perfil";
+            errorMsg.innerText = "Error de red."; 
+            errorMsg.style.display = "block"; 
+            btn.innerText = "Acceder a mi perfil";
         });
-    }
+    }  
+
 
     function cargarDashboard(codigo, data) {
         document.getElementById("login-screen").style.display = "none";
@@ -503,6 +643,21 @@
         document.getElementById("stat-asistidas").innerText = asistidas;
         document.getElementById("stat-faltas").innerText = ausencias;
         document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
+        
+        // Lógica para mostrar el Meet los miércoles
+        const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const diaSemana = fechaSV.getDay(); 
+        const horas = fechaSV.getHours();
+        const minutos = fechaSV.getMinutes();
+        
+        const meetContainer = document.getElementById("meet-banner-container");
+        
+        // Miércoles (3) - Habilitar desde las 19:45 (7:45 PM) hasta las 20:59 (8:59 PM)
+        if (diaSemana === 3 && ((horas === 19 && minutos >= 45) || horas === 20)) {
+            if (meetContainer) meetContainer.style.display = "block";
+        } else {
+            if (meetContainer) meetContainer.style.display = "none";
+        }
     }
 
     function cambiarSeccion(tab, index) {
