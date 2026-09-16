@@ -641,7 +641,7 @@ function mostrarRecuperacion(mostrar) {
                 esInvitado = false;
                 datosEstudianteActual = snapshot.val();
                 
-                // Validar contraseña (la personalizada o la universal por defecto)
+               // Validar contraseña (la personalizada o la universal por defecto)
                 const passCorrecta = datosEstudianteActual.password || CLAVE_UNIVERSAL;
                 if (claveInput !== passCorrecta) {
                     errorMsg.innerText = "Contraseña incorrecta."; 
@@ -652,6 +652,15 @@ function mostrarRecuperacion(mostrar) {
 
                 cargarDashboard(codigoInput, datosEstudianteActual);
                 localStorage.setItem("elegidos_student_code", codigoInput);
+
+                // Activar escucha en tiempo real para que el portal se actualice al instante al ser escaneado
+                db.ref('clase/' + codigoInput).on('value', (snap) => {
+                    if(snap.exists()){
+                        datosEstudianteActual = snap.val();
+                        renderizarListaClases();
+                        renderizarBoletosVinculados();
+                    }
+                });
             } else {
                 errorMsg.innerText = "El código no existe."; 
                 errorMsg.style.display = "block"; 
@@ -777,14 +786,16 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                 if (ahora >= fechaHoraClase) {
                     statusBadge = `<span class="status-badge status-today">Activa</span>`; 
                     timeInfo = `Hora: ${item.hora} - Disponible`;
-                } else {
+} else {
                     statusBadge = `<span class="status-badge status-wait">Hoy ${item.hora}</span>`; 
                     timeInfo = `Inicia a las ${item.hora}`;
                 }
           
-} else if (esPasado) {
-                // Solo cuenta inasistencia si la clase es de un día que ya transcurrió y el alumno no tiene registro
-                ausencias++; 
+            } else if (esPasado || idx < ultimaClaseAsistidaIndex) {
+                // Cuenta inasistencia si el día ya pasó, o si hay un "hueco" (asistió a una clase posterior y saltó esta)
+                ausencias++;
+                
+ 
                 rachaActual = 0; // Se rompe la racha si hay falta
                 statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
                 timeInfo = `Falta registrada`;
@@ -865,6 +876,13 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         festival: "2026-11-08"
     };
 
+    // Mapa exacto de las imágenes de los tickets
+    const IMAGENES_EVENTOS = {
+        elegidos: "ticket MAHU.jpg",
+        masterclass: "ticket DREAMEZ.jpg", 
+        festival: "ticket FESTIVAL.jpg"
+    };
+
     function renderizarBoletosVinculados() {
         const contenedor = document.getElementById("contenedor-boletos");
         contenedor.innerHTML = "";
@@ -881,17 +899,17 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             const fechaEvento = FECHAS_EVENTOS[eventoId];
             
             let estadoHTML = "";
-            let btnQRHTML = "";
+            let btnTicketHTML = "";
             
             if (hoy < fechaEvento) {
                 estadoHTML = `<span class="status-badge" style="background: #e0f2fe; color: #0369a1;">Aún no inicia</span>`;
-                btnQRHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">El QR se habilita el día del evento</button>`;
+                btnTicketHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">El Ticket Virtual se habilita el día del evento</button>`;
             } else if (hoy > fechaEvento) {
                 estadoHTML = `<span class="status-badge" style="background: #f1f5f9; color: #64748b;">Finalizado</span>`;
-                btnQRHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">Evento Terminado</button>`;
+                btnTicketHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">Evento Terminado</button>`;
             } else {
                 estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY</span>`;
-                btnQRHTML = `<button onclick="mostrarQRBoleto('${codigoBoleto}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer;">Mostrar Pase QR para Escanear</button>`;
+                btnTicketHTML = `<button onclick="mostrarImagenBoleto('${codigoBoleto}', '${eventoId}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer;">🎟️ Mostrar Ticket Virtual</button>`;
             }
 
             const card = document.createElement("div");
@@ -909,13 +927,12 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                     </div>
                     ${estadoHTML}
                 </div>
-                ${btnQRHTML}
-                <div id="qr-container-${codigoBoleto}" style="width: 100%; display: none; justify-content: center; margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 12px;"></div>
+                ${btnTicketHTML}
+                <div id="ticket-container-${codigoBoleto}" style="width: 100%; display: none; justify-content: center; margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 12px;"></div>
             `;
             contenedor.appendChild(card);
         });
     }
-
     function vincularBoleto() {
         const inputField = document.getElementById("input-boleto");
         const codigoBoleto = inputField.value.trim().toUpperCase();
@@ -983,8 +1000,8 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         btn.disabled = false;
     }
 
-    function mostrarQRBoleto(codigoBoleto) {
-        const containerId = `qr-container-${codigoBoleto}`;
+    function mostrarImagenBoleto(codigoBoleto, eventoId) {
+        const containerId = `ticket-container-${codigoBoleto}`;
         const container = document.getElementById(containerId);
         
         if (container.style.display === "flex") {
@@ -993,16 +1010,16 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         }
 
         container.style.display = "flex";
-        container.innerHTML = ""; // Limpiar por si acaso
         
-        new QRCode(container, { 
-            text: codigoBoleto, 
-            width: 150, 
-            height: 150, 
-            colorDark : "#ea580c", 
-            colorLight : "#f8fafc", 
-            correctLevel : QRCode.CorrectLevel.H 
-        });
+        // Buscar la imagen oficial del evento
+        const imagenSrc = IMAGENES_EVENTOS[eventoId] || "ticket MAHU.jpg";
+
+        container.innerHTML = `
+            <div style="text-align: center; width: 100%; animation: fadeIn 0.3s ease;">
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 10px;">En puerta presentas esta pantalla, o escaneas tu QR de alumno habitual.</p>
+                <img src="${imagenSrc}" alt="Ticket ${eventoId}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid #ea580c; display: block; margin: 0 auto;">
+            </div>
+        `;
     }
 
     function cambiarSeccion(tab, index) {
@@ -1104,7 +1121,7 @@ function verificarBloqueoPerfil(data) {
         }
     }
 
-    window.onload = () => {
+window.onload = () => {
 
         const savedCode = localStorage.getItem("elegidos_student_code");
         if (savedCode) {
@@ -1113,12 +1130,26 @@ function verificarBloqueoPerfil(data) {
                 document.getElementById("input-clave").value = INVITADO_PASS;
                 iniciarSesion();
             } else {
+                // Primero cargamos una vez para montar el dashboard
                 db.ref('clase/' + savedCode).once('value').then((snapshot) => {
-                    if (snapshot.exists()) { datosEstudianteActual = snapshot.val(); cargarDashboard(savedCode, datosEstudianteActual); }
+                    if (snapshot.exists()) { 
+                        datosEstudianteActual = snapshot.val(); 
+                        cargarDashboard(savedCode, datosEstudianteActual); 
+                        
+                        // Dejamos el sistema escuchando cambios en Firebase para que sea automático
+                        db.ref('clase/' + savedCode).on('value', (snap) => {
+                            if (snap.exists()) {
+                                datosEstudianteActual = snap.val();
+                                renderizarListaClases();
+                                renderizarBoletosVinculados();
+                            }
+                        });
+                    }
                 });
             }
         }
-    };
+    };    
+
 </script>
 
 </body>
