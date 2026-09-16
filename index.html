@@ -898,18 +898,31 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             const eventoId = datosEstudianteActual.boletos[codigoBoleto];
             const fechaEvento = FECHAS_EVENTOS[eventoId];
             
+            // 1. Verificar si el alumno ya tiene marcada la asistencia para la fecha de este evento especial
+            let asistio = false;
+            if (datosEstudianteActual.asistencias) {
+                // Compara la fecha del evento con las fechas oficiales de clase para ver si ya fue escaneado
+                const claseDelEvento = FECHAS_CURSO.find(c => c.fecha === fechaEvento);
+                if (claseDelEvento && datosEstudianteActual.asistencias[claseDelEvento.id]) {
+                    asistio = true;
+                } else if (datosEstudianteActual.asistencias[fechaEvento]) {
+                    asistio = true;
+                }
+            }
+
             let estadoHTML = "";
-            let btnTicketHTML = "";
+            // 2. El botón del ticket virtual AHORA SIEMPRE estará disponible, en cualquier fecha
+            let btnTicketHTML = `<button onclick="mostrarImagenBoleto('${codigoBoleto}', '${eventoId}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);">🎟️ Mostrar Ticket Virtual</button>`;
             
-            if (hoy < fechaEvento) {
+            // 3. Lógica de estados mejorada para reflejar si ya asistió
+            if (asistio) {
+                estadoHTML = `<span class="status-badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">✅ Asistió</span>`;
+            } else if (hoy < fechaEvento) {
                 estadoHTML = `<span class="status-badge" style="background: #e0f2fe; color: #0369a1;">Aún no inicia</span>`;
-                btnTicketHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">El Ticket Virtual se habilita el día del evento</button>`;
             } else if (hoy > fechaEvento) {
-                estadoHTML = `<span class="status-badge" style="background: #f1f5f9; color: #64748b;">Finalizado</span>`;
-                btnTicketHTML = `<button disabled style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #f1f5f9; color: #94a3b8; border: none; font-size: 0.8rem; font-weight: bold;">Evento Terminado</button>`;
+                estadoHTML = `<span class="status-badge" style="background: #fee2e2; color: #991b1b;">Finalizado</span>`;
             } else {
-                estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY</span>`;
-                btnTicketHTML = `<button onclick="mostrarImagenBoleto('${codigoBoleto}', '${eventoId}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer;">🎟️ Mostrar Ticket Virtual</button>`;
+                estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY ES EL EVENTO</span>`;
             }
 
             const card = document.createElement("div");
@@ -917,12 +930,13 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             card.style.flexDirection = "column";
             card.style.alignItems = "flex-start";
             card.style.marginBottom = "15px";
-            card.style.borderLeft = "4px solid #ea580c";
+            // Cambia el color del borde si el estudiante ya asistió
+            card.style.borderLeft = asistio ? "4px solid #16a34a" : "4px solid #ea580c"; 
             
             card.innerHTML = `
                 <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                     <div class="class-info">
-                        <h5 style="color: #ea580c; font-size: 1rem;">${codigoBoleto}</h5>
+                        <h5 style="color: ${asistio ? '#16a34a' : '#ea580c'}; font-size: 1rem;">${codigoBoleto}</h5>
                         <p style="text-transform: uppercase;">Evento: ${eventoId}</p>
                     </div>
                     ${estadoHTML}
