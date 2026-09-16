@@ -10,6 +10,7 @@
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -168,7 +169,7 @@
         .cal-highlight ul li::before { content: "•"; position: absolute; left: 0; color: #64748b; }
 
         /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; justify-around: opacity; padding: 16px 0 20px 0; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; padding: 16px 0 20px 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); background: none; border: none; font-size: 0.7rem; font-weight: 700; cursor: pointer; width: 25%; }
         .nav-item.active { color: var(--purple-main); }
         .nav-item.active-live { color: #ef4444; }
@@ -445,6 +446,11 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
+    // Iniciar sesión anónima automáticamente al cargar para pasar las reglas de Firebase
+    firebase.auth().signInAnonymously().catch((error) => {
+        console.error("Error de autenticación anónima:", error);
+    });
     
     const CLAVE_UNIVERSAL = "ELEGIDOS26";
     const INVITADO_USER = "INVITADO-ELEGIDOS";
