@@ -98,9 +98,7 @@
         
         .btn-logout { background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; }
 
-        .content-area { padding: 0 24px; margin-top: -30px; position: relative; z-index: 10; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+        .content-area { padding: 0 24px; margin-top: -30px; position: relative; z-index: 10; }.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 24px; }
         .stat-card { padding: 16px 10px; border-radius: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .stat-blue { background: var(--pastel-blue); color: var(--text-blue); }
         .stat-green { background: var(--pastel-green); color: var(--text-green); }
@@ -300,6 +298,7 @@
                         <div class="stat-card stat-blue"><div class="num" id="stat-total">0</div><div class="label">Clases</div></div>
                         <div class="stat-card stat-green"><div class="num" id="stat-asistidas">0</div><div class="label">Asistidas</div></div>
                         <div class="stat-card stat-purple"><div class="num" id="stat-faltas">0</div><div class="label">Faltas</div></div>
+                        <div class="stat-card stat-orange"><div class="num" id="stat-permisos">0</div><div class="label">Permisos</div></div>
                     </div>
 
                     <!-- BARRA DE PROGRESO Y MEDALLAS -->
@@ -343,6 +342,34 @@
 
                 <!-- VISTA 3: RECURSOS -->
                 <div id="tab-recursos" class="tab-content">
+                    
+                    <div class="section-header">👤 Mi Perfil ELEGIDOS</div>
+                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
+                        <input type="number" id="perfil-edad" class="input-field" placeholder="Tu edad (Ej: 22)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
+                        <input type="text" id="perfil-comunidad" class="input-field" placeholder="Comunidad / Zona donde vives" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
+                        <select id="perfil-nivel" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
+                            <option value="">Selecciona tu nivel en fotografía</option>
+                            <option value="Básico">Básico</option>
+                            <option value="Intermedio">Intermedio</option>
+                            <option value="Avanzado">Avanzado</option>
+                        </select>
+                        <textarea id="perfil-desc" class="input-field" placeholder="Una descripción corta de ti..." style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
+                        <button class="btn-main" id="btn-guardar-perfil" style="max-width: 100%; padding: 14px; font-size: 0.9rem;" onclick="guardarPerfil()">Guardar Perfil</button>
+                        <div id="perfil-msg" style="font-size: 0.8rem; margin-top: 12px; text-align: center; color: #fbbf24;"></div>
+                    </div>
+
+                    <div class="section-header">🔐 Seguridad</div>
+                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
+                        <button class="btn-main" id="btn-toggle-pass" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #334155;" onclick="document.getElementById('caja-cambio-clave').style.display='block'; this.style.display='none';">Cambiar mi Contraseña</button>
+                        <div id="caja-cambio-clave" style="display: none;">
+                            <input type="password" id="dash-pass-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
+                            <button class="btn-main" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #2563eb;" onclick="cambiarPasswordDashboard()">Actualizar Contraseña</button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">📞 Soporte Directo</div>
+                    <a href="https://wa.me/50361772297" target="_blank" class="btn-main" style="display: block; text-align: center; text-decoration: none; background: #16a34a; max-width: 100%; margin-bottom: 30px;">💬 Escribir a WhatsApp</a>
+
                     <div class="section-header">Enlaces Oficiales</div>
                     <div class="class-list" style="display: block; margin-bottom: 30px;">
                         <div class="class-item" style="border-left: 4px solid var(--purple-main);">
@@ -610,7 +637,24 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("qr-code").innerHTML = "";
         new QRCode(document.getElementById("qr-code"), { text: codigo, width: 170, height: 170, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
 
+       // Rellenar datos de perfil si ya existen
+        if (data.perfil) {
+            document.getElementById("perfil-edad").value = data.perfil.edad || "";
+            document.getElementById("perfil-comunidad").value = data.perfil.comunidad || "";
+            document.getElementById("perfil-nivel").value = data.perfil.nivel || "";
+            document.getElementById("perfil-desc").value = data.perfil.desc || "";
+        }
+        verificarBloqueoPerfil(data);
+
         renderizarListaClases();
+
+        // Si el perfil no está lleno, obligar a ir a la pestaña de recursos al entrar
+        if (!esInvitado && (!data.perfil || !data.perfil.edad)) {
+            setTimeout(() => {
+                alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes los datos de tu perfil.");
+                cambiarSeccion('recursos', 2);
+            }, 300);
+        }
     }
 
     function renderizarListaClases() {
@@ -622,7 +666,7 @@ function mostrarRecuperacion(mostrar) {
        const contenedor = document.getElementById("contenedor-clases");
         contenedor.innerHTML = "";
         const ahora = new Date();
-        let asistidas = 0; let ausencias = 0;
+        let asistidas = 0; let ausencias = 0; let permisos = 0;
         
 let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
 
@@ -658,21 +702,28 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             let timeInfo = "";
 
             if (horaIngreso) {
-                asistidas++; 
-                rachaActual++;
-                if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
-                
-                // Comprobar Logro Flash Rápido (Llegó en los primeros 10 min o antes)
-                try {
-                    const [hIngreso, mIngreso] = horaIngreso.split(':').map(Number);
-                    const [hClase, mClase] = item.hora.split(':').map(Number);
-                    const minsIngreso = (hIngreso * 60) + (mIngreso || 0);
-                    const minsClase = (hClase * 60) + mClase;
-                    if (minsIngreso <= minsClase + 10) { tieneFlash = true; }
-                } catch(e) {}
+                // Verificamos si la justificación del admin contiene la palabra permiso
+                if (horaIngreso.toLowerCase().includes("permiso")) {
+                    permisos++;
+                    statusBadge = `<span class="status-badge" style="background: #ffedd5; color: #c2410c;">Permiso</span>`; 
+                    timeInfo = `Justificado: ${horaIngreso}`;
+                } else {
+                    asistidas++; 
+                    rachaActual++;
+                    if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
+                    
+                    // Comprobar Logro Flash Rápido
+                    try {
+                        const [hIngreso, mIngreso] = horaIngreso.split(':').map(Number);
+                        const [hClase, mClase] = item.hora.split(':').map(Number);
+                        const minsIngreso = (hIngreso * 60) + (mIngreso || 0);
+                        const minsClase = (hClase * 60) + mClase;
+                        if (minsIngreso <= minsClase + 10) { tieneFlash = true; }
+                    } catch(e) {}
 
-                statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
-                timeInfo = `Llegada: ${horaIngreso}`;
+                    statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
+                    timeInfo = `Llegada: ${horaIngreso}`;
+                }
             } else if (esHoy) {
 
                 if (ahora >= fechaHoraClase) {
@@ -697,6 +748,7 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
 
 document.getElementById("stat-asistidas").innerText = asistidas;
         document.getElementById("stat-faltas").innerText = ausencias;
+        document.getElementById("stat-permisos").innerText = permisos;
         document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
         
         // --- NUEVA LÓGICA: Barra de Progreso y Medallas ---
@@ -737,6 +789,15 @@ document.getElementById("stat-asistidas").innerText = asistidas;
     }
 
     function cambiarSeccion(tab, index) {
+        // Validación de perfil obligatorio
+        if (!esInvitado && datosEstudianteActual && (!datosEstudianteActual.perfil || !datosEstudianteActual.perfil.edad)) {
+            if (tab !== 'recursos') {
+                alert("⚠️ Acción requerida: Es obligatorio que llenes y guardes los datos de tu perfil para poder ver tu asistencia y tu QR.");
+                tab = 'recursos';
+                index = 2; // Forzar a ir a la pestaña 'Más'
+            }
+        }
+
         document.querySelectorAll('.cat-btn').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.cat-btn')[index].classList.add('active');
 
@@ -756,7 +817,78 @@ document.getElementById("stat-asistidas").innerText = asistidas;
         document.getElementById("input-codigo").value = ""; document.getElementById("input-clave").value = "";
     }
 
+    
+function verificarBloqueoPerfil(data) {
+        if (data.perfil && data.perfil.ultimaActualizacion) {
+            const ultimo = new Date(data.perfil.ultimaActualizacion);
+            const hoy = new Date();
+            const diasPasados = Math.floor((hoy - ultimo) / (1000 * 60 * 60 * 24));
+            
+            if (diasPasados < 30) {
+                document.getElementById("perfil-edad").disabled = true;
+                document.getElementById("perfil-comunidad").disabled = true;
+                document.getElementById("perfil-nivel").disabled = true;
+                document.getElementById("perfil-desc").disabled = true;
+                document.getElementById("btn-guardar-perfil").style.display = "none";
+                document.getElementById("perfil-msg").innerText = `Perfil bloqueado por seguridad. Podrás actualizarlo en ${30 - diasPasados} días.`;
+                return;
+            }
+        }
+        document.getElementById("perfil-edad").disabled = false;
+        document.getElementById("perfil-comunidad").disabled = false;
+        document.getElementById("perfil-nivel").disabled = false;
+        document.getElementById("perfil-desc").disabled = false;
+        document.getElementById("btn-guardar-perfil").style.display = "block";
+        document.getElementById("perfil-msg").innerText = "Puedes configurar o actualizar tu perfil.";
+    }
+
+    function guardarPerfil() {
+        const edad = document.getElementById("perfil-edad").value.trim();
+        const comunidad = document.getElementById("perfil-comunidad").value.trim();
+        const nivel = document.getElementById("perfil-nivel").value;
+        const desc = document.getElementById("perfil-desc").value.trim();
+        const codigo = localStorage.getItem("elegidos_student_code");
+
+        if(!edad || !comunidad || !nivel || !desc) return alert("Por favor, llena todos los campos del perfil.");
+        
+        if(confirm("¿Estás seguro de guardar los cambios? No podrás modificarlos de nuevo hasta dentro de 30 días.")){
+            const updateData = {
+                edad: edad,
+                comunidad: comunidad,
+                nivel: nivel,
+                desc: desc,
+                ultimaActualizacion: new Date().toISOString()
+            };
+            
+            db.ref(`clase/${codigo}/perfil`).set(updateData).then(() => {
+                alert("✅ Perfil de estudiante actualizado exitosamente.");
+                datosEstudianteActual.perfil = updateData;
+                verificarBloqueoPerfil(datosEstudianteActual);
+            });
+        }
+    }
+
+    function cambiarPasswordDashboard() {
+        const nuevaPass = document.getElementById("dash-pass-nueva").value.trim();
+        const codigo = localStorage.getItem("elegidos_student_code");
+        
+        if(nuevaPass.length < 4) return alert("La contraseña debe tener un mínimo de 4 caracteres.");
+        
+        if(confirm("¿Estás seguro que deseas cambiar tu contraseña?")) {
+            db.ref(`clase/${codigo}`).update({ password: nuevaPass }).then(() => {
+                alert("✅ Contraseña actualizada correctamente.");
+                document.getElementById("dash-pass-nueva").value = "";
+                datosEstudianteActual.password = nuevaPass;
+                
+                // Ocultar la caja de contraseña nuevamente
+                document.getElementById('caja-cambio-clave').style.display = 'none';
+                document.getElementById('btn-toggle-pass').style.display = 'block';
+            });
+        }
+    }
+
     window.onload = () => {
+
         const savedCode = localStorage.getItem("elegidos_student_code");
         if (savedCode) {
             if(savedCode === INVITADO_USER) {
