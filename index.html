@@ -136,8 +136,19 @@
         .status-badge { font-size: 0.7rem; font-weight: 800; padding: 6px 12px; border-radius: 8px; text-transform: uppercase; }
         .status-ok { background: var(--pastel-green); color: var(--text-green); }
         .status-fail { background: var(--pastel-red); color: var(--text-red); }
-        .status-today { background: #fef3c7; color: #b45309; }
+        
+.status-today { background: #fef3c7; color: #b45309; }
         .status-wait { background: #f1f5f9; color: var(--text-muted); }
+        
+        /* PROGRESS BAR Y MEDALLAS */
+        .progress-container { background: #ffffff; border-radius: 16px; padding: 16px; border: 1px solid var(--border-light); margin-bottom: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 800; font-size: 0.85rem; }
+        .progress-bar-bg { width: 100%; height: 10px; background: var(--purple-light); border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple-main), #d8b4fe); width: 0%; transition: width 0.8s ease-out; }
+        .badges-container { display: flex; gap: 10px; margin-top: 16px; }
+        .badge { display: flex; align-items: center; justify-content: center; flex: 1; gap: 6px; padding: 8px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; background: #f1f5f9; color: #94a3b8; filter: grayscale(100%); opacity: 0.6; transition: 0.4s; border: 1px solid var(--border-light); }
+        .badge.active { background: #fef3c7; color: #b45309; border-color: #fde68a; filter: grayscale(0%); opacity: 1; box-shadow: 0 4px 10px rgba(251, 191, 36, 0.2); }
+        .badge.active.flash { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); }
 
         /* VISTA QR */
         .qr-section { background: #ffffff; border-radius: 20px; padding: 40px 20px; text-align: center; border: 1px solid var(--border-light); }
@@ -229,7 +240,8 @@
         
         <!-- SIDEBAR / BOTTOM NAV -->
         <div class="bottom-nav">
-            <div style="font-weight: 900; font-size: 1.5rem; color: var(--purple-main); margin-bottom: 30px; padding-left: 10px; display: none;" class="logo-desktop">ELEGIDOS.</div>
+            
+<img src="ELEGIDOS_INSTITUCIONAL_NEGRO.png" alt="ELEGIDOS" class="logo-desktop" style="max-width: 140px; margin-bottom: 30px; padding-left: 10px; display: none;">
             
             <button class="nav-item active" onclick="cambiarSeccion('clases', 0)">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -283,13 +295,30 @@
                 <!-- VISTA 1: CLASES -->
 
 <div id="tab-clases" class="tab-content active">
-                    <div class="stats-grid">
+                    
+<div class="stats-grid">
                         <div class="stat-card stat-blue"><div class="num" id="stat-total">0</div><div class="label">Clases</div></div>
                         <div class="stat-card stat-green"><div class="num" id="stat-asistidas">0</div><div class="label">Asistidas</div></div>
                         <div class="stat-card stat-purple"><div class="num" id="stat-faltas">0</div><div class="label">Faltas</div></div>
                     </div>
 
+                    <!-- BARRA DE PROGRESO Y MEDALLAS -->
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span>Progreso del Curso</span>
+                            <span id="progress-text">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="badges-container">
+                            <div class="badge" id="badge-streak" title="Asiste a 5 clases seguidas">🔥 Racha Perfecta</div>
+                            <div class="badge flash" id="badge-flash" title="Ingresa en los primeros 10 minutos">⚡ Flash Rápido</div>
+                        </div>
+                    </div>
+
                     <!-- ENLACE DE CLASE ONLINE (MIÉRCOLES) -->
+
                     <div id="meet-banner-container" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center;">
                         <h4 style="color: var(--purple-main); font-weight: 800; font-size: 1.1rem; margin-bottom: 5px;">🎥 Clase en Vivo Activa</h4>
                         <p style="font-size: 0.85rem; color: #4338ca; margin-bottom: 15px;">La sala de Google Meet está abierta.</p>
@@ -590,18 +619,31 @@ function mostrarRecuperacion(mostrar) {
             return;
         }
 
-        const contenedor = document.getElementById("contenedor-clases");
+       const contenedor = document.getElementById("contenedor-clases");
         contenedor.innerHTML = "";
         const ahora = new Date();
         let asistidas = 0; let ausencias = 0;
+        
+let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
+
+        // NUEVO PASO 1: Encontrar el índice de la clase más adelantada a la que el alumno haya asistido
+        let ultimaClaseAsistidaIndex = -1;
+        const asistenciasData = datosEstudianteActual ? datosEstudianteActual.asistencias : null;
+        
+        if (asistenciasData) {
+            FECHAS_CURSO.forEach((item, idx) => {
+                if (asistenciasData[item.id] || asistenciasData[item.fecha]) {
+                    ultimaClaseAsistidaIndex = idx;
+                }
+            });
+        }
 
         FECHAS_CURSO.forEach((item, idx) => {
             const row = document.createElement("div"); 
             row.className = "class-item";
 
-            // Verificar si hay asistencia registrada
-            const asistencias = datosEstudianteActual ? datosEstudianteActual.asistencias : null;
-            const horaIngreso = asistencias ? (asistencias[item.id] || asistencias[item.fecha]) : null;
+            // Verificar si hay asistencia registrada (Usa la variable asistenciasData global)
+            const horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
 
             // Separar la fecha y hora de la clase para comparar con la hora actual
             const [year, month, day] = item.fecha.split('-').map(Number);
@@ -612,14 +654,27 @@ function mostrarRecuperacion(mostrar) {
             const esHoy = ahora.getFullYear() === year && ahora.getMonth() === (month - 1) && ahora.getDate() === day;
             const esPasado = ahora > fechaHoraClase && !esHoy;
 
-            let statusBadge = ""; 
+           let statusBadge = ""; 
             let timeInfo = "";
 
             if (horaIngreso) {
                 asistidas++; 
+                rachaActual++;
+                if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
+                
+                // Comprobar Logro Flash Rápido (Llegó en los primeros 10 min o antes)
+                try {
+                    const [hIngreso, mIngreso] = horaIngreso.split(':').map(Number);
+                    const [hClase, mClase] = item.hora.split(':').map(Number);
+                    const minsIngreso = (hIngreso * 60) + (mIngreso || 0);
+                    const minsClase = (hClase * 60) + mClase;
+                    if (minsIngreso <= minsClase + 10) { tieneFlash = true; }
+                } catch(e) {}
+
                 statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
                 timeInfo = `Llegada: ${horaIngreso}`;
             } else if (esHoy) {
+
                 if (ahora >= fechaHoraClase) {
                     statusBadge = `<span class="status-badge status-today">Activa</span>`; 
                     timeInfo = `Hora: ${item.hora} - Disponible`;
@@ -627,24 +682,45 @@ function mostrarRecuperacion(mostrar) {
                     statusBadge = `<span class="status-badge status-wait">Hoy ${item.hora}</span>`; 
                     timeInfo = `Inicia a las ${item.hora}`;
                 }
-            } else if (esPasado) {
+          
+} else if (esPasado || idx < ultimaClaseAsistidaIndex) {
                 ausencias++; 
+                rachaActual = 0; // Agregado: Se rompe la racha si hay falta
                 statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
                 timeInfo = `Falta registrada (${item.hora})`;
-            } else {
-                statusBadge = `<span class="status-badge status-wait">Próximamente</span>`; 
-                timeInfo = `Programada: ${item.hora}`;
+
             }
 
             row.innerHTML = `<div class="class-info"><h5>${item.nombre} — ${formatearFecha(item.fecha)}</h5><p>${timeInfo}</p></div>${statusBadge}`;
             contenedor.appendChild(row);
         });
 
-        document.getElementById("stat-asistidas").innerText = asistidas;
+document.getElementById("stat-asistidas").innerText = asistidas;
         document.getElementById("stat-faltas").innerText = ausencias;
         document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
         
-        // Lógica para mostrar el Meet los miércoles
+        // --- NUEVA LÓGICA: Barra de Progreso y Medallas ---
+        const porcentajeProgreso = Math.round((asistidas / FECHAS_CURSO.length) * 100) || 0;
+        document.getElementById("progress-text").innerText = porcentajeProgreso + "%";
+        document.getElementById("progress-fill").style.width = porcentajeProgreso + "%";
+
+        // Evaluar Racha de 5 clases
+        if (rachaMaxima >= 5) {
+            document.getElementById("badge-streak").classList.add("active");
+        } else {
+            document.getElementById("badge-streak").classList.remove("active");
+        }
+
+        // Evaluar Logro Flash Rápido
+        if (tieneFlash) {
+            document.getElementById("badge-flash").classList.add("active");
+        } else {
+            document.getElementById("badge-flash").classList.remove("active");
+        }
+        // ----------------------------------------------------
+
+        // Lógica para mostrar el Meet los miércoles        
+
         const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
         const diaSemana = fechaSV.getDay(); 
         const horas = fechaSV.getHours();
