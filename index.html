@@ -144,15 +144,6 @@
         .qr-container { background: #ffffff; padding: 16px; border-radius: 20px; display: inline-block; border: 2px dashed var(--border-light); margin-bottom: 16px; }
         .code-display { font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--purple-main); background: var(--purple-light); padding: 10px 20px; border-radius: 12px; display: inline-block; }
 
-        /* VISTA EN VIVO (PRESENTACIÓN) */
-        .live-container { position: relative; width: 100%; border-radius: 20px; overflow: hidden; background: #0f172a; border: 1px solid var(--border-light); aspect-ratio: 16/9; margin-bottom: 20px; }
-        .live-frame { width: 100%; height: 100%; border: none; display: block; }
-        
-        .live-lock { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 20px; z-index: 20; }
-        .live-lock svg { margin-bottom: 15px; color: var(--pastel-red); }
-        .live-lock h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; }
-        .live-lock p { font-size: 0.85rem; color: #cbd5e1; }
-
         /* VISTA RECURSOS */
         .calendar-card { background: #111827; color: #f8fafc; border-radius: 20px; padding: 24px; font-size: 0.85rem; margin-top: 10px; margin-bottom: 30px; }
         .cal-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -168,10 +159,10 @@
         .cal-highlight ul li::before { content: "•"; position: absolute; left: 0; color: #64748b; }
 
         /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; padding: 16px 0 20px 0; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; justify-around: opacity; padding: 16px 0 20px 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); background: none; border: none; font-size: 0.7rem; font-weight: 700; cursor: pointer; width: 25%; }
         .nav-item.active { color: var(--purple-main); }
-        .nav-item.active-live { color: #ef4444; } /* Rojo para En Vivo */
+        .nav-item.active-live { color: #ef4444; }
         .nav-item svg { stroke-width: 2.5; }
 
         /* PC DASHBOARD */
@@ -227,11 +218,7 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                 <span class="nav-txt">Pase QR</span>
             </button>
-            <button class="nav-item" onclick="cambiarSeccion('envivo', 2)" style="color: #ef4444;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-                <span class="nav-txt">En Vivo</span>
-            </button>
-            <button class="nav-item" onclick="cambiarSeccion('recursos', 3)">
+            <button class="nav-item" onclick="cambiarSeccion('recursos', 2)">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                 <span class="nav-txt">Más</span>
             </button>
@@ -266,11 +253,7 @@
                         <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
                         <div class="cat-label">Mi QR</div>
                     </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('envivo', 2)">
-                        <div class="cat-icon" style="color: #ef4444;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg></div>
-                        <div class="cat-label" style="color: #ef4444;">En Vivo</div>
-                    </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('recursos', 3)">
+                    <div class="cat-btn" onclick="cambiarSeccion('recursos', 2)">
                         <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
                         <div class="cat-label">Más</div>
                     </div>
@@ -279,7 +262,7 @@
                 <!-- VISTA 1: CLASES -->
                 <div id="tab-clases" class="tab-content active">
                     <div class="stats-grid">
-                        <div class="stat-card stat-blue"><div class="num" id="stat-total">23</div><div class="label">Clases</div></div>
+                        <div class="stat-card stat-blue"><div class="num" id="stat-total">0</div><div class="label">Clases</div></div>
                         <div class="stat-card stat-green"><div class="num" id="stat-asistidas">0</div><div class="label">Asistidas</div></div>
                         <div class="stat-card stat-purple"><div class="num" id="stat-faltas">0</div><div class="label">Faltas</div></div>
                     </div>
@@ -299,29 +282,7 @@
                     </div>
                 </div>
 
-                <!-- VISTA 3: PRESENTACIÓN EN VIVO (CON CANDADO) -->
-                <div id="tab-envivo" class="tab-content">
-                    <div class="section-header">
-                        🔴 Clase Sincronizada
-                        <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted); background: #e2e8f0; padding: 4px 10px; border-radius: 50px;">Modo Espejo</span>
-                    </div>
-                    
-                    <div class="live-container">
-                        <!-- Pantalla de bloqueo si no hay asistencia -->
-                        <div class="live-lock" id="lock-screen">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            <h3>Presentación Bloqueada</h3>
-                            <p>Debes escanear tu QR de asistencia el día de hoy para poder ver la diapositiva en vivo.</p>
-                        </div>
-                        
-                        <!-- Iframe o Imagen de la diapositiva que cambiará desde Firebase -->
-                        <iframe id="live-frame" class="live-frame" src="" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-                    </div>
-                    
-                    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted);">Las diapositivas cambiarán automáticamente según el instructor.</p>
-                </div>
-
-                <!-- VISTA 4: RECURSOS -->
+                <!-- VISTA 3: RECURSOS -->
                 <div id="tab-recursos" class="tab-content">
                     <div class="section-header">Enlaces Oficiales</div>
                     <div class="class-list" style="display: block; margin-bottom: 30px;">
@@ -400,23 +361,36 @@
     const db = firebase.database();
     
     const CLAVE_UNIVERSAL = "ELEGIDOS26";
-    // CREDENCIALES PARA INVITADOS O MASTERCLASS (Ignora el candado)
     const INVITADO_USER = "INVITADO-ELEGIDOS";
     const INVITADO_PASS = "CLASE2026";
 
+    // FECHAS Y HORAS CONFIGURADAS OFICIALES
     const FECHAS_CURSO = [
-        "2026-09-27", "2026-09-30", "2026-10-04", "2026-10-07",
-        "2026-10-11", "2026-10-14", "2026-10-18", "2026-10-21",
-        "2026-10-25", "2026-10-28", "2026-11-01", "2026-11-04",
-        "2026-11-08", "2026-11-11", "2026-11-15", "2026-11-18",
-        "2026-11-22", "2026-11-25", "2026-11-29", "2026-12-02",
-        "2026-12-06", "2026-12-09", "2026-12-13"
+        { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso" },
+        { id: "30_1500", fecha: "2026-09-30", hora: "15:00", nombre: "Clase 5" },
+        { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I" },
+        { id: "07_1500", fecha: "2026-10-07", hora: "15:00", nombre: "Clase 7" },
+        { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8" },
+        { id: "14_1500", fecha: "2026-10-14", hora: "15:00", nombre: "Clase 9" },
+        { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10" },
+        { id: "21_1500", fecha: "2026-10-21", hora: "15:00", nombre: "Clase 11" },
+        { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II" },
+        { id: "28_1500", fecha: "2026-10-28", hora: "15:00", nombre: "Clase 13" },
+        { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14" },
+        { id: "04_1500_2", fecha: "2026-11-04", hora: "15:00", nombre: "Clase 15" },
+        { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS" },
+        { id: "11_1500_2", fecha: "2026-11-11", hora: "15:00", nombre: "Clase 17" },
+        { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18" },
+        { id: "18_1500_2", fecha: "2026-11-18", hora: "15:00", nombre: "Clase 19" },
+        { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20" },
+        { id: "25_1500_2", fecha: "2026-11-25", hora: "15:00", nombre: "Clase 21" },
+        { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales" },
+        { id: "02_1500", fecha: "2026-12-02", hora: "15:00", nombre: "Clase 23" }
     ];
 
     let datosEstudianteActual = null;
     let esInvitado = false;
 
-    function obtenerFechaLocal() { return new Date().toISOString().split('T')[0]; }
     function formatearFecha(fechaString) {
         const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
         return new Date(fechaString + 'T12:00:00Z').toLocaleDateString('es-ES', opciones);
@@ -428,18 +402,14 @@
         const errorMsg = document.getElementById("error-msg");
         const btn = document.querySelector(".btn-main");
 
-        // Validar Usuario Invitado
         if (codigoInput === INVITADO_USER && claveInput === INVITADO_PASS) {
             esInvitado = true;
             const mockInvitado = { nombre: "Invitado Especial", asistencias: {} };
-            mockInvitado.asistencias[obtenerFechaLocal()] = "Presente"; // Siempre tiene asistencia hoy
-            
             cargarDashboard(codigoInput, mockInvitado);
             localStorage.setItem("elegidos_student_code", codigoInput);
             return;
         }
 
-        // Validación Normal
         if (claveInput !== CLAVE_UNIVERSAL) { errorMsg.innerText = "Contraseña incorrecta."; errorMsg.style.display = "block"; return; }
         if (!codigoInput.startsWith("CLASE-2026-")) { errorMsg.innerText = "Código inválido."; errorMsg.style.display = "block"; return; }
 
@@ -472,8 +442,6 @@
         new QRCode(document.getElementById("qr-code"), { text: codigo, width: 170, height: 170, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
 
         renderizarListaClases();
-        verificarCandadoEnVivo();
-        escucharPresentacion();
     }
 
     function renderizarListaClases() {
@@ -484,55 +452,57 @@
 
         const contenedor = document.getElementById("contenedor-clases");
         contenedor.innerHTML = "";
-        const fechaHoy = obtenerFechaLocal();
+        const ahora = new Date();
         let asistidas = 0; let ausencias = 0;
 
-        FECHAS_CURSO.forEach((fechaClase, idx) => {
-            const row = document.createElement("div"); row.className = "class-item";
-            const horaIngreso = datosEstudianteActual.asistencias ? datosEstudianteActual.asistencias[fechaClase] : null;
-            let statusBadge = ""; let timeInfo = "";
+        FECHAS_CURSO.forEach((item, idx) => {
+            const row = document.createElement("div"); 
+            row.className = "class-item";
+
+            // Verificar si hay asistencia registrada
+            const asistencias = datosEstudianteActual ? datosEstudianteActual.asistencias : null;
+            const horaIngreso = asistencias ? (asistencias[item.id] || asistencias[item.fecha]) : null;
+
+            // Separar la fecha y hora de la clase para comparar con la hora actual
+            const [year, month, day] = item.fecha.split('-').map(Number);
+            const [hours, minutes] = item.hora.split(':').map(Number);
+            const fechaHoraClase = new Date(year, month - 1, day, hours, minutes, 0);
+
+            // Determinar si la clase es hoy, anterior o futura
+            const esHoy = ahora.getFullYear() === year && ahora.getMonth() === (month - 1) && ahora.getDate() === day;
+            const esPasado = ahora > fechaHoraClase && !esHoy;
+
+            let statusBadge = ""; 
+            let timeInfo = "";
 
             if (horaIngreso) {
-                asistidas++; statusBadge = `<span class="status-badge status-ok">Asistió</span>`; timeInfo = `Llegada: ${horaIngreso}`;
-            } else if (fechaClase < fechaHoy) {
-                ausencias++; statusBadge = `<span class="status-badge status-fail">Ausente</span>`; timeInfo = `Falta registrada`;
-            } else if (fechaClase === fechaHoy) {
-                statusBadge = `<span class="status-badge status-today">Hoy</span>`; timeInfo = `Escanea QR`;
+                asistidas++; 
+                statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
+                timeInfo = `Llegada: ${horaIngreso}`;
+            } else if (esHoy) {
+                if (ahora >= fechaHoraClase) {
+                    statusBadge = `<span class="status-badge status-today">Activa</span>`; 
+                    timeInfo = `Hora: ${item.hora} - Disponible`;
+                } else {
+                    statusBadge = `<span class="status-badge status-wait">Hoy ${item.hora}</span>`; 
+                    timeInfo = `Inicia a las ${item.hora}`;
+                }
+            } else if (esPasado) {
+                ausencias++; 
+                statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
+                timeInfo = `Falta registrada (${item.hora})`;
             } else {
-                statusBadge = `<span class="status-badge status-wait">Próximamente</span>`; timeInfo = `...`;
+                statusBadge = `<span class="status-badge status-wait">Próximamente</span>`; 
+                timeInfo = `Programada: ${item.hora}`;
             }
 
-            row.innerHTML = `<div class="class-info"><h5>Clase ${idx + 1} — ${formatearFecha(fechaClase)}</h5><p>${timeInfo}</p></div>${statusBadge}`;
+            row.innerHTML = `<div class="class-info"><h5>${item.nombre} — ${formatearFecha(item.fecha)}</h5><p>${timeInfo}</p></div>${statusBadge}`;
             contenedor.appendChild(row);
         });
 
         document.getElementById("stat-asistidas").innerText = asistidas;
         document.getElementById("stat-faltas").innerText = ausencias;
         document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
-    }
-
-    function verificarCandadoEnVivo() {
-        const fechaHoy = obtenerFechaLocal();
-        const asistioHoy = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[fechaHoy];
-        const lockScreen = document.getElementById("lock-screen");
-        
-        // Se desbloquea si asistió hoy o si es invitado especial
-        if (asistioHoy || esInvitado) {
-            lockScreen.style.display = "none";
-        } else {
-            lockScreen.style.display = "flex";
-        }
-    }
-
-    function escucharPresentacion() {
-        // Escucha en tiempo real la URL de la presentación que tú configures
-        db.ref('live_class/slide_url').on('value', (snapshot) => {
-            if(snapshot.exists()) {
-                document.getElementById('live-frame').src = snapshot.val();
-            } else {
-                document.getElementById('live-frame').src = "";
-            }
-        });
     }
 
     function cambiarSeccion(tab, index) {
