@@ -764,8 +764,16 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             const row = document.createElement("div"); 
             row.className = "class-item";
 
-            // Verificar si hay asistencia registrada (Usa la variable asistenciasData global)
-            const horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
+            // Verificar si hay asistencia normal registrada
+            let horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
+
+            // --- CORRECCIÓN: SINCRONIZAR BOLETOS CON EL HISTORIAL Y CONTADOR ---
+            // Si asistió a un evento con ticket, validarlo en su fecha correspondiente del calendario
+            if (asistenciasData) {
+                if (item.fecha === "2026-10-04" && asistenciasData["evento_elegidos"]) horaIngreso = asistenciasData["evento_elegidos"];
+                if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && asistenciasData["evento_masterclass"]) horaIngreso = asistenciasData["evento_masterclass"];
+                if (item.fecha === "2026-11-08" && asistenciasData["evento_festival"]) horaIngreso = asistenciasData["evento_festival"];
+            }
 
             // Separar la fecha y hora de la clase para comparar con la hora actual en El Salvador
             const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
@@ -786,6 +794,7 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             let statusBadge = ""; 
             let timeInfo = "";
 
+            // Prioridad 1: Si hay una hora de ingreso registrada (ya sea clase o evento vinculado), SIEMPRE es asistencia/permiso.
             if (horaIngreso) {
                 // Verificamos si la justificación del admin contiene la palabra permiso
                 if (horaIngreso.toLowerCase().includes("permiso")) {
@@ -809,16 +818,16 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                     statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
                     timeInfo = `Llegada: ${horaIngreso}`;
                 }
-            } else if (esHoy) {
-
+            } 
+            // Si NO hay asistencia registrada, evaluamos el tiempo
+            else if (esHoy) {
                 if (ahora >= fechaHoraClase) {
                     statusBadge = `<span class="status-badge status-today">Activa</span>`; 
                     timeInfo = `Hora: ${item.hora} - Disponible`;
-} else {
+                } else {
                     statusBadge = `<span class="status-badge status-wait">Hoy ${item.hora}</span>`; 
                     timeInfo = `Inicia a las ${item.hora}`;
                 }
-          
             } else if (esPasado || idx < ultimaClaseAsistidaIndex) {
                 // Cuenta inasistencia si el día ya pasó, o si hay un "hueco" (asistió a una clase posterior y saltó esta)
                 ausencias++;
