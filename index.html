@@ -375,7 +375,7 @@
                     </div>
                 </div>
 
-                <!-- VISTA 3: RECURSOS -->
+               <!-- VISTA 3: RECURSOS -->
                 <div id="tab-recursos" class="tab-content">
                     
                     <div class="section-header">👤 Mi Perfil ELEGIDOS</div>
@@ -389,6 +389,17 @@
                             <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 0;">Se comprimirá automáticamente a KB para no dañar la base</p>
                         </div>
                         
+                        <!-- CAMPOS DE TEXTO RECUPERADOS -->
+                        <input type="number" id="perfil-edad" class="input-field" placeholder="Tu edad (Ej: 22)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
+                        <input type="text" id="perfil-comunidad" class="input-field" placeholder="Comunidad / Zona donde vives" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
+                        <select id="perfil-nivel" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
+                            <option value="">Selecciona tu nivel en fotografía</option>
+                            <option value="Básico">Básico</option>
+                            <option value="Intermedio">Intermedio</option>
+                            <option value="Avanzado">Avanzado</option>
+                        </select>
+                        <textarea id="perfil-desc" class="input-field" placeholder="Una descripción corta de ti..." style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
+
                         <button class="btn-main" id="btn-guardar-perfil" style="max-width: 100%; padding: 14px; font-size: 0.9rem;" onclick="guardarPerfil()">Guardar Perfil</button>
                         <div id="perfil-msg" style="font-size: 0.8rem; margin-top: 12px; text-align: center; color: #fbbf24;"></div>
                     </div>
@@ -1068,12 +1079,15 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
     }
 
     function cambiarSeccion(tab, index) {
-        // Validación de perfil obligatorio
-        if (!esInvitado && datosEstudianteActual && (!datosEstudianteActual.perfil || !datosEstudianteActual.perfil.foto)) {
-            if (tab !== 'recursos') {
-                alert("⚠️ Acción requerida: Es obligatorio que llenes y guardes los datos de tu perfil para poder ver tu asistencia y tu QR.");
-                tab = 'recursos';
-                index = 2; // Forzar a ir a la pestaña 'Más'
+        // Validación ESTRICTA: Verificar foto Y todos los campos de texto
+        if (!esInvitado && datosEstudianteActual) {
+            const p = datosEstudianteActual.perfil;
+            if (!p || !p.foto || !p.edad || !p.comunidad || !p.nivel || !p.desc) {
+                if (tab !== 'recursos') {
+                    alert("⚠️ Acción obligatoria: Debes subir una foto y llenar TODOS tus datos personales para desbloquear el portal.");
+                    tab = 'recursos';
+                    index = 3; 
+                }
             }
         }
 
@@ -1095,8 +1109,6 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         document.getElementById("login-screen").style.display = "flex";
         document.getElementById("input-codigo").value = ""; document.getElementById("input-clave").value = "";
     }
-
-   
 
     // Aseguramos que cargue apenas esté listo el DOM
     document.addEventListener("DOMContentLoaded", () => {
@@ -1127,10 +1139,8 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Comprimir a formato liviano en KB
                         fotoPerfilBase64 = canvas.toDataURL('image/jpeg', 0.5); 
                         
-                        // Previsualizar de inmediato en el círculo del perfil
                         const imgPreview = document.getElementById('img-preview');
                         const imgPlaceholder = document.getElementById('img-placeholder');
                         if(imgPreview && imgPlaceholder) {
@@ -1147,8 +1157,13 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
     });
 
     function verificarBloqueoPerfil(data) {
-        if (data.perfil && data.perfil.ultimaActualizacion) {
-            const ultimo = new Date(data.perfil.ultimaActualizacion);
+        const p = data.perfil || {};
+        
+        // Solo bloqueamos si TODOS los campos obligatorios existen (perfil 100% completo)
+        const estaCompleto = (p.foto && p.edad && p.comunidad && p.nivel && p.desc);
+
+        if (p.ultimaActualizacion && estaCompleto) {
+            const ultimo = new Date(p.ultimaActualizacion);
             const hoy = new Date();
             const diasPasados = Math.floor((hoy - ultimo) / (1000 * 60 * 60 * 24));
             
@@ -1162,31 +1177,48 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                 return;
             }
         }
-             document.getElementById("btn-guardar-perfil").style.display = "block";
+        
+        // Si falta algo, mantenemos abierto el candado para que termine de llenarlo
+        document.getElementById("perfil-edad").disabled = false;
+        document.getElementById("perfil-comunidad").disabled = false;
+        document.getElementById("perfil-nivel").disabled = false;
+        document.getElementById("perfil-desc").disabled = false;
+        document.getElementById("btn-guardar-perfil").style.display = "block";
         document.getElementById("perfil-msg").innerText = "Puedes configurar o actualizar tu perfil.";
     }
 
     function guardarPerfil() {
-    const codigo = localStorage.getItem("elegidos_student_code");
+        const codigo = localStorage.getItem("elegidos_student_code");
+        const edad = document.getElementById("perfil-edad").value.trim();
+        const comunidad = document.getElementById("perfil-comunidad").value.trim();
+        const nivel = document.getElementById("perfil-nivel").value;
+        const desc = document.getElementById("perfil-desc").value.trim();
 
-    // Validar que realmente haya una foto cargada o que ya exista en la base
-    if(!fotoPerfilBase64 && (!datosEstudianteActual.perfil || !datosEstudianteActual.perfil.foto)) {
-        return alert("Por favor, selecciona una foto de perfil.");
-    }
-    
-    if(confirm("¿Estás seguro de guardar esta foto? No podrás modificarla de nuevo hasta dentro de 30 días.")){
-        const updateData = {
-            foto: fotoPerfilBase64 || (datosEstudianteActual.perfil ? datosEstudianteActual.perfil.foto || "" : ""),
-            ultimaActualizacion: new Date().toISOString()
-        };
+        if(!edad || !comunidad || !nivel || !desc) {
+            return alert("Por favor, llena todos los campos de texto (edad, comunidad, nivel y descripción).");
+        }
+
+        if(!fotoPerfilBase64 && (!datosEstudianteActual.perfil || !datosEstudianteActual.perfil.foto)) {
+            return alert("Por favor, selecciona una foto de perfil.");
+        }
         
-        db.ref(`clase/${codigo}/perfil`).set(updateData).then(() => {
-            alert("✅ Foto de perfil guardada exitosamente.");
-            datosEstudianteActual.perfil = updateData;
-            verificarBloqueoPerfil(datosEstudianteActual);
-        });
+        if(confirm("¿Estás seguro de guardar tu perfil? No podrás modificar estos datos de nuevo hasta dentro de 30 días.")){
+            const updateData = {
+                edad: edad,
+                comunidad: comunidad,
+                nivel: nivel,
+                desc: desc,
+                foto: fotoPerfilBase64 || (datosEstudianteActual.perfil ? datosEstudianteActual.perfil.foto || "" : ""),
+                ultimaActualizacion: new Date().toISOString()
+            };
+            
+            db.ref(`clase/${codigo}/perfil`).set(updateData).then(() => {
+                alert("✅ Perfil guardado exitosamente.");
+                datosEstudianteActual.perfil = updateData;
+                verificarBloqueoPerfil(datosEstudianteActual);
+            });
+        }
     }
-}
 
     function cambiarPasswordDashboard() {
         const nuevaPass = document.getElementById("dash-pass-nueva").value.trim();
