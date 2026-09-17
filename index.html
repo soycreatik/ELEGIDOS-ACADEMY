@@ -204,7 +204,7 @@
     <div style="background: #042f2e; border: 2px solid #14b8a6; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
         <h2 style="color: #2dd4bf; margin-bottom: 15px; font-size: 1.5rem;">📢 AVISO IMPORTANTE</h2>
         <p id="anuncio-global-texto" style="color: #ccfbf1; font-size: 1rem; line-height: 1.5; margin-bottom: 25px; white-space: pre-wrap; text-align: left;"></p>
-        <button onclick="document.getElementById('anuncio-global-overlay').style.display = 'none';" style="background: #0d9488; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;">Entendido</button>
+       <button onclick="document.getElementById('anuncio-global-overlay').style.display = 'none'; localStorage.setItem('anuncio_visto_' + document.getElementById('anuncio-global-texto').innerText, 'true');" style="background: #0d9488; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;">Entendido</button>
     </div>
 </div>
 
@@ -378,8 +378,16 @@
                 <!-- VISTA 3: RECURSOS -->
                 <div id="tab-recursos" class="tab-content">
                     
-                    <div class="section-header">👤 Mi Perfil ELEGIDOS</div>
+                    <<div class="section-header">👤 Mi Perfil ELEGIDOS</div>
                     <div class="calendar-card" style="margin-top: 0; padding: 20px;">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div id="preview-foto" style="width: 80px; height: 80px; border-radius: 50%; background: #334155; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple-main);">
+                                <img id="img-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <span id="img-placeholder" style="color: #94a3b8; font-size: 0.75rem;">Sin foto</span>
+                            </div>
+                            <input type="file" id="perfil-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: #1e293b; color: white; border: none; margin-bottom: 5px;">
+                            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 0;">Se comprimirá automáticamente a KB para no dañar la base</p>
+                        </div>
                         <input type="number" id="perfil-edad" class="input-field" placeholder="Tu edad (Ej: 22)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
                         <input type="text" id="perfil-comunidad" class="input-field" placeholder="Comunidad / Zona donde vives" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
                         <select id="perfil-nivel" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
@@ -397,10 +405,12 @@
                     <div class="calendar-card" style="margin-top: 0; padding: 20px;">
                         <button class="btn-main" id="btn-toggle-pass" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #334155;" onclick="document.getElementById('caja-cambio-clave').style.display='block'; this.style.display='none';">Cambiar mi Contraseña</button>
                         <div id="caja-cambio-clave" style="display: none;">
-                            <input type="password" id="dash-pass-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
-                            <button class="btn-main" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #2563eb;" onclick="cambiarPasswordDashboard()">Actualizar Contraseña</button>
+                            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                                <input type="password" id="dash-pass-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)" style="width: 100%; margin-bottom: 0; padding: 14px; font-size: 0.9rem;">
+                                <button type="button" onclick="const pwd = document.getElementById('dash-pass-nueva'); pwd.type = pwd.type === 'password' ? 'text' : 'password';" style="background: #334155; border: none; padding: 0 15px; border-radius: 12px; cursor: pointer; font-size: 1.2rem;">👁️</button>
+                            </div>
+                            <button class="btn-main" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #2563eb;" onclick="if(confirm('¿Seguro que deseas establecer la contraseña que estás viendo en pantalla?')) { cambiarPasswordDashboard(); }">Confirmar y Actualizar</button>
                         </div>
-                    </div>
 
                     <div class="section-header">📞 Soporte Directo</div>
                     <a href="https://wa.me/50361772297" target="_blank" class="btn-main" style="display: block; text-align: center; text-decoration: none; background: #16a34a; max-width: 100%; margin-bottom: 30px;">💬 Escribir a WhatsApp</a>
@@ -689,6 +699,16 @@ function mostrarRecuperacion(mostrar) {
        // Rellenar datos de perfil si ya existen
         if (data.perfil) {
             document.getElementById("perfil-edad").value = data.perfil.edad || "";
+            if (data.perfil.foto) {
+                document.getElementById('img-preview').src = data.perfil.foto;
+                document.getElementById('img-preview').style.display = 'block';
+                document.getElementById('img-placeholder').style.display = 'none';
+                fotoPerfilBase64 = data.perfil.foto;
+                
+                // Actualizar avatar de arriba
+                document.getElementById('avatar-initial').innerHTML = `<img src="${data.perfil.foto}" style="width: 100%; height: 100%; border-radius: 14px; object-fit: cover;">`;
+                document.getElementById('avatar-initial').style.border = "none";
+            }
             document.getElementById("perfil-comunidad").value = data.perfil.comunidad || "";
             document.getElementById("perfil-nivel").value = data.perfil.nivel || "";
             document.getElementById("perfil-desc").value = data.perfil.desc || "";
@@ -834,10 +854,13 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                     const ahoraSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
                     const fechaExp = new Date(anuncio.expiracion);
                     
-                    // Si el anuncio aún no expira, lo mostramos
+                    // Si el anuncio aún no expira y no se ha cerrado antes, lo mostramos
                     if (ahoraSV < fechaExp) {
-                        document.getElementById("anuncio-global-texto").innerText = anuncio.mensaje;
-                        document.getElementById("anuncio-global-overlay").style.display = "flex";
+                        const adMsg = anuncio.mensaje;
+                        if (!localStorage.getItem('anuncio_visto_' + adMsg)) {
+                            document.getElementById("anuncio-global-texto").innerText = adMsg;
+                            document.getElementById("anuncio-global-overlay").style.display = "flex";
+                        }
                     }
                 }
             }
@@ -892,59 +915,74 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
             return;
         }
 
-        const hoy = new Date().toISOString().split('T')[0];
+        // CORRECCIÓN: Usar la hora exacta de El Salvador para calcular "hoy"
+        const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const hoy = fechaActualSV.getFullYear() + '-' + 
+                    String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(fechaActualSV.getDate()).padStart(2, '0');
 
         Object.keys(datosEstudianteActual.boletos).forEach(codigoBoleto => {
             const eventoId = datosEstudianteActual.boletos[codigoBoleto];
             const fechaEvento = FECHAS_EVENTOS[eventoId];
             
-            // 1. Verificar si el alumno ya tiene marcada la asistencia para la fecha de este evento especial
-            let asistio = false;
-            if (datosEstudianteActual.asistencias) {
-                // Compara la fecha del evento con las fechas oficiales de clase para ver si ya fue escaneado
-                const claseDelEvento = FECHAS_CURSO.find(c => c.fecha === fechaEvento);
-                if (claseDelEvento && datosEstudianteActual.asistencias[claseDelEvento.id]) {
-                    asistio = true;
-                } else if (datosEstudianteActual.asistencias[fechaEvento]) {
-                    asistio = true;
-                }
-            }
-
-            let estadoHTML = "";
-            // 2. El botón del ticket virtual AHORA SIEMPRE estará disponible, en cualquier fecha
-            let btnTicketHTML = `<button onclick="mostrarImagenBoleto('${codigoBoleto}', '${eventoId}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);">🎟️ Mostrar Ticket Virtual</button>`;
-            
-            // 3. Lógica de estados mejorada para reflejar si ya asistió
-            if (asistio) {
-                estadoHTML = `<span class="status-badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">✅ Asistió</span>`;
-            } else if (hoy < fechaEvento) {
-                estadoHTML = `<span class="status-badge" style="background: #e0f2fe; color: #0369a1;">Aún no inicia</span>`;
-            } else if (hoy > fechaEvento) {
-                estadoHTML = `<span class="status-badge" style="background: #fee2e2; color: #991b1b;">Finalizado</span>`;
-            } else {
-                estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY ES EL EVENTO</span>`;
-            }
-
+            // Creamos la tarjeta con un mensaje de "Verificando" temporalmente
             const card = document.createElement("div");
             card.className = "class-item";
             card.style.flexDirection = "column";
             card.style.alignItems = "flex-start";
             card.style.marginBottom = "15px";
-            // Cambia el color del borde si el estudiante ya asistió
-            card.style.borderLeft = asistio ? "4px solid #16a34a" : "4px solid #ea580c"; 
-            
-            card.innerHTML = `
-                <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-                    <div class="class-info">
-                        <h5 style="color: ${asistio ? '#16a34a' : '#ea580c'}; font-size: 1rem;">${codigoBoleto}</h5>
-                        <p style="text-transform: uppercase;">Evento: ${eventoId}</p>
-                    </div>
-                    ${estadoHTML}
-                </div>
-                ${btnTicketHTML}
-                <div id="ticket-container-${codigoBoleto}" style="width: 100%; display: none; justify-content: center; margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 12px;"></div>
-            `;
+            card.innerHTML = `<div style="padding: 10px; width:100%; text-align:center; color: #94a3b8; font-size: 0.8rem;">Verificando estado del ticket...</div>`;
             contenedor.appendChild(card);
+            
+            // 1. Verificar si el alumno ya tiene asistencia marcada en su perfil para esa fecha
+            let asistioEnPerfil = false;
+            if (datosEstudianteActual.asistencias) {
+                const claseDelEvento = FECHAS_CURSO.find(c => c.fecha === fechaEvento);
+                if (claseDelEvento && datosEstudianteActual.asistencias[claseDelEvento.id]) {
+                    asistioEnPerfil = true;
+                } else if (datosEstudianteActual.asistencias[fechaEvento]) {
+                    asistioEnPerfil = true;
+                }
+            }
+
+            // 2. Verificar el nodo del boleto en Firebase (por si el escáner lo marcó directamente ahí)
+            db.ref(`${eventoId}/${codigoBoleto}`).once('value').then(snap => {
+                const dataBoleto = snap.exists() ? snap.val() : null;
+                
+                let asistio = asistioEnPerfil;
+                // Si el escáner le puso 'usado', 'asistencia' o 'hora_ingreso' directamente al boleto
+                if (dataBoleto && (dataBoleto.usado === true || dataBoleto.estado === 'usado' || dataBoleto.asistencia === true || dataBoleto.hora_ingreso)) {
+                    asistio = true;
+                }
+
+                let estadoHTML = "";
+                let btnTicketHTML = `<button onclick="mostrarImagenBoleto('${codigoBoleto}', '${eventoId}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);">🎟️ Mostrar Ticket Virtual</button>`;
+                
+               if (asistio) {
+                    estadoHTML = `<span class="status-badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.65rem;">✅ SÍ ASISTIÓ EN EL EVENTO</span>`;
+                } else if (hoy < fechaEvento) {
+                    estadoHTML = `<span class="status-badge" style="background: #e0f2fe; color: #0369a1;">Aún no inicia</span>`;
+                } else if (hoy > fechaEvento) {
+                    estadoHTML = `<span class="status-badge" style="background: #fee2e2; color: #991b1b;">Finalizado</span>`;
+                } else {
+                    estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY ES EL EVENTO</span>`;
+                }
+
+                // Pintamos la tarjeta de verde si asistió, o naranja si no
+                card.style.borderLeft = asistio ? "4px solid #16a34a" : "4px solid #ea580c"; 
+                
+                card.innerHTML = `
+                    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="class-info">
+                            <h5 style="color: ${asistio ? '#16a34a' : '#ea580c'}; font-size: 1rem;">${codigoBoleto}</h5>
+                            <p style="text-transform: uppercase;">Evento: ${eventoId}</p>
+                        </div>
+                        ${estadoHTML}
+                    </div>
+                    ${btnTicketHTML}
+                    <div id="ticket-container-${codigoBoleto}" style="width: 100%; display: none; justify-content: center; margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 12px;"></div>
+                `;
+            });
         });
     }
     function vincularBoleto() {
@@ -1066,7 +1104,43 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
     }
 
     
-function verificarBloqueoPerfil(data) {
+let fotoPerfilBase64 = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('perfil-foto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 150; const MAX_HEIGHT = 150;
+                    let width = img.width; let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Comprimir drásticamente a un archivo miniatura de KB
+                    fotoPerfilBase64 = canvas.toDataURL('image/jpeg', 0.5); 
+                    
+                    document.getElementById('img-preview').src = fotoPerfilBase64;
+                    document.getElementById('img-preview').style.display = 'block';
+                    document.getElementById('img-placeholder').style.display = 'none';
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+    });
+
+    function verificarBloqueoPerfil(data) {
         if (data.perfil && data.perfil.ultimaActualizacion) {
             const ultimo = new Date(data.perfil.ultimaActualizacion);
             const hoy = new Date();
@@ -1122,17 +1196,15 @@ function verificarBloqueoPerfil(data) {
         
         if(nuevaPass.length < 4) return alert("La contraseña debe tener un mínimo de 4 caracteres.");
         
-        if(confirm("¿Estás seguro que deseas cambiar tu contraseña?")) {
-            db.ref(`clase/${codigo}`).update({ password: nuevaPass }).then(() => {
-                alert("✅ Contraseña actualizada correctamente.");
-                document.getElementById("dash-pass-nueva").value = "";
-                datosEstudianteActual.password = nuevaPass;
-                
-                // Ocultar la caja de contraseña nuevamente
-                document.getElementById('caja-cambio-clave').style.display = 'none';
-                document.getElementById('btn-toggle-pass').style.display = 'block';
-            });
-        }
+        // Confirmación ya validada en el botón previo
+        db.ref(`clase/${codigo}`).update({ password: nuevaPass }).then(() => {
+            alert("✅ Contraseña actualizada correctamente.");
+            document.getElementById("dash-pass-nueva").value = "";
+            datosEstudianteActual.password = nuevaPass;
+            
+            document.getElementById('caja-cambio-clave').style.display = 'none';
+            document.getElementById('btn-toggle-pass').style.display = 'block';
+        });
     }
 
 window.onload = () => {
