@@ -8,196 +8,161 @@
     <link rel="icon" type="image/png" href="LOGOS/ELEGIDOS VER.2.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Firebase SDKs -->
+    
+    <!-- Firebase SDKs y Lector QR -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script> <!-- Nueva librería de escáner -->
 
     <style>
         :root {
             --purple-main: #9333ea;
             --purple-dark: #581c87;
-            --purple-light: #f3e8ff;
-            --bg-app: #f8fafc;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --card-bg: #ffffff;
-            --border-light: #e2e8f0;
+            --purple-light: rgba(147, 51, 234, 0.15);
+            --bg-app: #0b0f19;
+            --text-dark: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border-light: rgba(255, 255, 255, 0.08);
             
-            /* Colores Pastel */
-            --pastel-blue: #e0f2fe; --text-blue: #0369a1;
-            --pastel-green: #dcfce7; --text-green: #15803d;
-            --pastel-purple: #f3e8ff; --text-purple: #6b21a8;
-            --pastel-red: #fee2e2; --text-red: #991b1b;
+            --pastel-blue: rgba(56, 189, 248, 0.15); --text-blue: #38bdf8;
+            --pastel-green: rgba(74, 222, 128, 0.15); --text-green: #4ade80;
+            --pastel-purple: rgba(192, 132, 252, 0.15); --text-purple: #c084fc;
+            --pastel-red: rgba(248, 113, 113, 0.15); --text-red: #f87171;
+            --pastel-orange: rgba(251, 146, 60, 0.15); --text-orange: #fb923c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            background-color: #cbd5e1;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            color: var(--text-dark);
-        }
+        body { background-color: #050505; background-image: radial-gradient(circle at 15% 50%, rgba(147, 51, 234, 0.15), transparent 50%), radial-gradient(circle at 85% 30%, rgba(88, 28, 135, 0.12), transparent 50%); display: flex; justify-content: center; min-height: 100vh; color: var(--text-dark); }
+        .app-container { width: 100%; max-width: 480px; background-color: transparent; min-height: 100vh; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow-x: hidden; display: flex; flex-direction: column; }
 
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            background-color: var(--bg-app);
-            min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 40px rgba(0,0,0,0.1);
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- LOGIN --- */
-        #login-screen {
-            padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; background: #ffffff; text-align: center;
-        }
-        .login-logo { max-width: 160px; margin-bottom: 24px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1)); }
+        #login-screen { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
+        .login-logo { max-width: 160px; margin-bottom: 24px; filter: drop-shadow(0 4px 15px rgba(147,51,234,0.3)); }
         .login-title { font-size: 1.8rem; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; letter-spacing: -0.5px; }
         .login-subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 32px; }
 
-        .input-field {
-            width: 100%; max-width: 350px; padding: 16px; margin-bottom: 16px; border-radius: 16px;
-            border: 2px solid var(--border-light); background: #f8fafc;
-            color: var(--text-dark); font-size: 1rem; outline: none; transition: 0.2s; font-weight: 500;
-        }
-        .input-field:focus { border-color: var(--purple-main); background: #ffffff; }
+        .input-field { width: 100%; max-width: 350px; padding: 16px; margin-bottom: 16px; border-radius: 16px; border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: var(--text-dark); font-size: 1rem; outline: none; transition: 0.2s; font-weight: 500; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+        .input-field:focus { border-color: var(--purple-main); background: rgba(0,0,0,0.4); }
 
-        .btn-main {
-            width: 100%; max-width: 350px; background: var(--purple-main); color: #ffffff;
-            padding: 18px; border-radius: 16px; font-weight: 800; border: none;
-            cursor: pointer; font-size: 1.05rem; transition: 0.2s; margin-top: 10px;
-            box-shadow: 0 10px 20px -5px rgba(147, 51, 234, 0.4);
-        }
+        .btn-main { width: 100%; max-width: 350px; background: linear-gradient(135deg, var(--purple-main) 0%, var(--purple-dark) 100%); color: #ffffff; padding: 18px; border-radius: 16px; font-weight: 800; border: none; cursor: pointer; font-size: 1.05rem; transition: 0.2s; margin-top: 10px; box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.5); }
         .btn-main:active { transform: scale(0.98); }
-        .error-text { color: #ef4444; font-size: 0.85rem; margin-top: 12px; display: none; font-weight: 600; }
+        .error-text { color: var(--text-red); font-size: 0.85rem; margin-top: 12px; display: none; font-weight: 600; background: var(--pastel-red); padding: 8px 12px; border-radius: 8px; }
 
-        /* --- DASHBOARD --- */
         #dashboard-screen { display: none; width: 100%; }
         #dashboard-screen.show { display: block; }
         .main-scroll-area { flex: 1; padding-bottom: 90px; }
 
-        .top-header {
-            background: linear-gradient(135deg, var(--purple-main) 0%, var(--purple-dark) 100%);
-            padding: 40px 24px 60px 24px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; color: #ffffff;
-        }
+        .top-header { background: linear-gradient(135deg, rgba(147,51,234,0.85) 0%, rgba(88,28,135,0.85) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 40px 24px 60px 24px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar {
-            width: 50px; height: 50px; border-radius: 16px; background: rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(255,255,255,0.4);
-        }
+        .avatar { width: 50px; height: 50px; border-radius: 16px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
         .greeting p { font-size: 0.8rem; opacity: 0.8; font-weight: 500; margin-bottom: 2px; }
         .greeting h2 { font-size: 1.2rem; font-weight: 800; text-transform: capitalize; }
+        .btn-logout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(5px); }
+
+        .content-area { padding: 0 24px; margin-top: -30px; position: relative; z-index: 10; }
         
-        .btn-logout { background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 24px; }
+        .stat-card { padding: 16px 10px; border-radius: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-light); }
+        .stat-blue { border-bottom: 3px solid var(--text-blue); }
+        .stat-green { border-bottom: 3px solid var(--text-green); }
+        .stat-purple { border-bottom: 3px solid var(--text-purple); }
+        .stat-orange { border-bottom: 3px solid var(--text-orange); }
+        .stat-card .num { font-size: 1.3rem; font-weight: 900; margin-bottom: 2px; color: var(--text-dark); }
+        .stat-card .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
 
-        .content-area { padding: 0 24px; margin-top: -30px; position: relative; z-index: 10; }.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 24px; }
-        .stat-card { padding: 16px 10px; border-radius: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .stat-blue { background: var(--pastel-blue); color: var(--text-blue); }
-        .stat-green { background: var(--pastel-green); color: var(--text-green); }
-        .stat-purple { background: var(--pastel-purple); color: var(--text-purple); }
-        .stat-card .num { font-size: 1.3rem; font-weight: 900; margin-bottom: 2px; }
-        .stat-card .label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; opacity: 0.8; }
-
-        .meet-banner { background: #ffffff; border-radius: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-light); margin-bottom: 24px; }
-        .meet-info h4 { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
+        .meet-banner { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-light); margin-bottom: 24px; }
+        .meet-info h4 { font-size: 1rem; font-weight: 800; margin-bottom: 4px; color: #d8b4fe; }
         .meet-info p { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
-        .btn-meet { background: #eef2ff; color: #4f46e5; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; gap: 6px; border: 1px solid #c7d2fe; }
+        .btn-meet { background: rgba(147, 51, 234, 0.2); color: #d8b4fe; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(147, 51, 234, 0.4); }
 
-        /* TABS MÓVIL */
-        .section-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .section-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; color: var(--text-dark); }
         .categories-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 20px; scrollbar-width: none; }
         .categories-wrapper::-webkit-scrollbar { display: none; }
         
-        .cat-btn { min-width: 100px; background: #ffffff; border: 1px solid var(--border-light); border-radius: 16px; padding: 16px 12px; text-align: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
-        .cat-btn.active { border-color: var(--purple-main); background: var(--purple-light); }
-        .cat-icon { width: 42px; height: 42px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; }
-        .cat-btn.active .cat-icon { background: #ffffff; color: var(--purple-main); }
-        .cat-label { font-size: 0.7rem; font-weight: 800; }
+        .cat-btn { min-width: 90px; background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-light); border-radius: 16px; padding: 12px 10px; text-align: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; color: var(--text-muted); }
+        .cat-btn.active { border-color: rgba(147, 51, 234, 0.5); background: rgba(147, 51, 234, 0.1); color: var(--text-dark); }
+        .cat-icon { width: 38px; height: 38px; border-radius: 12px; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; border: 1px solid rgba(255,255,255,0.05); }
+        .cat-btn.active .cat-icon { background: linear-gradient(135deg, var(--purple-main), var(--purple-dark)); color: #fff; border: none; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3); }
+        .cat-label { font-size: 0.65rem; font-weight: 800; }
 
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* VISTA CLASES */
         .class-list { display: flex; flex-direction: column; gap: 12px; }
-        .class-item { background: #ffffff; border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-light); }
-        .class-info h5 { font-size: 0.95rem; font-weight: 800; margin-bottom: 4px; text-transform: capitalize; }
+        .class-item { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-light); }
+        .class-info h5 { font-size: 0.95rem; font-weight: 800; margin-bottom: 4px; text-transform: capitalize; color: var(--text-dark); }
         .class-info p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 4px; }
         .status-badge { font-size: 0.7rem; font-weight: 800; padding: 6px 12px; border-radius: 8px; text-transform: uppercase; }
-        .status-ok { background: var(--pastel-green); color: var(--text-green); }
-        .status-fail { background: var(--pastel-red); color: var(--text-red); }
+        .status-ok { background: var(--pastel-green); color: var(--text-green); border: 1px solid rgba(74, 222, 128, 0.3); }
+        .status-fail { background: var(--pastel-red); color: var(--text-red); border: 1px solid rgba(248, 113, 113, 0.3); }
+        .status-today { background: var(--pastel-orange); color: var(--text-orange); border: 1px solid rgba(251, 146, 60, 0.3); }
+        .status-wait { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border-light); }
         
-.status-today { background: #fef3c7; color: #b45309; }
-        .status-wait { background: #f1f5f9; color: var(--text-muted); }
-        
-        /* PROGRESS BAR Y MEDALLAS */
-        .progress-container { background: #ffffff; border-radius: 16px; padding: 16px; border: 1px solid var(--border-light); margin-bottom: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 800; font-size: 0.85rem; }
-        .progress-bar-bg { width: 100%; height: 10px; background: var(--purple-light); border-radius: 10px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple-main), #d8b4fe); width: 0%; transition: width 0.8s ease-out; }
+        .progress-container { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 16px; padding: 16px; border: 1px solid var(--border-light); margin-bottom: 24px; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 800; font-size: 0.85rem; color: var(--text-dark); }
+        .progress-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple-main), #d8b4fe); width: 0%; transition: width 0.8s ease-out; box-shadow: 0 0 10px var(--purple-main); }
         .badges-container { display: flex; gap: 10px; margin-top: 16px; }
-        .badge { display: flex; align-items: center; justify-content: center; flex: 1; gap: 6px; padding: 8px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; background: #f1f5f9; color: #94a3b8; filter: grayscale(100%); opacity: 0.6; transition: 0.4s; border: 1px solid var(--border-light); }
-        .badge.active { background: #fef3c7; color: #b45309; border-color: #fde68a; filter: grayscale(0%); opacity: 1; box-shadow: 0 4px 10px rgba(251, 191, 36, 0.2); }
-        .badge.active.flash { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); }
+        .badge { display: flex; align-items: center; justify-content: center; flex: 1; gap: 6px; padding: 8px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; background: rgba(0,0,0,0.2); color: #64748b; filter: grayscale(100%); opacity: 0.5; transition: 0.4s; border: 1px solid var(--border-light); }
+        .badge.active { background: var(--pastel-orange); color: var(--text-orange); border-color: rgba(251, 146, 60, 0.4); filter: grayscale(0%); opacity: 1; box-shadow: 0 4px 15px rgba(251, 146, 60, 0.2); }
+        .badge.active.flash { background: var(--pastel-blue); color: var(--text-blue); border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2); }
 
-        /* VISTA QR */
-        .qr-section { background: #ffffff; border-radius: 20px; padding: 40px 20px; text-align: center; border: 1px solid var(--border-light); }
-        .qr-container { background: #ffffff; padding: 16px; border-radius: 20px; display: inline-block; border: 2px dashed var(--border-light); margin-bottom: 16px; }
-        .code-display { font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--purple-main); background: var(--purple-light); padding: 10px 20px; border-radius: 12px; display: inline-block; }
+        .qr-section { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 20px; padding: 40px 20px; text-align: center; border: 1px solid var(--border-light); }
+        .qr-container { background: #ffffff; padding: 16px; border-radius: 20px; display: inline-block; border: 2px dashed rgba(147, 51, 234, 0.5); margin-bottom: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .code-display { font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #d8b4fe; background: rgba(147, 51, 234, 0.15); padding: 10px 20px; border-radius: 12px; display: inline-block; border: 1px solid rgba(147, 51, 234, 0.3); }
 
-        /* VISTA RECURSOS */
-        .calendar-card { background: #111827; color: #f8fafc; border-radius: 20px; padding: 24px; font-size: 0.85rem; margin-top: 10px; margin-bottom: 30px; }
-        .cal-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .calendar-card { background: var(--card-bg); backdrop-filter: blur(12px); color: var(--text-dark); border-radius: 20px; padding: 24px; font-size: 0.85rem; margin-top: 10px; margin-bottom: 30px; border: 1px solid var(--border-light); }
+        .cal-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .cal-row:last-child { border-bottom: none; }
-        .cal-title { font-weight: 700; color: #f8fafc; font-size: 0.9rem; }
-        .cal-title span { display: block; font-weight: 500; color: #94a3b8; font-size: 0.75rem; margin-top: 4px; }
+        .cal-title { font-weight: 700; color: var(--text-dark); font-size: 0.9rem; }
+        .cal-title span { display: block; font-weight: 500; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
         .cal-date { text-align: right; color: #cbd5e1; font-weight: 500; }
-        .cal-highlight { border: 1px solid rgba(250, 204, 21, 0.3); background: rgba(250, 204, 21, 0.05); border-radius: 16px; padding: 16px; margin: 16px 0; }
+        .cal-highlight { border: 1px solid rgba(147, 51, 234, 0.3); background: rgba(147, 51, 234, 0.05); border-radius: 16px; padding: 16px; margin: 16px 0; }
         .cal-highlight-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .cal-highlight h4 { font-size: 0.9rem; font-weight: 800; color: #fbbf24; margin: 0; display: flex; align-items: center; gap: 6px; }
+        .cal-highlight h4 { font-size: 0.9rem; font-weight: 800; color: #d8b4fe; margin: 0; display: flex; align-items: center; gap: 6px; }
         .cal-highlight ul { list-style: none; padding: 0; color: #cbd5e1; font-size: 0.75rem; }
         .cal-highlight ul li { position: relative; padding-left: 12px; margin-bottom: 6px; }
-        .cal-highlight ul li::before { content: "•"; position: absolute; left: 0; color: #64748b; }
+        .cal-highlight ul li::before { content: "•"; position: absolute; left: 0; color: #9333ea; }
 
-        /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; padding: 16px 0 20px 0; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); background: none; border: none; font-size: 0.7rem; font-weight: 700; cursor: pointer; width: 25%; }
-        .nav-item.active { color: var(--purple-main); }
-        .nav-item.active-live { color: #ef4444; }
-        .nav-item svg { stroke-width: 2.5; }
+        /* BOTTOM NAV REDUCIDO AL 20% PARA QUE QUEPAN 5 BOTONES */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 16px 0 20px 0; z-index: 100; box-shadow: 0 -5px 25px rgba(0,0,0,0.3); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); background: none; border: none; font-size: 0.65rem; font-weight: 700; cursor: pointer; width: 20%; transition: 0.2s; }
+        .nav-item.active { color: #d8b4fe; filter: drop-shadow(0 0 5px rgba(147,51,234,0.5)); }
+        .nav-item.active-live { color: #f87171; filter: drop-shadow(0 0 5px rgba(248,113,113,0.5)); }
+        .nav-item svg { stroke-width: 2.5; width: 20px; height: 20px; }
 
-        /* PC DASHBOARD */
         @media (min-width: 768px) {
-            .app-container { max-width: 1200px; flex-direction: row; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,0.15); }
+            .app-container { max-width: 1200px; flex-direction: row; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,0.8); border-left: 1px solid var(--border-light); border-right: 1px solid var(--border-light); background: rgba(11, 15, 25, 0.6); backdrop-filter: blur(30px); }
             #dashboard-screen.show { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
             .categories-wrapper { display: none; }
-            
-            .bottom-nav { position: static; flex-direction: column; width: 260px; height: 100vh; border-top: none; border-right: 1px solid var(--border-light); justify-content: flex-start; padding: 40px 24px; gap: 16px; background: #ffffff; }
+            .bottom-nav { position: static; flex-direction: column; width: 260px; height: 100vh; border-top: none; border-right: 1px solid var(--border-light); justify-content: flex-start; padding: 40px 24px; gap: 16px; background: rgba(0,0,0,0.2); }
             .nav-item { flex-direction: row; width: 100%; text-align: left; padding: 16px 20px; font-size: 0.95rem; border-radius: 16px; transition: 0.2s; }
-            .nav-item:hover { background: #f8fafc; }
-            .nav-item.active { background: var(--purple-light); }
-            .nav-item.active-live { background: #fee2e2; color: #ef4444; }
-            
-            .main-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 40px; background: var(--bg-app); }
-            .top-header { border-radius: 0; padding: 40px 50px 60px 50px; }
-            .content-area { padding: 0 50px; }
+            .nav-item:hover { background: rgba(255,255,255,0.05); }
+            .nav-item.active { background: rgba(147, 51, 234, 0.15); border: 1px solid rgba(147, 51, 234, 0.3); }
+            .nav-item.active-live { background: rgba(248, 113, 113, 0.15); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; }
+            .main-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 40px; background: transparent; }
+            .top-header { border-radius: 0; padding: 40px 50px 60px 50px; background: transparent; border-bottom: 1px solid var(--border-light); }
+            .content-area { padding: 0 50px; margin-top: 30px; }
             .class-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
             .calendar-card { max-width: 800px; }
-            .live-container { max-width: 900px; margin: 0 auto 30px auto; }
         }
     </style>
 
 </head>
 <body>
+
+<!-- PANTALLA DE CARGA (SPLASH SCREEN) -->
+<div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0f19; z-index: 99999999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; backdrop-filter: blur(10px);">
+    <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" style="width: 160px; animation: splashPulse 1.5s infinite ease-in-out; filter: drop-shadow(0 0 20px rgba(147,51,234,0.4));" onerror="this.style.display='none'">
+</div>
+<style>
+    @keyframes splashPulse { 0% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
+</style>
 
 <!-- OVERLAY DEL ANUNCIO GLOBAL -->
 <div id="anuncio-global-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
@@ -375,18 +340,70 @@
                     </div>
                 </div>
 
-               <!-- VISTA 3: RECURSOS -->
+               <!-- NUEVA VISTA 4: RETO SEMANAL -->
+                <div id="tab-reto" class="tab-content">
+                    <div id="reto-loading" style="display: flex; justify-content: center; align-items: center; height: 60vh;">
+                        <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" style="width: 100px; animation: splashPulse 1.5s infinite ease-in-out; filter: drop-shadow(0 0 20px rgba(147,51,234,0.4));" onerror="this.style.display='none'">
+                    </div>
+                    
+                    <div id="reto-active" style="display: none;">
+                        <div class="section-header">🔥 Reto Dominical</div>
+                        <div class="calendar-card" style="text-align: center; margin-top: 0;">
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Escanea el código QR de un compañero diferente cada domingo para ganar puntos sociales y conocer a la comunidad.</p>
+                            
+                            <h2 style="color: var(--text-dark); font-size: 3rem; margin-bottom: 0px;" id="puntos-sociales">0</h2>
+                            <p style="font-size: 0.75rem; color: var(--purple-main); text-transform: uppercase; font-weight: 800; margin-bottom: 20px;">Puntos de Interacción</p>
+                            
+                            <div id="qr-reader" style="width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 15px; display: none;"></div>
+                            
+                            <button class="btn-main" id="btn-abrir-escaner" onclick="abrirEscanerReto()" style="max-width: 100%; padding: 14px; font-size: 0.9rem;">📷 Activar Cámara y Escanear</button>
+                            
+                            <input type="text" id="input-reto-manual" class="input-field" placeholder="O ingresa el código (Ej: CLASE-2026-001)" style="margin-top: 15px; max-width: 100%;">
+                            <button class="btn-main" onclick="registrarRetoManual()" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Validar Código Manual</button>
+                        </div>
+                    </div>
+                </div>
+
+               <!-- VISTA 5: RECURSOS Y PERFIL -->
                 <div id="tab-recursos" class="tab-content">
                     
+                    <!-- SECCIÓN PERMISOS DIGITALES -->
+                    <div class="section-header">📝 Solicitud de Permiso</div>
+                    <div class="calendar-card" style="margin-top: 0; padding: 20px; border-color: rgba(234, 88, 12, 0.3);">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">¿No podrás asistir? Envía tu justificante. Se registrará automáticamente en tu historial como permiso.</p>
+                        
+                        <select id="permiso-fecha" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
+                            <option value="">Selecciona la clase a faltar...</option>
+                        </select>
+                        
+                        <textarea id="permiso-razon" class="input-field" placeholder="Motivo de la inasistencia (Ej: Enfermedad, Trabajo...)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
+                        
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <p style="font-size: 0.8rem; color: var(--text-dark); margin-bottom: 8px; font-weight: 600;">Adjuntar Justificante (Opcional)</p>
+                            <input type="file" id="permiso-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: none; margin-bottom: 5px;">
+                        </div>
+
+                        <button class="btn-main" id="btn-enviar-permiso" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #ea580c; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);" onclick="enviarPermiso()">Enviar Solicitud</button>
+                    </div>
+
                     <div class="section-header">👤 Mi Perfil ELEGIDOS</div>
                     <div class="calendar-card" style="margin-top: 0; padding: 20px;">
+                        
+                        <!-- Personalizar Banner -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                            <span style="font-size: 0.8rem; font-weight: 600; color: #e2e8f0;">Color del Banner Principal:</span>
+                            <input type="color" id="perfil-color" value="#9333ea" style="border: none; width: 40px; height: 30px; border-radius: 5px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+
                         <div style="text-align: center; margin-bottom: 15px;">
-                            <div id="preview-foto" style="width: 80px; height: 80px; border-radius: 50%; background: #334155; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple-main);">
+                            <div id="preview-foto" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.1); margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple-main);">
                                 <img id="img-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
                                 <span id="img-placeholder" style="color: #94a3b8; font-size: 0.75rem;">Sin foto</span>
                             </div>
-                            <input type="file" id="perfil-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: #1e293b; color: white; border: none; margin-bottom: 5px;">
-                            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 0;">Se comprimirá automáticamente a KB para no dañar la base</p>
+                            <div id="box-subir-foto">
+                                <input type="file" id="perfil-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: none; margin-bottom: 5px;">
+                                <p style="font-size: 0.7rem; color: #f87171; margin-top: 0; font-weight: bold;">⚠️ ATENCIÓN: La foto que subas será definitiva para todo el curso y no podrás cambiarla.</p>
+                            </div>
                         </div>
                         
                         <!-- CAMPOS DE TEXTO RECUPERADOS -->
@@ -404,19 +421,8 @@
                         <div id="perfil-msg" style="font-size: 0.8rem; margin-top: 12px; text-align: center; color: #fbbf24;"></div>
                     </div>
 
-                    <div class="section-header">🔐 Seguridad</div>
-                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
-                        <button class="btn-main" id="btn-toggle-pass" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #334155;" onclick="document.getElementById('caja-cambio-clave').style.display='block'; this.style.display='none';">Cambiar mi Contraseña</button>
-                        <div id="caja-cambio-clave" style="display: none;">
-                            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                                <input type="password" id="dash-pass-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)" style="width: 100%; margin-bottom: 0; padding: 14px; font-size: 0.9rem;">
-                                <button type="button" onclick="const pwd = document.getElementById('dash-pass-nueva'); pwd.type = pwd.type === 'password' ? 'text' : 'password';" style="background: #334155; border: none; padding: 0 15px; border-radius: 12px; cursor: pointer; font-size: 1.2rem;">👁️</button>
-                            </div>
-                            <button class="btn-main" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #2563eb;" onclick="if(confirm('¿Seguro que deseas establecer la contraseña que estás viendo en pantalla?')) { cambiarPasswordDashboard(); }">Confirmar y Actualizar</button>
-                        </div>
-
                     <div class="section-header">📞 Soporte Directo</div>
-                    <a href="https://wa.me/50361772297" target="_blank" class="btn-main" style="display: block; text-align: center; text-decoration: none; background: #16a34a; max-width: 100%; margin-bottom: 30px;">💬 Escribir a WhatsApp</a>
+                    <a href="https://wa.me/50361772297" target="_blank" class="btn-main" style="display: block; text-align: center; text-decoration: none; background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.4); color: #4ade80; max-width: 100%; margin-bottom: 30px;">💬 Escribir a WhatsApp</a>
 
                     <div class="section-header">Enlaces Oficiales</div>
                     <div class="class-list" style="display: block; margin-bottom: 30px;">
@@ -505,31 +511,34 @@
 
     // FECHAS Y HORAS CONFIGURADAS OFICIALES
     const FECHAS_CURSO = [
-        { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso" },
-        { id: "30_1500", fecha: "2026-09-30", hora: "15:00", nombre: "Clase 5" },
-        { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I" },
-        { id: "07_1500", fecha: "2026-10-07", hora: "15:00", nombre: "Clase 7" },
-        { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8" },
-        { id: "14_1500", fecha: "2026-10-14", hora: "15:00", nombre: "Clase 9" },
-        { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10" },
-        { id: "21_1500", fecha: "2026-10-21", hora: "15:00", nombre: "Clase 11" },
-        { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II" },
-        { id: "28_1500", fecha: "2026-10-28", hora: "15:00", nombre: "Clase 13" },
-        { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14" },
-        { id: "04_1500_2", fecha: "2026-11-04", hora: "15:00", nombre: "Clase 15" },
-        { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS" },
-        { id: "11_1500_2", fecha: "2026-11-11", hora: "15:00", nombre: "Clase 17" },
-        { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18" },
-        { id: "18_1500_2", fecha: "2026-11-18", hora: "15:00", nombre: "Clase 19" },
-        { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20" },
-        { id: "25_1500_2", fecha: "2026-11-25", hora: "15:00", nombre: "Clase 21" },
-        { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales" },
-        { id: "02_1500", fecha: "2026-12-02", hora: "15:00", nombre: "Clase 23" }
+        { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso", expositor: "Equipo ELEGIDOS" },
+        { id: "30_1500", fecha: "2026-09-30", hora: "15:00", nombre: "Clase 5", expositor: "Mahu Films" },
+        { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I", expositor: "Mahu Films" },
+        { id: "07_1500", fecha: "2026-10-07", hora: "15:00", nombre: "Clase 7", expositor: "Equipo ELEGIDOS" },
+        { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8", expositor: "Equipo ELEGIDOS" },
+        { id: "14_1500", fecha: "2026-10-14", hora: "15:00", nombre: "Clase 9", expositor: "Equipo ELEGIDOS" },
+        { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10", expositor: "Equipo ELEGIDOS" },
+        { id: "21_1500", fecha: "2026-10-21", hora: "15:00", nombre: "Clase 11", expositor: "Equipo ELEGIDOS" },
+        { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II", expositor: "Dreamez" },
+        { id: "28_1500", fecha: "2026-10-28", hora: "15:00", nombre: "Clase 13", expositor: "Equipo ELEGIDOS" },
+        { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14", expositor: "Equipo ELEGIDOS" },
+        { id: "04_1500_2", fecha: "2026-11-04", hora: "15:00", nombre: "Clase 15", expositor: "Equipo ELEGIDOS" },
+        { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS", expositor: "Los Deschavetados, Los Pixies, Sorpresa" },
+        { id: "11_1500_2", fecha: "2026-11-11", hora: "15:00", nombre: "Clase 17", expositor: "Equipo ELEGIDOS" },
+        { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18", expositor: "Equipo ELEGIDOS" },
+        { id: "18_1500_2", fecha: "2026-11-18", hora: "15:00", nombre: "Clase 19", expositor: "Equipo ELEGIDOS" },
+        { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20", expositor: "Equipo ELEGIDOS" },
+        { id: "25_1500_2", fecha: "2026-11-25", hora: "15:00", nombre: "Clase 21", expositor: "Equipo ELEGIDOS" },
+        { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales", expositor: "Equipo ELEGIDOS" },
+        { id: "02_1500", fecha: "2026-12-02", hora: "15:00", nombre: "Clase 23", expositor: "Equipo ELEGIDOS" }
     ];
 
+    let temasClasesGlobales = {}; 
+    let ponentesClasesGlobales = {}; // Aquí guardaremos los ponentes que envíe el Admin
+
     let datosEstudianteActual = null;
-let esInvitado = false;
-let fotoPerfilBase64 = null;
+    let esInvitado = false;
+    let fotoPerfilBase64 = null;;
 
     function formatearFecha(fechaString) {
         const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
@@ -692,7 +701,6 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("dashboard-screen").classList.add("show");
 
-        // Prevenir error si el nombre no está configurado
         const nombre = data.nombre ? data.nombre.toLowerCase() : "estudiante";
         document.getElementById("display-name").innerText = nombre;
         document.getElementById("display-code").innerText = codigo;
@@ -701,13 +709,18 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("qr-code").innerHTML = "";
         new QRCode(document.getElementById("qr-code"), { text: codigo, width: 170, height: 170, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
 
-       // Rellenar datos de perfil si ya existen en la Base de Datos
         if (data.perfil) {
-            // AQUÍ RECUPERAMOS LOS TEXTOS
             document.getElementById("perfil-edad").value = data.perfil.edad || "";
             document.getElementById("perfil-comunidad").value = data.perfil.comunidad || "";
             document.getElementById("perfil-nivel").value = data.perfil.nivel || "";
             document.getElementById("perfil-desc").value = data.perfil.desc || "";
+
+            // APLICAR COLOR DEL BANNER GUARDADO
+            if (data.perfil.color) {
+                document.getElementById("perfil-color").value = data.perfil.color;
+                document.querySelector('.top-header').style.background = `linear-gradient(135deg, ${data.perfil.color} 0%, var(--purple-dark) 100%)`;
+                document.documentElement.style.setProperty('--purple-main', data.perfil.color);
+            }
 
             if (data.perfil.foto) {
                 fotoPerfilBase64 = data.perfil.foto; 
@@ -715,6 +728,9 @@ function mostrarRecuperacion(mostrar) {
                 document.getElementById('img-preview').style.display = 'block';
                 document.getElementById('img-placeholder').style.display = 'none';
                 
+                const boxSubir = document.getElementById('box-subir-foto');
+                if(boxSubir) boxSubir.style.display = 'none';
+
                 const avatarDiv = document.getElementById('avatar-initial');
                 avatarDiv.innerHTML = `<img src="${data.perfil.foto}" style="width: 100%; height: 100%; border-radius: 16px; object-fit: cover;">`;
                 avatarDiv.style.border = "none";
@@ -725,15 +741,13 @@ function mostrarRecuperacion(mostrar) {
         renderizarListaClases();
         renderizarBoletosVinculados();
 
-       // Si el perfil no está completamente lleno (foto o datos de texto), obligarlo a llenarlo
         if (!esInvitado && (!data.perfil || !data.perfil.foto || !data.perfil.edad || !data.perfil.comunidad || !data.perfil.nivel || !data.perfil.desc)) {
             setTimeout(() => {
-                alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes todos los datos de texto y la foto de tu perfil.");
+                alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes todos los datos de texto, el color de tu portal y la foto de tu perfil (la cual será definitiva).");
                 cambiarSeccion('recursos', 3);
             }, 300);
         }
     }
-
 
     function renderizarListaClases() {
         if(esInvitado) {
@@ -741,20 +755,25 @@ function mostrarRecuperacion(mostrar) {
             return;
         }
 
-       const contenedor = document.getElementById("contenedor-clases");
+        const contenedor = document.getElementById("contenedor-clases");
         contenedor.innerHTML = "";
         const ahora = new Date();
         let asistidas = 0; let ausencias = 0; let permisos = 0;
         
-let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
+        let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
 
-        // NUEVO PASO 1: Encontrar el índice de la clase más adelantada a la que el alumno haya asistido
-        let ultimaClaseAsistidaIndex = -1;
         const asistenciasData = datosEstudianteActual ? datosEstudianteActual.asistencias : null;
-        
+        let ultimaClaseAsistidaIndex = -1;
+
+        // Encontrar la clase más futura a la que haya asistido para aplicar inasistencias en los huecos
         if (asistenciasData) {
             FECHAS_CURSO.forEach((item, idx) => {
-                if (asistenciasData[item.id] || asistenciasData[item.fecha]) {
+                let asistioAqui = asistenciasData[item.id] || asistenciasData[item.fecha];
+                if (item.fecha === "2026-10-04" && asistenciasData["evento_elegidos"]) asistioAqui = true;
+                if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && asistenciasData["evento_masterclass"]) asistioAqui = true;
+                if (item.fecha === "2026-11-08" && asistenciasData["evento_festival"]) asistioAqui = true;
+
+                if (asistioAqui) {
                     ultimaClaseAsistidaIndex = idx;
                 }
             });
@@ -763,40 +782,27 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         FECHAS_CURSO.forEach((item, idx) => {
             const row = document.createElement("div"); 
             row.className = "class-item";
+            row.style.alignItems = "flex-start";
 
-            // Verificar si hay asistencia normal registrada
             let horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
 
-            // --- CORRECCIÓN: SINCRONIZAR BOLETOS CON EL HISTORIAL Y CONTADOR ---
-            // Si asistió a un evento con ticket, validarlo en su fecha correspondiente del calendario
             if (asistenciasData) {
                 if (item.fecha === "2026-10-04" && asistenciasData["evento_elegidos"]) horaIngreso = asistenciasData["evento_elegidos"];
                 if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && asistenciasData["evento_masterclass"]) horaIngreso = asistenciasData["evento_masterclass"];
                 if (item.fecha === "2026-11-08" && asistenciasData["evento_festival"]) horaIngreso = asistenciasData["evento_festival"];
             }
 
-            // Separar la fecha y hora de la clase para comparar con la hora actual en El Salvador
             const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-            const [year, month, day] = item.fecha.split('-').map(Number);
-            const [hours, minutes] = item.hora.split(':').map(Number);
+            const hoyStr = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
+            const fechaHoraClase = new Date(item.fecha + 'T' + item.hora + ':00');
             
-            // Creamos un string en formato 'YYYY-MM-DD' para la fecha salvadoreña actual
-            const hoyStr = fechaActualSV.getFullYear() + '-' + 
-                           String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + 
-                           String(fechaActualSV.getDate()).padStart(2, '0');
-            
-            const fechaHoraClase = new Date(year, month - 1, day, hours, minutes, 0);
-
-            // Comparaciones lógicas basadas en fechas exactas
             const esHoy = (hoyStr === item.fecha);
-            const esPasado = (hoyStr > item.fecha); // Solo si el día completo ya transcurrió
+            const esPasado = (hoyStr > item.fecha);
 
             let statusBadge = ""; 
             let timeInfo = "";
 
-            // Prioridad 1: Si hay una hora de ingreso registrada (ya sea clase o evento vinculado), SIEMPRE es asistencia/permiso.
             if (horaIngreso) {
-                // Verificamos si la justificación del admin contiene la palabra permiso
                 if (horaIngreso.toLowerCase().includes("permiso")) {
                     permisos++;
                     statusBadge = `<span class="status-badge" style="background: #ffedd5; color: #c2410c;">Permiso</span>`; 
@@ -805,21 +811,10 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                     asistidas++; 
                     rachaActual++;
                     if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
-                    
-                    // Comprobar Logro Flash Rápido
-                    try {
-                        const [hIngreso, mIngreso] = horaIngreso.split(':').map(Number);
-                        const [hClase, mClase] = item.hora.split(':').map(Number);
-                        const minsIngreso = (hIngreso * 60) + (mIngreso || 0);
-                        const minsClase = (hClase * 60) + mClase;
-                        if (minsIngreso <= minsClase + 10) { tieneFlash = true; }
-                    } catch(e) {}
-
                     statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
                     timeInfo = `Llegada: ${horaIngreso}`;
                 }
             } 
-            // Si NO hay asistencia registrada, evaluamos el tiempo
             else if (esHoy) {
                 if (ahora >= fechaHoraClase) {
                     statusBadge = `<span class="status-badge status-today">Activa</span>`; 
@@ -828,21 +823,34 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                     statusBadge = `<span class="status-badge status-wait">Hoy ${item.hora}</span>`; 
                     timeInfo = `Inicia a las ${item.hora}`;
                 }
-            } else if (esPasado || idx < ultimaClaseAsistidaIndex) {
-                // Cuenta inasistencia si el día ya pasó, o si hay un "hueco" (asistió a una clase posterior y saltó esta)
+            } 
+            else if (esPasado || idx < ultimaClaseAsistidaIndex) {
                 ausencias++;
-                
- 
-                rachaActual = 0; // Se rompe la racha si hay falta
+                rachaActual = 0; 
                 statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
                 timeInfo = `Falta registrada`;
-            } else {
-                // Si la clase es en el futuro y no es hoy, no cuenta ni como falta ni como asistencia
-                statusBadge = `<span class="status-badge" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-light);">Próximamente</span>`; 
+            } 
+            else {
+                statusBadge = `<span class="status-badge" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-light);">Próx.</span>`; 
                 timeInfo = `Inicia a las ${item.hora}`;
             }
 
-            row.innerHTML = `<div class="class-info"><h5>${item.nombre} — ${formatearFecha(item.fecha)}</h5><p>${timeInfo}</p></div>${statusBadge}`;
+            // Extraer el tema dinámico de Firebase (o dejar en blanco si no hay)
+            const temaDinamico = temasClasesGlobales[item.id] || "";
+            const spanTema = temaDinamico ? `<span style="display: block; font-size: 0.75rem; color: var(--purple-main); font-weight: 700; margin-bottom: 4px;">${temaDinamico}</span>` : "";
+
+            // Extraer ponente dinámico o usar el por defecto
+            const ponenteFinal = ponentesClasesGlobales[item.id] || item.expositor;
+
+            row.innerHTML = `
+                <div class="class-info" style="flex: 1;">
+                    <h5 style="margin-bottom: 2px; color: var(--text-dark);">${item.nombre} — ${formatearFecha(item.fecha)}</h5>
+                    ${spanTema}
+                    <p style="margin-bottom: 2px; color: var(--text-muted);">${timeInfo}</p>
+                    <p style="font-size: 0.7rem; font-style: italic; color: var(--text-muted); opacity: 0.8;">Por: ${ponenteFinal}</p>
+                </div>
+                <div>${statusBadge}</div>
+            `;
             contenedor.appendChild(row);
         });
 
@@ -851,58 +859,30 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         document.getElementById("stat-permisos").innerText = permisos;
         document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
         
-        // --- NUEVA LÓGICA: Barra de Progreso y Medallas ---
         const porcentajeProgreso = Math.round((asistidas / FECHAS_CURSO.length) * 100) || 0;
         document.getElementById("progress-text").innerText = porcentajeProgreso + "%";
         document.getElementById("progress-fill").style.width = porcentajeProgreso + "%";
 
-        // Evaluar Racha de 5 clases
         if (rachaMaxima >= 5) {
             document.getElementById("badge-streak").classList.add("active");
         } else {
             document.getElementById("badge-streak").classList.remove("active");
         }
 
-        // --- SISTEMA LECTOR DEL ANUNCIO GLOBAL ---
-        db.ref('configuracion/anuncioGlobal').once('value').then(snap => {
-            if (snap.exists()) {
-                const anuncio = snap.val();
-                if (anuncio.activo) {
-                    const ahoraSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-                    const fechaExp = new Date(anuncio.expiracion);
-                    
-                    // Si el anuncio aún no expira y no se ha cerrado antes, lo mostramos
-                    if (ahoraSV < fechaExp) {
-                        const adMsg = anuncio.mensaje;
-                        if (!localStorage.getItem('anuncio_visto_' + adMsg)) {
-                            document.getElementById("anuncio-global-texto").innerText = adMsg;
-                            document.getElementById("anuncio-global-overlay").style.display = "flex";
-                        }
-                    }
-                }
-            }
-        });
-        // Evaluar Logro Flash Rápido
         if (tieneFlash) {
             document.getElementById("badge-flash").classList.add("active");
         } else {
             document.getElementById("badge-flash").classList.remove("active");
         }
-        // ----------------------------------------------------
 
-        // Lógica para mostrar el Meet los miércoles
         const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
         const diaSemana = fechaSV.getDay(); 
         const horas = fechaSV.getHours();
         const minutos = fechaSV.getMinutes();
         
-        // Extraer formato YYYY-MM-DD para validar que ya pasamos la inauguración
         const hoyMeet = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
-        
         const meetContainer = document.getElementById("meet-banner-container");
         
-        // Miércoles (3) - Habilitar desde las 19:45 (7:45 PM) hasta las 20:59 (8:59 PM)
-        // SOLAMENTE si la fecha actual es MAYOR al 27 de Septiembre
         if (hoyMeet > "2026-09-27" && diaSemana === 3 && ((horas === 19 && minutos >= 45) || horas === 20)) {
             if (meetContainer) meetContainer.style.display = "block";
         } else {
@@ -965,12 +945,19 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
                 }
             }
 
-            // 2. Verificar el nodo del boleto en Firebase (por si el escáner lo marcó directamente ahí)
+            // 2. Verificar el nodo del boleto en Firebase
             db.ref(`${eventoId}/${codigoBoleto}`).once('value').then(snap => {
                 const dataBoleto = snap.exists() ? snap.val() : null;
                 
+                // --- CORRECCIÓN BUG TICKET FANTASMA ---
+                const codigoReal = localStorage.getItem("elegidos_student_code");
+                if (!dataBoleto || dataBoleto.vinculado_a !== codigoReal) {
+                    // Es un ticket huérfano asignado por error en la caché, lo eliminamos del perfil
+                    db.ref(`clase/${codigoReal}/boletos/${codigoBoleto}`).remove();
+                    return; // Cancelamos el renderizado para que no se vea
+                }
+                
                 let asistio = asistioEnPerfil;
-                // Si el escáner le puso 'usado', 'asistencia' o 'hora_ingreso' directamente al boleto
                 if (dataBoleto && (dataBoleto.usado === true || dataBoleto.estado === 'usado' || dataBoleto.asistencia === true || dataBoleto.hora_ingreso)) {
                     asistio = true;
                 }
@@ -1253,8 +1240,239 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         });
     }
 
+// --- LÓGICA DE PERMISOS DIGITALES ---
+    let fotoPermisoBase64 = null;
+
+    function llenarSelectPermisos() {
+        const select = document.getElementById("permiso-fecha");
+        if(!select) return;
+        select.innerHTML = '<option value="">Selecciona la clase a faltar...</option>';
+        const ahora = new Date();
+        
+        FECHAS_CURSO.forEach(clase => {
+            const fechaClase = new Date(clase.fecha + 'T12:00:00Z');
+            const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+            const hoyStr = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
+            
+            // Solo muestra clases del futuro o de hoy
+            if(fechaClase >= ahora || clase.fecha === hoyStr) {
+                select.innerHTML += `<option value="${clase.fecha}">${clase.nombre} - ${clase.fecha}</option>`;
+            }
+        });
+    }
+
+    function enviarPermiso() {
+        const codigo = localStorage.getItem("elegidos_student_code");
+        const fecha = document.getElementById("permiso-fecha").value;
+        const razon = document.getElementById("permiso-razon").value.trim();
+        
+        if (!fecha || !razon) return alert("Por favor, selecciona la fecha y escribe el motivo del permiso.");
+        
+        document.getElementById("btn-enviar-permiso").innerText = "Enviando...";
+        
+        const updates = {};
+        // Se guarda directamente en el historial como 'Permiso Solicitado'
+        updates[`clase/${codigo}/asistencias/${fecha}`] = "Permiso: " + razon;
+        // Se guarda en la bandeja de permisos para que el Admin lo pueda revisar
+        updates[`clase/${codigo}/permisos_solicitados/${fecha}`] = {
+            razon: razon,
+            foto: fotoPermisoBase64 || "",
+            timestamp: new Date().toISOString()
+        };
+        
+        db.ref().update(updates).then(() => {
+            alert("✅ Permiso enviado. Ha quedado registrado en tu historial de asistencia.");
+            document.getElementById("permiso-razon").value = "";
+            document.getElementById("permiso-foto").value = "";
+            fotoPermisoBase64 = null;
+            document.getElementById("btn-enviar-permiso").innerText = "Enviar Solicitud";
+            renderizarListaClases();
+        }).catch(e => {
+            alert("Error: " + e);
+            document.getElementById("btn-enviar-permiso").innerText = "Enviar Solicitud";
+        });
+    }
+
+    // --- LÓGICA DEL RETO DOMINICAL ---
+    function verificarRetoActivo() {
+        // La fecha de activación es el 27 Sept 2026 a la 1:00 PM
+        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const fechaInicio = new Date("2026-09-27T13:00:00");
+        
+        if (ahora >= fechaInicio) {
+            document.getElementById("reto-loading").style.display = "none";
+            document.getElementById("reto-active").style.display = "block";
+            
+            const pts = (datosEstudianteActual && datosEstudianteActual.puntos_sociales) ? datosEstudianteActual.puntos_sociales : 0;
+            document.getElementById("puntos-sociales").innerText = pts;
+        } else {
+            document.getElementById("reto-loading").style.display = "flex";
+            document.getElementById("reto-active").style.display = "none";
+        }
+    }
+
+    let escanerReto = null;
+    function abrirEscanerReto() {
+        document.getElementById("scanner-container").style.display = "block";
+        document.getElementById("btn-abrir-escaner").style.display = "none";
+        
+        escanerReto = new Html5Qrcode("scanner-container");
+        escanerReto.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            codigoQR => {
+                escanerReto.stop().then(() => {
+                    document.getElementById("scanner-container").style.display = "none";
+                    document.getElementById("btn-abrir-escaner").style.display = "block";
+                    registrarRetoManual(codigoQR);
+                });
+            },
+            err => { /* ignorar errores continuos de lectura */ }
+        ).catch(err => {
+            alert("No se pudo iniciar la cámara. Verifica los permisos de tu navegador.");
+        });
+    }
+
+    function registrarRetoManual(codigoOpcional) {
+        const codigoPropio = localStorage.getItem("elegidos_student_code");
+        const codigoEscaneado = (codigoOpcional || document.getElementById("input-reto-manual").value.trim().toUpperCase());
+        
+        if(!codigoEscaneado.startsWith("CLASE-2026-")) return alert("Código inválido. Asegúrate de escanear el QR correcto de un compañero.");
+        if(codigoEscaneado === codigoPropio) return alert("❌ Hey tramposo, no puedes escanear tu propio código.");
+        
+        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        if(ahora.getDay() !== 0) {
+            return alert("⚠️ El Reto Social solo se puede realizar los días Domingo de forma presencial.");
+        }
+
+        // Verificar si ya escaneó a esta persona alguna vez
+        if(datosEstudianteActual.retos && datosEstudianteActual.retos[codigoEscaneado]) {
+            return alert("❌ Ya has escaneado a este compañero en un domingo anterior. ¡El reto es conocer a alguien nuevo!");
+        }
+        
+        db.ref('clase/' + codigoEscaneado).once('value').then(snap => {
+            if(!snap.exists()) return alert("El código de tu compañero no existe en la base de datos.");
+            
+            const currentPoints = (datosEstudianteActual.puntos_sociales || 0) + 1;
+            const updates = {};
+            updates[`clase/${codigoPropio}/retos/${codigoEscaneado}`] = true;
+            updates[`clase/${codigoPropio}/puntos_sociales`] = currentPoints;
+            
+            db.ref().update(updates).then(() => {
+                alert(`🎉 ¡Reto dominical completado! Has ganado 1 punto de interacción con ${snap.val().nombre}.`);
+                document.getElementById("input-reto-manual").value = "";
+                document.getElementById("puntos-sociales").innerText = currentPoints;
+                if(!datosEstudianteActual.retos) datosEstudianteActual.retos = {};
+                datosEstudianteActual.retos[codigoEscaneado] = true;
+                datosEstudianteActual.puntos_sociales = currentPoints;
+            });
+        });
+    }
+
+    // Actualizar el DOM Content Loaded para capturar la imagen de los permisos también
+    document.addEventListener("DOMContentLoaded", () => {
+        const inputPermiso = document.getElementById('permiso-foto');
+        if (inputPermiso) {
+            inputPermiso.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_WIDTH = 800; // Resolución media para que sea legible
+                        let width = img.width; 
+                        let height = img.height;
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        canvas.width = width; canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        fotoPermisoBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+    });
+
 window.onload = () => {
 
+        // --- DESVANECER PANTALLA DE CARGA ---
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.style.display = 'none', 500);
+            }
+        }, 1200);
+
+        // Inyectar aclaración de horarios en la sección de Clases (esperamos un momento para que el DOM esté listo)
+        setTimeout(() => {
+            const headers = document.querySelectorAll('.section-header');
+            headers.forEach(header => {
+                if (header.innerText === "Historial de Clases") {
+                    const nota = document.createElement("p");
+                    nota.style.fontSize = "0.75rem";
+                    nota.style.color = "var(--text-muted)";
+                    nota.style.marginBottom = "15px";
+                    nota.innerHTML = "<em>* Recuerda: Las clases de los <strong>Domingos son PRESENCIALES</strong> y las clases de los <strong>Miércoles son VIRTUALES</strong>.</em>";
+                    header.parentNode.insertBefore(nota, header.nextSibling);
+                }
+            });
+        }, 500);
+
+        // 0. Antenas para Temas y Ponentes (en tiempo real)
+        db.ref('configuracion/temasClases').on('value', snap => {
+            if (snap.exists()) {
+                temasClasesGlobales = snap.val();
+                if (datosEstudianteActual) renderizarListaClases(); 
+            }
+        });
+
+        db.ref('configuracion/ponentesClases').on('value', snap => {
+            if (snap.exists()) {
+                ponentesClasesGlobales = snap.val();
+                if (datosEstudianteActual) renderizarListaClases(); 
+            }
+        });
+
+        // 1. Antena para Anuncios Globales en tiempo real
+        db.ref('configuracion/anuncioGlobal').on('value', snap => {
+            if (snap.exists()) {
+                const anuncio = snap.val();
+                if (anuncio.activo) {
+                    const ahoraSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+                    const fechaExp = new Date(anuncio.expiracion);
+                    
+                    if (ahoraSV < fechaExp) {
+                        const adMsg = anuncio.mensaje;
+                        // Mostrar si no lo ha visto o si el mensaje cambió
+                        if (localStorage.getItem('anuncio_visto_texto') !== adMsg) {
+                            document.getElementById("anuncio-global-texto").innerText = adMsg;
+                            document.getElementById("anuncio-global-overlay").style.display = "flex";
+                            localStorage.removeItem('anuncio_visto_ok'); 
+                        }
+                    } else {
+                        document.getElementById("anuncio-global-overlay").style.display = "none";
+                    }
+                } else {
+                    document.getElementById("anuncio-global-overlay").style.display = "none";
+                }
+            }
+        });
+
+        // 2. Botón Entendido del Anuncio
+        const btnEntendido = document.querySelector('#anuncio-global-overlay button');
+        if (btnEntendido) {
+            btnEntendido.onclick = () => {
+                document.getElementById('anuncio-global-overlay').style.display = 'none';
+                localStorage.setItem('anuncio_visto_texto', document.getElementById('anuncio-global-texto').innerText);
+            };
+        }
+
+        // 3. Cargar sesión de estudiante
         const savedCode = localStorage.getItem("elegidos_student_code");
         if (savedCode) {
             if(savedCode === INVITADO_USER) {
@@ -1262,18 +1480,26 @@ window.onload = () => {
                 document.getElementById("input-clave").value = INVITADO_PASS;
                 iniciarSesion();
             } else {
-                // Primero cargamos una vez para montar el dashboard
                 db.ref('clase/' + savedCode).once('value').then((snapshot) => {
                     if (snapshot.exists()) { 
                         datosEstudianteActual = snapshot.val(); 
                         cargarDashboard(savedCode, datosEstudianteActual); 
                         
-                        // Dejamos el sistema escuchando cambios en Firebase para que sea automático
+                        // Escucha en tiempo real para recargar vistas si hay cambios
                         db.ref('clase/' + savedCode).on('value', (snap) => {
                             if (snap.exists()) {
                                 datosEstudianteActual = snap.val();
+                                
+                                // Mantener el color del banner actualizado en vivo
+                                if(datosEstudianteActual.perfil && datosEstudianteActual.perfil.color) {
+                                    document.querySelector('.top-header').style.background = `linear-gradient(135deg, ${datosEstudianteActual.perfil.color} 0%, var(--purple-dark) 100%)`;
+                                    document.documentElement.style.setProperty('--purple-main', datosEstudianteActual.perfil.color);
+                                }
+                                
                                 renderizarListaClases();
                                 renderizarBoletosVinculados();
+				llenarSelectPermisos();   
+        			verificarRetoActivo()
                             }
                         });
                     }
@@ -1283,6 +1509,5 @@ window.onload = () => {
     };    
 
 </script>
-
 </body>
 </html>
