@@ -692,7 +692,8 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("dashboard-screen").classList.add("show");
 
-        const nombre = data.nombre.toLowerCase();
+        // Prevenir error si el nombre no está configurado
+        const nombre = data.nombre ? data.nombre.toLowerCase() : "estudiante";
         document.getElementById("display-name").innerText = nombre;
         document.getElementById("display-code").innerText = codigo;
         document.getElementById("avatar-initial").innerText = nombre.charAt(0).toUpperCase();
@@ -700,17 +701,20 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("qr-code").innerHTML = "";
         new QRCode(document.getElementById("qr-code"), { text: codigo, width: 170, height: 170, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
 
-       // Rellenar datos de perfil si ya existen y previsualizar la foto siempre
+       // Rellenar datos de perfil si ya existen en la Base de Datos
         if (data.perfil) {
-            
+            // AQUÍ RECUPERAMOS LOS TEXTOS
+            document.getElementById("perfil-edad").value = data.perfil.edad || "";
+            document.getElementById("perfil-comunidad").value = data.perfil.comunidad || "";
+            document.getElementById("perfil-nivel").value = data.perfil.nivel || "";
+            document.getElementById("perfil-desc").value = data.perfil.desc || "";
 
             if (data.perfil.foto) {
-                fotoPerfilBase64 = data.perfil.foto; // Aseguramos que la variable global tenga la foto guardada
+                fotoPerfilBase64 = data.perfil.foto; 
                 document.getElementById('img-preview').src = data.perfil.foto;
                 document.getElementById('img-preview').style.display = 'block';
                 document.getElementById('img-placeholder').style.display = 'none';
                 
-                // Actualizar avatar de la esquina superior
                 const avatarDiv = document.getElementById('avatar-initial');
                 avatarDiv.innerHTML = `<img src="${data.perfil.foto}" style="width: 100%; height: 100%; border-radius: 16px; object-fit: cover;">`;
                 avatarDiv.style.border = "none";
@@ -721,10 +725,10 @@ function mostrarRecuperacion(mostrar) {
         renderizarListaClases();
         renderizarBoletosVinculados();
 
-        // Si el perfil no está lleno, obligar a ir a la pestaña de recursos al entrar
-if (!esInvitado && (!data.perfil || !data.perfil.foto)) {
+       // Si el perfil no está completamente lleno (foto o datos de texto), obligarlo a llenarlo
+        if (!esInvitado && (!data.perfil || !data.perfil.foto || !data.perfil.edad || !data.perfil.comunidad || !data.perfil.nivel || !data.perfil.desc)) {
             setTimeout(() => {
-                alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes los datos de tu perfil.");
+                alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes todos los datos de texto y la foto de tu perfil.");
                 cambiarSeccion('recursos', 3);
             }, 300);
         }
@@ -877,17 +881,20 @@ let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
         }
         // ----------------------------------------------------
 
-        // Lógica para mostrar el Meet los miércoles        
-
+        // Lógica para mostrar el Meet los miércoles
         const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
         const diaSemana = fechaSV.getDay(); 
         const horas = fechaSV.getHours();
         const minutos = fechaSV.getMinutes();
         
+        // Extraer formato YYYY-MM-DD para validar que ya pasamos la inauguración
+        const hoyMeet = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
+        
         const meetContainer = document.getElementById("meet-banner-container");
         
         // Miércoles (3) - Habilitar desde las 19:45 (7:45 PM) hasta las 20:59 (8:59 PM)
-        if (diaSemana === 3 && ((horas === 19 && minutos >= 45) || horas === 20)) {
+        // SOLAMENTE si la fecha actual es MAYOR al 27 de Septiembre
+        if (hoyMeet > "2026-09-27" && diaSemana === 3 && ((horas === 19 && minutos >= 45) || horas === 20)) {
             if (meetContainer) meetContainer.style.display = "block";
         } else {
             if (meetContainer) meetContainer.style.display = "none";
