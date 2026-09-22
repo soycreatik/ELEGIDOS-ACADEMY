@@ -166,10 +166,11 @@
 
 <!-- OVERLAY DEL ANUNCIO GLOBAL -->
 <div id="anuncio-global-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
-    <div style="background: #042f2e; border: 2px solid #14b8a6; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+    <div style="background: #042f2e; border: 2px solid #14b8a6; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto;">
         <h2 style="color: #2dd4bf; margin-bottom: 15px; font-size: 1.5rem;">📢 AVISO IMPORTANTE</h2>
-        <p id="anuncio-global-texto" style="color: #ccfbf1; font-size: 1rem; line-height: 1.5; margin-bottom: 25px; white-space: pre-wrap; text-align: left;"></p>
-       <button onclick="document.getElementById('anuncio-global-overlay').style.display = 'none'; localStorage.setItem('anuncio_visto_' + document.getElementById('anuncio-global-texto').innerText, 'true');" style="background: #0d9488; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;">Entendido</button>
+        <p id="anuncio-global-texto" style="color: #ccfbf1; font-size: 1rem; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap; text-align: left;"></p>
+        <img id="anuncio-global-img" src="" style="width: 100%; border-radius: 12px; margin-bottom: 20px; display: none; border: 2px solid #0f766e;">
+       <button onclick="document.getElementById('anuncio-global-overlay').style.display = 'none'; localStorage.setItem('anuncio_visto_texto', document.getElementById('anuncio-global-texto').innerText);" style="background: #0d9488; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;">Entendido</button>
     </div>
 </div>
 
@@ -186,10 +187,11 @@
             <input type="text" id="input-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
             <input type="password" id="input-clave" class="input-field" placeholder="Contraseña (ELEGIDOS26)">
             
-            <button class="btn-main" onclick="iniciarSesion()">Acceder a mi perfil</button>
+           <button class="btn-main" onclick="iniciarSesion()">Acceder a mi perfil</button>
             <div class="error-text" id="error-msg">Código o contraseña incorrectos.</div>
             
             <a href="#" onclick="mostrarRecuperacion(true)" style="display: block; margin-top: 20px; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; font-weight: 500;">¿Olvidaste o quieres cambiar tu contraseña?</a>
+            <a href="#" onclick="mostrarCrear(true)" style="display: block; margin-top: 15px; color: #38bdf8; font-size: 0.9rem; text-decoration: none; font-weight: 700;">¿Eres nuevo? Crea tu usuario aquí</a>
         </div>
 
      <div id="recovery-form" style="display: none;">
@@ -208,7 +210,23 @@
             <button class="btn-main" onclick="mostrarRecuperacion(false)" style="background: #e2e8f0; color: #475569; margin-top: 10px;">Volver</button>
             <div class="error-text" id="rec-error-msg"></div>
         </div>
+
+        <!-- FORMULARIO NUEVO INGRESO -->
+        <div id="create-form" style="display: none;">
+            <h1 class="login-title" style="font-size: 1.5rem;">Nuevo Ingreso</h1>
+            <p class="login-subtitle" style="padding: 0 10px;">Ingresa tu nombre y crea tu clave para buscar un código libre.</p>
+
+            <input type="text" id="crear-nombre" class="input-field" placeholder="Tu Nombre Completo" autocomplete="off">
+            <input type="password" id="crear-clave" class="input-field" placeholder="Crea una contraseña (Mín. 4 caracteres)">
+            
+            <button class="btn-main" id="btn-crear-usuario" onclick="procesarCrearUsuario()">Buscar cupo y crear perfil</button>
+            <button class="btn-main" onclick="mostrarCrear(false)" style="background: #e2e8f0; color: #475569; margin-top: 10px;">Volver</button>
+            
+            <div class="error-text" id="crear-error-msg"></div>
+            <div id="crear-success-msg" style="color: var(--text-green); font-size: 0.9rem; margin-top: 12px; display: none; font-weight: 800; background: var(--pastel-green); padding: 12px; border-radius: 8px;"></div>
+        </div>
     </div> <!-- ESTA ES LA ETIQUETA QUE FALTABA PARA CERRAR EL LOGIN-SCREEN -->
+
 
     <!-- DASHBOARD -->
     <div id="dashboard-screen">
@@ -509,29 +527,31 @@
     const INVITADO_USER = "INVITADO-ELEGIDOS";
     const INVITADO_PASS = "CLASE2026";
 
-    // FECHAS Y HORAS CONFIGURADAS OFICIALES
-    const FECHAS_CURSO = [
-        { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso", expositor: "Equipo ELEGIDOS" },
-        { id: "30_1500", fecha: "2026-09-30", hora: "15:00", nombre: "Clase 5", expositor: "Mahu Films" },
-        { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I", expositor: "Mahu Films" },
-        { id: "07_1500", fecha: "2026-10-07", hora: "15:00", nombre: "Clase 7", expositor: "Equipo ELEGIDOS" },
-        { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8", expositor: "Equipo ELEGIDOS" },
-        { id: "14_1500", fecha: "2026-10-14", hora: "15:00", nombre: "Clase 9", expositor: "Equipo ELEGIDOS" },
-        { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10", expositor: "Equipo ELEGIDOS" },
-        { id: "21_1500", fecha: "2026-10-21", hora: "15:00", nombre: "Clase 11", expositor: "Equipo ELEGIDOS" },
-        { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II", expositor: "Dreamez" },
-        { id: "28_1500", fecha: "2026-10-28", hora: "15:00", nombre: "Clase 13", expositor: "Equipo ELEGIDOS" },
-        { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14", expositor: "Equipo ELEGIDOS" },
-        { id: "04_1500_2", fecha: "2026-11-04", hora: "15:00", nombre: "Clase 15", expositor: "Equipo ELEGIDOS" },
-        { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS", expositor: "Los Deschavetados, Los Pixies, Sorpresa" },
-        { id: "11_1500_2", fecha: "2026-11-11", hora: "15:00", nombre: "Clase 17", expositor: "Equipo ELEGIDOS" },
-        { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18", expositor: "Equipo ELEGIDOS" },
-        { id: "18_1500_2", fecha: "2026-11-18", hora: "15:00", nombre: "Clase 19", expositor: "Equipo ELEGIDOS" },
-        { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20", expositor: "Equipo ELEGIDOS" },
-        { id: "25_1500_2", fecha: "2026-11-25", hora: "15:00", nombre: "Clase 21", expositor: "Equipo ELEGIDOS" },
-        { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales", expositor: "Equipo ELEGIDOS" },
-        { id: "02_1500", fecha: "2026-12-02", hora: "15:00", nombre: "Clase 23", expositor: "Equipo ELEGIDOS" }
+    // FECHAS BASE Y VARIABLE DINÁMICA DE CLASES
+    const FECHAS_CURSO_BASE = [
+        { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "30_1500", fecha: "2026-09-30", hora: "15:00", nombre: "Clase 5", expositor: "Mahu Films", modalidad: "Online" },
+        { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I", expositor: "Mahu Films", modalidad: "Presencial" },
+        { id: "07_1500", fecha: "2026-10-07", hora: "15:00", nombre: "Clase 7", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "14_1500", fecha: "2026-10-14", hora: "15:00", nombre: "Clase 9", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "21_1500", fecha: "2026-10-21", hora: "15:00", nombre: "Clase 11", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II", expositor: "Dreamez", modalidad: "Presencial" },
+        { id: "28_1500", fecha: "2026-10-28", hora: "15:00", nombre: "Clase 13", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "04_1500_2", fecha: "2026-11-04", hora: "15:00", nombre: "Clase 15", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS", expositor: "Los Deschavetados, Los Pixies, Sorpresa", modalidad: "Presencial" },
+        { id: "11_1500_2", fecha: "2026-11-11", hora: "15:00", nombre: "Clase 17", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "18_1500_2", fecha: "2026-11-18", hora: "15:00", nombre: "Clase 19", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "25_1500_2", fecha: "2026-11-25", hora: "15:00", nombre: "Clase 21", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
+        { id: "02_1500", fecha: "2026-12-02", hora: "15:00", nombre: "Clase 23", expositor: "Equipo ELEGIDOS", modalidad: "Online" }
     ];
+
+    let FECHAS_CURSO = [...FECHAS_CURSO_BASE];
 
     let temasClasesGlobales = {}; 
     let ponentesClasesGlobales = {}; // Aquí guardaremos los ponentes que envíe el Admin
@@ -548,7 +568,93 @@
 function mostrarRecuperacion(mostrar) {
         document.getElementById("login-form").style.display = mostrar ? "none" : "block";
         document.getElementById("recovery-form").style.display = mostrar ? "block" : "none";
+        if(document.getElementById("create-form")) document.getElementById("create-form").style.display = "none";
         document.getElementById("rec-error-msg").style.display = "none";
+    }
+
+    function mostrarCrear(mostrar) {
+        document.getElementById("login-form").style.display = mostrar ? "none" : "block";
+        document.getElementById("create-form").style.display = mostrar ? "block" : "none";
+        document.getElementById("recovery-form").style.display = "none";
+        document.getElementById("crear-error-msg").style.display = "none";
+        document.getElementById("crear-success-msg").style.display = "none";
+    }
+
+    function procesarCrearUsuario() {
+        const nombre = document.getElementById("crear-nombre").value.trim();
+        const clave = document.getElementById("crear-clave").value.trim();
+        const errorMsg = document.getElementById("crear-error-msg");
+        const successMsg = document.getElementById("crear-success-msg");
+        const btn = document.getElementById("btn-crear-usuario");
+
+        if (!nombre || clave.length < 4) {
+            errorMsg.innerText = "Ingresa tu nombre y una contraseña de al menos 4 caracteres.";
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        errorMsg.style.display = "none";
+        btn.innerText = "Buscando cupo libre...";
+        btn.disabled = true;
+
+        // Buscar el código más pequeño libre
+        db.ref('clase').once('value').then((snapshot) => {
+            let codigoAsignar = "";
+            
+            if (snapshot.exists()) {
+                const usuarios = snapshot.val();
+                // Buscar del 1 al 999 el primero que no exista o no tenga nombre
+                for (let i = 1; i <= 999; i++) {
+                    const numStr = String(i).padStart(3, '0');
+                    const testCodigo = `CLASE-2026-${numStr}`;
+                    
+                    if (!usuarios[testCodigo] || !usuarios[testCodigo].nombre || usuarios[testCodigo].nombre.trim() === "") {
+                        codigoAsignar = testCodigo;
+                        break;
+                    }
+                }
+            } else {
+                codigoAsignar = "CLASE-2026-001";
+            }
+
+            if (codigoAsignar === "") {
+                errorMsg.innerText = "Lo sentimos, no hay cupos disponibles en el sistema.";
+                errorMsg.style.display = "block";
+                btn.innerText = "Buscar cupo y crear perfil";
+                btn.disabled = false;
+                return;
+            }
+
+            // Guardar al nuevo estudiante
+            db.ref('clase/' + codigoAsignar).update({
+                nombre: nombre,
+                password: clave,
+                fecha_creacion: new Date().toISOString()
+            }).then(() => {
+                successMsg.innerHTML = `¡Éxito! Tu código es:<br><span style="font-size:1.4rem; color:#15803d; display:block; margin:8px 0;">${codigoAsignar}</span>¡Tómale captura, lo necesitarás para entrar!<br>Iniciando sesión en 5 segundos...`;
+                successMsg.style.display = "block";
+                btn.style.display = "none";
+                
+                // Rellenar las credenciales originales y auto-iniciar sesión
+                document.getElementById("input-codigo").value = codigoAsignar;
+                document.getElementById("input-clave").value = clave;
+
+                setTimeout(() => {
+                    mostrarCrear(false);
+                    btn.style.display = "block";
+                    btn.disabled = false;
+                    btn.innerText = "Buscar cupo y crear perfil";
+                    document.getElementById("crear-nombre").value = "";
+                    document.getElementById("crear-clave").value = "";
+                    iniciarSesion();
+                }, 5000);
+            });
+        }).catch((error) => {
+            errorMsg.innerText = "Error de conexión. Intenta de nuevo.";
+            errorMsg.style.display = "block";
+            btn.innerText = "Buscar cupo y crear perfil";
+            btn.disabled = false;
+        });
     }
 
     // Event listener para detectar cuando ingresan el código y mostrar u ocultar el campo de "Contraseña Antigua"
@@ -638,18 +744,24 @@ function mostrarRecuperacion(mostrar) {
     }
 
     function iniciarSesion() {
-        const codigoInput = document.getElementById("input-codigo").value.trim().toUpperCase();
-        const claveInput = document.getElementById("input-clave").value.trim();
-        const errorMsg = document.getElementById("error-msg");
-        const btn = document.querySelector(".btn-main");
+    const codigoInput = document.getElementById("input-codigo").value.trim().toUpperCase();
+    const claveInput = document.getElementById("input-clave").value.trim();
+    const errorMsg = document.getElementById("error-msg");
 
-        if (codigoInput === INVITADO_USER && claveInput === INVITADO_PASS) {
-            esInvitado = true;
-            const mockInvitado = { nombre: "Invitado Especial", asistencias: {} };
-            cargarDashboard(codigoInput, mockInvitado);
-            localStorage.setItem("elegidos_student_code", codigoInput);
+    // nueva lógica para perfiles de directores
+    if (codigoInput === "ADMIN-GLENDA" || codigoInput === "ADMIN-ROGER") {
+        if (claveInput === "ELEGIDOS26") {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("admin-screen").style.display = "block";
+            document.getElementById("admin-name").innerText = codigoInput === "ADMIN-GLENDA" ? "Glenda Flores" : "Roger Mendez";
+            iniciarMonitoreoEnVivo();
+            return;
+        } else {
+            errorMsg.innerText = "Contraseña de administrador incorrecta.";
+            errorMsg.style.display = "block";
             return;
         }
+    }
 
         if (!codigoInput.startsWith("CLASE-2026-")) { 
             errorMsg.innerText = "Código inválido."; 
@@ -657,6 +769,8 @@ function mostrarRecuperacion(mostrar) {
             return; 
         }
 
+        // Declarar el botón correctamente para evitar el ReferenceError
+        const btn = document.querySelector("#login-form .btn-main");
         btn.innerText = "Verificando...";
         
         db.ref('clase/' + codigoInput).once('value').then((snapshot) => {
@@ -841,13 +955,17 @@ function mostrarRecuperacion(mostrar) {
 
             // Extraer ponente dinámico o usar el por defecto
             const ponenteFinal = ponentesClasesGlobales[item.id] || item.expositor;
+            const modalidadInfo = item.modalidad === 'Online' ? '💻 Online' : '📍 Presencial';
 
             row.innerHTML = `
                 <div class="class-info" style="flex: 1;">
                     <h5 style="margin-bottom: 2px; color: var(--text-dark);">${item.nombre} — ${formatearFecha(item.fecha)}</h5>
                     ${spanTema}
                     <p style="margin-bottom: 2px; color: var(--text-muted);">${timeInfo}</p>
-                    <p style="font-size: 0.7rem; font-style: italic; color: var(--text-muted); opacity: 0.8;">Por: ${ponenteFinal}</p>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
+                        <span style="font-size: 0.7rem; font-style: italic; color: var(--text-muted); opacity: 0.8;">Por: ${ponenteFinal}</span>
+                        <span style="font-size: 0.65rem; background: rgba(255,255,255,0.05); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">${modalidadInfo}</span>
+                    </div>
                 </div>
                 <div>${statusBadge}</div>
             `;
@@ -1113,9 +1231,21 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("input-codigo").value = ""; document.getElementById("input-clave").value = "";
     }
 
-    // Aseguramos que cargue apenas esté listo el DOM
+// Aseguramos que cargue apenas esté listo el DOM y mantenemos sesión activa
     document.addEventListener("DOMContentLoaded", () => {
-        const inputFoto = document.getElementById('perfil-foto');
+        const codigoGuardado = localStorage.getItem("elegidos_student_code");
+        if(codigoGuardado && codigoGuardado.startsWith("CLASE-2026-")) {
+            document.getElementById("input-codigo").value = codigoGuardado;
+            db.ref('clase/' + codigoGuardado).once('value').then((snapshot) => {
+                if(snapshot.exists()) {
+                    datosEstudianteActual = snapshot.val();
+                    cargarDashboard(codigoGuardado, datosEstudianteActual);
+                }
+            });
+        }
+
+        const inputFoto = document.getElementById('perfil-foto');    
+
         if (inputFoto) {
             inputFoto.addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -1423,7 +1553,47 @@ window.onload = () => {
             });
         }, 500);
 
-        // 0. Antenas para Temas y Ponentes (en tiempo real)
+        // 0. Sincronización Inteligente: Base + Cambios en Admin
+        db.ref('configuracion/calendarioClases').on('value', snap => {
+            // 1. Partimos siempre de tu base de ELEGIDOS intacta
+            let listaActualizada = JSON.parse(JSON.stringify(FECHAS_CURSO_BASE));
+
+            if (snap.exists()) {
+                const data = snap.val();
+                
+                Object.keys(data).forEach(key => {
+                    const itemFirebase = data[key];
+                    const indexExistente = listaActualizada.findIndex(c => c.id === key);
+                    
+                    // Normalizar los nombres de variables desde el panel Admin
+                    const datosNuevos = {
+                        fecha: itemFirebase.fecha,
+                        hora: itemFirebase.hora || "15:00",
+                        nombre: itemFirebase.titulo || itemFirebase.nombre || "Nueva Clase",
+                        expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS",
+                        modalidad: itemFirebase.modalidad || "Presencial"
+                    };
+
+                    if (indexExistente !== -1) {
+                        listaActualizada[indexExistente] = { ...listaActualizada[indexExistente], ...datosNuevos };
+                    } else {
+                        listaActualizada.push({ id: key, ...datosNuevos });
+                    }
+                });
+            }
+
+            // 2. Reordenar todo cronológicamente (las clases nuevas caerán exactamente donde deben ir)
+            listaActualizada.sort((a, b) => new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`));
+            
+            // 3. Asignar la lista fusionada a la variable principal del portal
+            FECHAS_CURSO = listaActualizada;
+
+            // 4. Renderizar la vista de nuevo para que calcule PRÓX, ASISTIÓ y FALTÓ con la lista completa
+            if (typeof datosEstudianteActual !== 'undefined' && datosEstudianteActual) {
+                renderizarListaClases();
+                if (typeof llenarSelectPermisos === 'function') llenarSelectPermisos();
+            }
+        });
         db.ref('configuracion/temasClases').on('value', snap => {
             if (snap.exists()) {
                 temasClasesGlobales = snap.val();
@@ -1438,39 +1608,34 @@ window.onload = () => {
             }
         });
 
-        // 1. Antena para Anuncios Globales en tiempo real
+        // 2. Lógica del Anuncio Global (Ahora detecta imágenes del admin)
         db.ref('configuracion/anuncioGlobal').on('value', snap => {
             if (snap.exists()) {
-                const anuncio = snap.val();
-                if (anuncio.activo) {
-                    const ahoraSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-                    const fechaExp = new Date(anuncio.expiracion);
-                    
-                    if (ahoraSV < fechaExp) {
-                        const adMsg = anuncio.mensaje;
-                        // Mostrar si no lo ha visto o si el mensaje cambió
-                        if (localStorage.getItem('anuncio_visto_texto') !== adMsg) {
-                            document.getElementById("anuncio-global-texto").innerText = adMsg;
-                            document.getElementById("anuncio-global-overlay").style.display = "flex";
-                            localStorage.removeItem('anuncio_visto_ok'); 
+                const data = snap.val();
+                const ahora = new Date().toISOString();
+                
+                if (data.activo && data.expiracion > ahora) {
+                    // Verificar si ya vio ESTE mensaje específico
+                    if (localStorage.getItem('anuncio_visto_texto') !== data.mensaje) {
+                        document.getElementById('anuncio-global-texto').innerText = data.mensaje;
+                        
+                        // Si trae imagen en base64 la mostramos
+                        const imgElem = document.getElementById('anuncio-global-img');
+                        if (data.imagen && data.imagen !== "") {
+                            imgElem.src = data.imagen;
+                            imgElem.style.display = "block";
+                        } else {
+                            imgElem.style.display = "none";
+                            imgElem.src = "";
                         }
-                    } else {
-                        document.getElementById("anuncio-global-overlay").style.display = "none";
+                        
+                        document.getElementById('anuncio-global-overlay').style.display = 'flex';
                     }
                 } else {
-                    document.getElementById("anuncio-global-overlay").style.display = "none";
+                    document.getElementById('anuncio-global-overlay').style.display = 'none';
                 }
             }
         });
-
-        // 2. Botón Entendido del Anuncio
-        const btnEntendido = document.querySelector('#anuncio-global-overlay button');
-        if (btnEntendido) {
-            btnEntendido.onclick = () => {
-                document.getElementById('anuncio-global-overlay').style.display = 'none';
-                localStorage.setItem('anuncio_visto_texto', document.getElementById('anuncio-global-texto').innerText);
-            };
-        }
 
         // 3. Cargar sesión de estudiante
         const savedCode = localStorage.getItem("elegidos_student_code");
