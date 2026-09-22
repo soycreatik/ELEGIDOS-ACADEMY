@@ -338,8 +338,15 @@
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Vincula los códigos de tus entradas físicas para validarlas digitalmente.</p>
                     
                     <div class="calendar-card" style="margin-top: 0; padding: 20px;">
-                        <input type="text" id="input-boleto" class="input-field" placeholder="Ingresa el código del boleto" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; text-transform: uppercase;">
-                        <button class="btn-main" id="btn-vincular-boleto" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #ea580c;" onclick="vincularBoleto()">Vincular Boleto</button>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: center;">Escanea el código QR de tu entrada física.</p>
+                        
+                        <!-- Contenedor de la cámara para tickets -->
+                        <div id="qr-reader-boletos" style="width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 15px; display: none;"></div>
+                        
+                        <button class="btn-main" id="btn-abrir-escaner-boletos" onclick="abrirEscanerBoletos()" style="max-width: 100%; padding: 14px; font-size: 0.9rem; margin-bottom: 12px; background: #ea580c;">📷 Escanear Boleto Físico</button>
+                        
+                        <input type="text" id="input-boleto" class="input-field" placeholder="O ingresa el código aquí" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; text-transform: uppercase; text-align: center;">
+                        <button class="btn-main" id="btn-vincular-boleto" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onclick="vincularBoleto()">Vincular Manualmente</button>
                     </div>
 
                     <div id="contenedor-boletos" style="margin-top: 24px;">
@@ -530,25 +537,25 @@
     // FECHAS BASE Y VARIABLE DINÁMICA DE CLASES
     const FECHAS_CURSO_BASE = [
         { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "30_1500", fecha: "2026-09-30", hora: "15:00", nombre: "Clase 5", expositor: "Mahu Films", modalidad: "Online" },
+        { id: "30_2000", fecha: "2026-09-30", hora: "20:00", nombre: "Clase 5", expositor: "Mahu Films", modalidad: "Online" },
         { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I", expositor: "Mahu Films", modalidad: "Presencial" },
-        { id: "07_1500", fecha: "2026-10-07", hora: "15:00", nombre: "Clase 7", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "07_2000", fecha: "2026-10-07", hora: "20:00", nombre: "Clase 7", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "14_1500", fecha: "2026-10-14", hora: "15:00", nombre: "Clase 9", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "14_2000", fecha: "2026-10-14", hora: "20:00", nombre: "Clase 9", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "21_1500", fecha: "2026-10-21", hora: "15:00", nombre: "Clase 11", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "21_2000", fecha: "2026-10-21", hora: "20:00", nombre: "Clase 11", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II", expositor: "Dreamez", modalidad: "Presencial" },
-        { id: "28_1500", fecha: "2026-10-28", hora: "15:00", nombre: "Clase 13", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "28_2000", fecha: "2026-10-28", hora: "20:00", nombre: "Clase 13", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "04_1500_2", fecha: "2026-11-04", hora: "15:00", nombre: "Clase 15", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "04_2000_2", fecha: "2026-11-04", hora: "20:00", nombre: "Clase 15", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS", expositor: "Los Deschavetados, Los Pixies, Sorpresa", modalidad: "Presencial" },
-        { id: "11_1500_2", fecha: "2026-11-11", hora: "15:00", nombre: "Clase 17", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "11_2000_2", fecha: "2026-11-11", hora: "20:00", nombre: "Clase 17", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "18_1500_2", fecha: "2026-11-18", hora: "15:00", nombre: "Clase 19", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "18_2000_2", fecha: "2026-11-18", hora: "20:00", nombre: "Clase 19", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "25_1500_2", fecha: "2026-11-25", hora: "15:00", nombre: "Clase 21", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
+        { id: "25_2000_2", fecha: "2026-11-25", hora: "20:00", nombre: "Clase 21", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
         { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "02_1500", fecha: "2026-12-02", hora: "15:00", nombre: "Clase 23", expositor: "Equipo ELEGIDOS", modalidad: "Online" }
+        { id: "02_2000", fecha: "2026-12-02", hora: "20:00", nombre: "Clase 23", expositor: "Equipo ELEGIDOS", modalidad: "Online" }
     ];
 
     let FECHAS_CURSO = [...FECHAS_CURSO_BASE];
@@ -993,15 +1000,33 @@ function mostrarRecuperacion(mostrar) {
             document.getElementById("badge-flash").classList.remove("active");
         }
 
+        // --- NUEVA LÓGICA: DETECCIÓN DINÁMICA DEL BOTÓN DE MEET ---
         const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        const diaSemana = fechaSV.getDay(); 
-        const horas = fechaSV.getHours();
-        const minutos = fechaSV.getMinutes();
-        
         const hoyMeet = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
         const meetContainer = document.getElementById("meet-banner-container");
         
-        if (hoyMeet > "2026-09-27" && diaSemana === 3 && ((horas === 19 && minutos >= 45) || horas === 20)) {
+        let mostrarMeet = false;
+
+        // Buscamos si existe alguna clase HOY que sea Online
+        const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoyMeet && c.modalidad === 'Online');
+
+        if (claseDeHoy) {
+            // Creamos un objeto de fecha y hora exacta de la clase de hoy
+            const horaClase = new Date(`${hoyMeet}T${claseDeHoy.hora}:00`);
+            
+            // Calculamos 15 minutos antes de la clase
+            const horaApertura = new Date(horaClase.getTime() - (15 * 60000));
+            
+            // Calculamos 90 minutos después (para que el botón desaparezca al finalizar)
+            const horaCierre = new Date(horaClase.getTime() + (90 * 60000));
+
+            // Si la hora actual está dentro de esa ventana de tiempo, mostramos el botón
+            if (fechaSV >= horaApertura && fechaSV <= horaCierre) {
+                mostrarMeet = true;
+            }
+        }
+
+        if (mostrarMeet) {
             if (meetContainer) meetContainer.style.display = "block";
         } else {
             if (meetContainer) meetContainer.style.display = "none";
@@ -1226,9 +1251,15 @@ function mostrarRecuperacion(mostrar) {
 
     function cerrarSesion() {
         localStorage.removeItem("elegidos_student_code");
+        localStorage.removeItem("anuncio_visto_texto"); // Borra el recuerdo para que el anuncio vuelva a salir
+        
         document.getElementById("dashboard-screen").classList.remove("show");
         document.getElementById("login-screen").style.display = "flex";
-        document.getElementById("input-codigo").value = ""; document.getElementById("input-clave").value = "";
+        document.getElementById("input-codigo").value = ""; 
+        document.getElementById("input-clave").value = "";
+        
+        // Recargar la página asegura que los anuncios y datos se limpien perfectamente para el siguiente usuario
+        window.location.reload();
     }
 
 // Aseguramos que cargue apenas esté listo el DOM y mantenemos sesión activa
@@ -1441,18 +1472,19 @@ function mostrarRecuperacion(mostrar) {
         }
     }
 
+    // --- ESCÁNER PARA EL RETO DOMINICAL ---
     let escanerReto = null;
     function abrirEscanerReto() {
-        document.getElementById("scanner-container").style.display = "block";
+        document.getElementById("qr-reader").style.display = "block";
         document.getElementById("btn-abrir-escaner").style.display = "none";
         
-        escanerReto = new Html5Qrcode("scanner-container");
+        escanerReto = new Html5Qrcode("qr-reader");
         escanerReto.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: 250 },
             codigoQR => {
                 escanerReto.stop().then(() => {
-                    document.getElementById("scanner-container").style.display = "none";
+                    document.getElementById("qr-reader").style.display = "none";
                     document.getElementById("btn-abrir-escaner").style.display = "block";
                     registrarRetoManual(codigoQR);
                 });
@@ -1460,6 +1492,35 @@ function mostrarRecuperacion(mostrar) {
             err => { /* ignorar errores continuos de lectura */ }
         ).catch(err => {
             alert("No se pudo iniciar la cámara. Verifica los permisos de tu navegador.");
+            document.getElementById("qr-reader").style.display = "none";
+            document.getElementById("btn-abrir-escaner").style.display = "block";
+        });
+    }
+
+    // --- ESCÁNER PARA LOS TICKETS DE EVENTOS ---
+    let escanerBoletos = null;
+    function abrirEscanerBoletos() {
+        document.getElementById("qr-reader-boletos").style.display = "block";
+        document.getElementById("btn-abrir-escaner-boletos").style.display = "none";
+        
+        escanerBoletos = new Html5Qrcode("qr-reader-boletos");
+        escanerBoletos.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            codigoQR => {
+                escanerBoletos.stop().then(() => {
+                    document.getElementById("qr-reader-boletos").style.display = "none";
+                    document.getElementById("btn-abrir-escaner-boletos").style.display = "block";
+                    // Coloca lo leído en el input y valida automáticamente
+                    document.getElementById("input-boleto").value = codigoQR;
+                    vincularBoleto();
+                });
+            },
+            err => { /* ignorar errores continuos */ }
+        ).catch(err => {
+            alert("No se pudo iniciar la cámara. Verifica los permisos de tu navegador.");
+            document.getElementById("qr-reader-boletos").style.display = "none";
+            document.getElementById("btn-abrir-escaner-boletos").style.display = "block";
         });
     }
 
