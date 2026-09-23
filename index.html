@@ -484,8 +484,8 @@
             } else if (filtroActual === 'leidas') {
                 filtradas = misNotificaciones.filter(n => n.leida === true);
             } else {
-                // Si es 'Todos', mostramos absolutamente todas las notificaciones
-                filtradas = misNotificaciones;
+                // Si es 'Todos', mostramos solo las que NO han sido leídas
+                filtradas = misNotificaciones.filter(n => !n.leida);
             }
 
             // Mostrar el estado vacío si no hay resultados
@@ -596,14 +596,25 @@
                 const leidasRaw = localStorage.getItem(`leidas_${codigoActual}`);
                 const leidas = leidasRaw ? JSON.parse(leidasRaw) : [];
                 
-                // Combinar notificaciones globales + personales en una sola bandeja
-                let combinadas = [...globales, ...personales].map(noti => ({
-                    ...noti,
-                    // Verifica si el ID de la notificación está en la memoria de "leídas"
-                    leida: leidas.includes(noti.id)
-                }));
+                // Combinar notificaciones globales + personales y eliminar duplicadas
+                let combinadasRaw = [...globales, ...personales];
+                let combinadasUnicas = [];
+                let vistos = new Set();
                 
-                misNotificaciones = combinadas;
+                combinadasRaw.forEach(noti => {
+                    // Creamos una llave única juntando el título y el cuerpo
+                    const claveUnica = noti.titulo + "|" + noti.cuerpo;
+                    if(!vistos.has(claveUnica)) {
+                        vistos.add(claveUnica);
+                        combinadasUnicas.push({
+                            ...noti,
+                            // Verifica si el ID de la notificación está en la memoria de "leídas"
+                            leida: leidas.includes(noti.id)
+                        });
+                    }
+                });
+                
+                misNotificaciones = combinadasUnicas;
                 renderizarNotificaciones(); // Inyectar al HTML
             }
 
@@ -1393,12 +1404,8 @@ function mostrarRecuperacion(mostrar) {
         userRef.child('ultima_conexion').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
       }
     });
-        document.addEventListener("DOMContentLoaded", () => {
-            // Inicializar la escucha a Firebase al cargar la página
-            setTimeout(() => {
-                cargarNotificacionesGlobales();
-            }, 1000);
-        });
+        // Inicializar la escucha a Firebase al cargar el panel
+        cargarNotificacionesGlobales();
 
         const nombre = data.nombre ? data.nombre.toLowerCase() : "estudiante";
         document.getElementById("display-name").innerText = nombre;
