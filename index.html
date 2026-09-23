@@ -1,1739 +1,613 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal del Estudiante | ELEGIDOS</title>
-    
-    <link rel="icon" type="image/png" href="LOGOS/ELEGIDOS VER.2.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- ================================
+     PANTALLA DE MANTENIMIENTO
+     ================================ -->
 
-    
-    <!-- Firebase SDKs y Lector QR -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script> <!-- Nueva librería de escáner -->
+<div id="maintenance-screen">
 
-    <style>
-        :root {
-            --purple-main: #9333ea;
-            --purple-dark: #581c87;
-            --purple-light: rgba(147, 51, 234, 0.15);
-            --bg-app: #0b0f19;
-            --text-dark: #f8fafc;
-            --text-muted: #94a3b8;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --border-light: rgba(255, 255, 255, 0.08);
-            
-            --pastel-blue: rgba(56, 189, 248, 0.15); --text-blue: #38bdf8;
-            --pastel-green: rgba(74, 222, 128, 0.15); --text-green: #4ade80;
-            --pastel-purple: rgba(192, 132, 252, 0.15); --text-purple: #c084fc;
-            --pastel-red: rgba(248, 113, 113, 0.15); --text-red: #f87171;
-            --pastel-orange: rgba(251, 146, 60, 0.15); --text-orange: #fb923c;
-        }
+    <div class="maintenance-orbit orbit-1"></div>
+    <div class="maintenance-orbit orbit-2"></div>
+    <div class="maintenance-orbit orbit-3"></div>
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    <div class="maintenance-glow glow-1"></div>
+    <div class="maintenance-glow glow-2"></div>
 
-        body { background-color: #050505; background-image: radial-gradient(circle at 15% 50%, rgba(147, 51, 234, 0.15), transparent 50%), radial-gradient(circle at 85% 30%, rgba(88, 28, 135, 0.12), transparent 50%); display: flex; justify-content: center; min-height: 100vh; color: var(--text-dark); }
-        .app-container { width: 100%; max-width: 480px; background-color: transparent; min-height: 100vh; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow-x: hidden; display: flex; flex-direction: column; }
+    <div class="maintenance-content">
 
-        #login-screen { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
-        .login-logo { max-width: 160px; margin-bottom: 24px; filter: drop-shadow(0 4px 15px rgba(147,51,234,0.3)); }
-        .login-title { font-size: 1.8rem; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; letter-spacing: -0.5px; }
-        .login-subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 32px; }
+        <div class="maintenance-icon">
+            <div class="icon-ring">
+                ⚙
+            </div>
+        </div>
 
-        .input-field { width: 100%; max-width: 350px; padding: 16px; margin-bottom: 16px; border-radius: 16px; border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: var(--text-dark); font-size: 1rem; outline: none; transition: 0.2s; font-weight: 500; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
-        .input-field:focus { border-color: var(--purple-main); background: rgba(0,0,0,0.4); }
+        <span class="maintenance-label">
+            ELEGIDOS · PORTAL
+        </span>
 
-        .btn-main { width: 100%; max-width: 350px; background: linear-gradient(135deg, var(--purple-main) 0%, var(--purple-dark) 100%); color: #ffffff; padding: 18px; border-radius: 16px; font-weight: 800; border: none; cursor: pointer; font-size: 1.05rem; transition: 0.2s; margin-top: 10px; box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.5); }
-        .btn-main:active { transform: scale(0.98); }
-        .error-text { color: var(--text-red); font-size: 0.85rem; margin-top: 12px; display: none; font-weight: 600; background: var(--pastel-red); padding: 8px 12px; border-radius: 8px; }
+        <h1>
+            EN<br>
+            MANTENIMIENTO
+        </h1>
 
-        #dashboard-screen { display: none; width: 100%; }
-        #dashboard-screen.show { display: block; }
-        .main-scroll-area { flex: 1; padding-bottom: 90px; }
+        <p>
+            Estamos realizando algunas mejoras en el portal.
+            <br>
+            Regresaremos pronto.
+        </p>
 
-        .top-header { background: linear-gradient(135deg, rgba(147,51,234,0.85) 0%, rgba(88,28,135,0.85) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 40px 24px 60px 24px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 50px; height: 50px; border-radius: 16px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
-        .greeting p { font-size: 0.8rem; opacity: 0.8; font-weight: 500; margin-bottom: 2px; }
-        .greeting h2 { font-size: 1.2rem; font-weight: 800; text-transform: capitalize; }
-        .btn-logout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(5px); }
+        <div class="maintenance-loader">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-        .content-area { padding: 0 24px; margin-top: -30px; position: relative; z-index: 10; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 24px; }
-        .stat-card { padding: 16px 10px; border-radius: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-light); }
-        .stat-blue { border-bottom: 3px solid var(--text-blue); }
-        .stat-green { border-bottom: 3px solid var(--text-green); }
-        .stat-purple { border-bottom: 3px solid var(--text-purple); }
-        .stat-orange { border-bottom: 3px solid var(--text-orange); }
-        .stat-card .num { font-size: 1.3rem; font-weight: 900; margin-bottom: 2px; color: var(--text-dark); }
-        .stat-card .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+        <div class="maintenance-status">
+            <span class="status-dot"></span>
+            SISTEMA EN ACTUALIZACIÓN
+        </div>
 
-        .meet-banner { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-light); margin-bottom: 24px; }
-        .meet-info h4 { font-size: 1rem; font-weight: 800; margin-bottom: 4px; color: #d8b4fe; }
-        .meet-info p { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
-        .btn-meet { background: rgba(147, 51, 234, 0.2); color: #d8b4fe; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(147, 51, 234, 0.4); }
+    </div>
 
-        .section-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; color: var(--text-dark); }
-        .categories-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 20px; scrollbar-width: none; }
-        .categories-wrapper::-webkit-scrollbar { display: none; }
-        
-        .cat-btn { min-width: 90px; background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-light); border-radius: 16px; padding: 12px 10px; text-align: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; color: var(--text-muted); }
-        .cat-btn.active { border-color: rgba(147, 51, 234, 0.5); background: rgba(147, 51, 234, 0.1); color: var(--text-dark); }
-        .cat-icon { width: 38px; height: 38px; border-radius: 12px; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; border: 1px solid rgba(255,255,255,0.05); }
-        .cat-btn.active .cat-icon { background: linear-gradient(135deg, var(--purple-main), var(--purple-dark)); color: #fff; border: none; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3); }
-        .cat-label { font-size: 0.65rem; font-weight: 800; }
-
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .class-list { display: flex; flex-direction: column; gap: 12px; }
-        .class-item { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-light); }
-        .class-info h5 { font-size: 0.95rem; font-weight: 800; margin-bottom: 4px; text-transform: capitalize; color: var(--text-dark); }
-        .class-info p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 4px; }
-        .status-badge { font-size: 0.7rem; font-weight: 800; padding: 6px 12px; border-radius: 8px; text-transform: uppercase; }
-        .status-ok { background: var(--pastel-green); color: var(--text-green); border: 1px solid rgba(74, 222, 128, 0.3); }
-        .status-fail { background: var(--pastel-red); color: var(--text-red); border: 1px solid rgba(248, 113, 113, 0.3); }
-        .status-today { background: var(--pastel-orange); color: var(--text-orange); border: 1px solid rgba(251, 146, 60, 0.3); }
-        .status-wait { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border-light); }
-        
-        .progress-container { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 16px; padding: 16px; border: 1px solid var(--border-light); margin-bottom: 24px; }
-        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 800; font-size: 0.85rem; color: var(--text-dark); }
-        .progress-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple-main), #d8b4fe); width: 0%; transition: width 0.8s ease-out; box-shadow: 0 0 10px var(--purple-main); }
-        .badges-container { display: flex; gap: 10px; margin-top: 16px; }
-        .badge { display: flex; align-items: center; justify-content: center; flex: 1; gap: 6px; padding: 8px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; background: rgba(0,0,0,0.2); color: #64748b; filter: grayscale(100%); opacity: 0.5; transition: 0.4s; border: 1px solid var(--border-light); }
-        .badge.active { background: var(--pastel-orange); color: var(--text-orange); border-color: rgba(251, 146, 60, 0.4); filter: grayscale(0%); opacity: 1; box-shadow: 0 4px 15px rgba(251, 146, 60, 0.2); }
-        .badge.active.flash { background: var(--pastel-blue); color: var(--text-blue); border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2); }
-
-        .qr-section { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 20px; padding: 40px 20px; text-align: center; border: 1px solid var(--border-light); }
-        .qr-container { background: #ffffff; padding: 16px; border-radius: 20px; display: inline-block; border: 2px dashed rgba(147, 51, 234, 0.5); margin-bottom: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .code-display { font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #d8b4fe; background: rgba(147, 51, 234, 0.15); padding: 10px 20px; border-radius: 12px; display: inline-block; border: 1px solid rgba(147, 51, 234, 0.3); }
-
-        .calendar-card { background: var(--card-bg); backdrop-filter: blur(12px); color: var(--text-dark); border-radius: 20px; padding: 24px; font-size: 0.85rem; margin-top: 10px; margin-bottom: 30px; border: 1px solid var(--border-light); }
-        .cal-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .cal-row:last-child { border-bottom: none; }
-        .cal-title { font-weight: 700; color: var(--text-dark); font-size: 0.9rem; }
-        .cal-title span { display: block; font-weight: 500; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
-        .cal-date { text-align: right; color: #cbd5e1; font-weight: 500; }
-        .cal-highlight { border: 1px solid rgba(147, 51, 234, 0.3); background: rgba(147, 51, 234, 0.05); border-radius: 16px; padding: 16px; margin: 16px 0; }
-        .cal-highlight-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .cal-highlight h4 { font-size: 0.9rem; font-weight: 800; color: #d8b4fe; margin: 0; display: flex; align-items: center; gap: 6px; }
-        .cal-highlight ul { list-style: none; padding: 0; color: #cbd5e1; font-size: 0.75rem; }
-        .cal-highlight ul li { position: relative; padding-left: 12px; margin-bottom: 6px; }
-        .cal-highlight ul li::before { content: "•"; position: absolute; left: 0; color: #9333ea; }
-
-        /* BOTTOM NAV REDUCIDO AL 20% PARA QUE QUEPAN 5 BOTONES */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 16px 0 20px 0; z-index: 100; box-shadow: 0 -5px 25px rgba(0,0,0,0.3); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); background: none; border: none; font-size: 0.65rem; font-weight: 700; cursor: pointer; width: 20%; transition: 0.2s; }
-        .nav-item.active { color: #d8b4fe; filter: drop-shadow(0 0 5px rgba(147,51,234,0.5)); }
-        .nav-item.active-live { color: #f87171; filter: drop-shadow(0 0 5px rgba(248,113,113,0.5)); }
-        .nav-item svg { stroke-width: 2.5; width: 20px; height: 20px; }
-
-        @media (min-width: 768px) {
-            .app-container { max-width: 1200px; flex-direction: row; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,0.8); border-left: 1px solid var(--border-light); border-right: 1px solid var(--border-light); background: rgba(11, 15, 25, 0.6); backdrop-filter: blur(30px); }
-            #dashboard-screen.show { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
-            .categories-wrapper { display: none; }
-            .bottom-nav { position: static; flex-direction: column; width: 260px; height: 100vh; border-top: none; border-right: 1px solid var(--border-light); justify-content: flex-start; padding: 40px 24px; gap: 16px; background: rgba(0,0,0,0.2); }
-            .nav-item { flex-direction: row; width: 100%; text-align: left; padding: 16px 20px; font-size: 0.95rem; border-radius: 16px; transition: 0.2s; }
-            .nav-item:hover { background: rgba(255,255,255,0.05); }
-            .nav-item.active { background: rgba(147, 51, 234, 0.15); border: 1px solid rgba(147, 51, 234, 0.3); }
-            .nav-item.active-live { background: rgba(248, 113, 113, 0.15); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; }
-            .main-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 40px; background: transparent; }
-            .top-header { border-radius: 0; padding: 40px 50px 60px 50px; background: transparent; border-bottom: 1px solid var(--border-light); }
-            .content-area { padding: 0 50px; margin-top: 30px; }
-            .class-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-            .calendar-card { max-width: 800px; }
-        }
-    </style>
-
-</head>
-<body>
-
-<!-- PANTALLA DE CARGA (SPLASH SCREEN) -->
-<div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0f19; z-index: 99999999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; backdrop-filter: blur(10px);">
-    <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" style="width: 160px; animation: splashPulse 1.5s infinite ease-in-out; filter: drop-shadow(0 0 20px rgba(147,51,234,0.4));" onerror="this.style.display='none'">
 </div>
+
 <style>
-    @keyframes splashPulse { 0% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
+
+    /* ========================================
+       PANTALLA COMPLETA
+       ======================================== */
+
+    #maintenance-screen {
+        position: fixed;
+        inset: 0;
+
+        width: 100vw;
+        height: 100vh;
+
+        z-index: 999999;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+
+        background:
+            radial-gradient(
+                circle at 75% 20%,
+                rgba(139, 0, 255, .18),
+                transparent 35%
+            ),
+            radial-gradient(
+                circle at 20% 80%,
+                rgba(255, 0, 200, .14),
+                transparent 35%
+            ),
+            #ffffff;
+
+        font-family: 'Inter', Arial, sans-serif;
+
+    }
+
+
+    /* ========================================
+       CONTENIDO
+       ======================================== */
+
+    .maintenance-content {
+
+        position: relative;
+
+        z-index: 10;
+
+        width: min(90%, 700px);
+
+        text-align: center;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        animation: maintenanceAppear 1s ease forwards;
+
+    }
+
+
+    /* ========================================
+       ICONO
+       ======================================== */
+
+    .maintenance-icon {
+
+        width: 100px;
+
+        height: 100px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        margin-bottom: 28px;
+
+    }
+
+    .icon-ring {
+
+        width: 82px;
+
+        height: 82px;
+
+        border-radius: 50%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 38px;
+
+        color: #ffffff;
+
+        background:
+            linear-gradient(
+                135deg,
+                #8b00ff,
+                #ff00c8,
+                #ff6a00
+            );
+
+        box-shadow:
+            0 20px 50px rgba(139,0,255,.25);
+
+        animation: rotateGear 8s linear infinite;
+
+    }
+
+
+    /* ========================================
+       ETIQUETA
+       ======================================== */
+
+    .maintenance-label {
+
+        font-size: 12px;
+
+        font-weight: 800;
+
+        letter-spacing: 4px;
+
+        color: #777777;
+
+        margin-bottom: 20px;
+
+    }
+
+
+    /* ========================================
+       TITULO
+       ======================================== */
+
+    .maintenance-content h1 {
+
+        margin: 0;
+
+        font-size: clamp(4rem, 9vw, 8rem);
+
+        line-height: .78;
+
+        letter-spacing: -7px;
+
+        font-weight: 950;
+
+        color: #080808;
+
+        text-transform: uppercase;
+
+        background:
+            linear-gradient(
+                90deg,
+                #000000 20%,
+                #8b00ff 50%,
+                #ff00c8 75%,
+                #000000 100%
+            );
+
+        background-size: 250% auto;
+
+        -webkit-background-clip: text;
+
+        -webkit-text-fill-color: transparent;
+
+        animation: titleGradient 6s ease infinite;
+
+    }
+
+
+    /* ========================================
+       TEXTO
+       ======================================== */
+
+    .maintenance-content p {
+
+        margin-top: 30px;
+
+        font-size: 17px;
+
+        line-height: 1.6;
+
+        color: #737373;
+
+        font-weight: 500;
+
+    }
+
+
+    /* ========================================
+       LOADER
+       ======================================== */
+
+    .maintenance-loader {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        margin-top: 35px;
+
+    }
+
+    .maintenance-loader span {
+
+        width: 9px;
+
+        height: 9px;
+
+        border-radius: 50%;
+
+        background:
+            linear-gradient(
+                135deg,
+                #8b00ff,
+                #ff00c8
+            );
+
+        animation: loadingDots 1.4s infinite ease-in-out;
+
+    }
+
+    .maintenance-loader span:nth-child(2) {
+        animation-delay: .18s;
+    }
+
+    .maintenance-loader span:nth-child(3) {
+        animation-delay: .36s;
+    }
+
+
+    /* ========================================
+       ESTADO
+       ======================================== */
+
+    .maintenance-status {
+
+        margin-top: 22px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        font-size: 11px;
+
+        font-weight: 800;
+
+        letter-spacing: 2px;
+
+        color: #999999;
+
+    }
+
+    .status-dot {
+
+        width: 8px;
+
+        height: 8px;
+
+        border-radius: 50%;
+
+        background: #8b00ff;
+
+        box-shadow:
+            0 0 0 0 rgba(139,0,255,.5);
+
+        animation: statusPulse 1.8s infinite;
+
+    }
+
+
+    /* ========================================
+       ELEMENTOS DECORATIVOS
+       ======================================== */
+
+    .maintenance-glow {
+
+        position: absolute;
+
+        width: 350px;
+
+        height: 350px;
+
+        border-radius: 50%;
+
+        filter: blur(80px);
+
+        pointer-events: none;
+
+        opacity: .18;
+
+        animation: floatingGlow 8s ease-in-out infinite;
+
+    }
+
+    .glow-1 {
+
+        top: -150px;
+
+        right: -100px;
+
+        background: #8b00ff;
+
+    }
+
+    .glow-2 {
+
+        bottom: -170px;
+
+        left: -100px;
+
+        background: #ff00c8;
+
+        animation-delay: -3s;
+
+    }
+
+
+    /* ========================================
+       ÓRBITAS
+       ======================================== */
+
+    .maintenance-orbit {
+
+        position: absolute;
+
+        border: 1px solid rgba(139,0,255,.10);
+
+        border-radius: 50%;
+
+        pointer-events: none;
+
+    }
+
+    .orbit-1 {
+
+        width: 650px;
+
+        height: 650px;
+
+        animation: orbitRotate 25s linear infinite;
+
+    }
+
+    .orbit-2 {
+
+        width: 900px;
+
+        height: 420px;
+
+        transform: rotate(-25deg);
+
+        border-color: rgba(255,0,200,.08);
+
+        animation: orbitFloat 12s ease-in-out infinite;
+
+    }
+
+    .orbit-3 {
+
+        width: 1100px;
+
+        height: 550px;
+
+        transform: rotate(20deg);
+
+        border-color: rgba(255,106,0,.06);
+
+        animation: orbitFloat 16s ease-in-out infinite reverse;
+
+    }
+
+
+    /* ========================================
+       ANIMACIONES
+       ======================================== */
+
+    @keyframes maintenanceAppear {
+
+        from {
+
+            opacity: 0;
+
+            transform: translateY(25px) scale(.97);
+
+        }
+
+        to {
+
+            opacity: 1;
+
+            transform: translateY(0) scale(1);
+
+        }
+
+    }
+
+
+    @keyframes rotateGear {
+
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+
+    }
+
+
+    @keyframes titleGradient {
+
+        0% {
+            background-position: 0% center;
+        }
+
+        50% {
+            background-position: 100% center;
+        }
+
+        100% {
+            background-position: 0% center;
+        }
+
+    }
+
+
+    @keyframes loadingDots {
+
+        0%, 80%, 100% {
+            transform: scale(.6);
+            opacity: .4;
+        }
+
+        40% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+
+    }
+
+
+    @keyframes statusPulse {
+
+        0% {
+            box-shadow: 0 0 0 0 rgba(139,0,255,.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(139,0,255,0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(139,0,255,0);
+        }
+
+    }
+
+
+    @keyframes floatingGlow {
+
+        0%,100% {
+            transform: translate(0,0);
+        }
+
+        50% {
+            transform: translate(30px,-25px);
+        }
+
+    }
+
+
+    @keyframes orbitRotate {
+
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+
+    }
+
+
+    @keyframes orbitFloat {
+
+        0%,100% {
+            transform: translateY(0) rotate(-25deg);
+        }
+
+        50% {
+            transform: translateY(-25px) rotate(-20deg);
+        }
+
+    }
+
+
+    /* ========================================
+       SMARTPHONE
+       ======================================== */
+
+    @media (max-width: 600px) {
+
+        #maintenance-screen {
+            padding: 25px;
+        }
+
+        .maintenance-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+        .maintenance-content h1 {
+            font-size: clamp(3.5rem, 17vw, 5.5rem);
+            letter-spacing: -5px;
+        }
+
+        .maintenance-content p {
+            font-size: 14px;
+        }
+
+        .maintenance-icon {
+            margin-bottom: 20px;
+        }
+
+        .icon-ring {
+            width: 70px;
+            height: 70px;
+            font-size: 30px;
+        }
+
+        .orbit-1 {
+            width: 450px;
+            height: 450px;
+        }
+
+        .orbit-2 {
+            width: 600px;
+            height: 300px;
+        }
+
+        .orbit-3 {
+            width: 700px;
+            height: 350px;
+        }
+
+    }
+
 </style>
-
-<!-- OVERLAY DEL ANUNCIO GLOBAL -->
-<div id="anuncio-global-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
-    <div style="background: #042f2e; border: 2px solid #14b8a6; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto;">
-        <h2 style="color: #2dd4bf; margin-bottom: 15px; font-size: 1.5rem;">📢 AVISO IMPORTANTE</h2>
-        <p id="anuncio-global-texto" style="color: #ccfbf1; font-size: 1rem; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap; text-align: left;"></p>
-        <img id="anuncio-global-img" src="" style="width: 100%; border-radius: 12px; margin-bottom: 20px; display: none; border: 2px solid #0f766e;">
-       <button onclick="document.getElementById('anuncio-global-overlay').style.display = 'none'; localStorage.setItem('anuncio_visto_texto', document.getElementById('anuncio-global-texto').innerText);" style="background: #0d9488; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;">Entendido</button>
-    </div>
-</div>
-
-<div class="app-container">
-
-   <!-- LOGIN -->
-
-    <div id="login-screen" style="width: 100%;">
-        <div id="login-form">
-            <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" class="login-logo" onerror="this.style.display='none'">
-            <h1 class="login-title">Portal Estudiantil</h1>
-            <p class="login-subtitle">Ingresa para ver tu asistencia, QR y clases.</p>
-
-            <input type="text" id="input-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
-            <input type="password" id="input-clave" class="input-field" placeholder="Contraseña (ELEGIDOS26)">
-            
-           <button class="btn-main" onclick="iniciarSesion()">Acceder a mi perfil</button>
-            <div class="error-text" id="error-msg">Código o contraseña incorrectos.</div>
-            
-            <a href="#" onclick="mostrarRecuperacion(true)" style="display: block; margin-top: 20px; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; font-weight: 500;">¿Olvidaste o quieres cambiar tu contraseña?</a>
-            <a href="#" onclick="mostrarCrear(true)" style="display: block; margin-top: 15px; color: #38bdf8; font-size: 0.9rem; text-decoration: none; font-weight: 700;">¿Eres nuevo? Crea tu usuario aquí</a>
-        </div>
-
-     <div id="recovery-form" style="display: none;">
-            <h1 class="login-title" style="font-size: 1.5rem;">Cambiar Contraseña</h1>
-            <p class="login-subtitle" style="padding: 0 10px;">Ingresa tu código y tu nueva contraseña.</p>
-
-            <input type="text" id="rec-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
-            
-            <div id="rec-antigua-container" style="display:none; width: 100%; justify-content: center;">
-                <input type="password" id="rec-antigua" class="input-field" placeholder="Contraseña Actual" style="margin-bottom: 16px;">
-            </div>
-            
-            <input type="password" id="rec-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)">
-            
-            <button class="btn-main" onclick="procesarCambioPassword()">Guardar Nueva Contraseña</button>
-            <button class="btn-main" onclick="mostrarRecuperacion(false)" style="background: #e2e8f0; color: #475569; margin-top: 10px;">Volver</button>
-            <div class="error-text" id="rec-error-msg"></div>
-        </div>
-
-        <!-- FORMULARIO NUEVO INGRESO -->
-        <div id="create-form" style="display: none;">
-            <h1 class="login-title" style="font-size: 1.5rem;">Nuevo Ingreso</h1>
-            <p class="login-subtitle" style="padding: 0 10px;">Ingresa tu nombre y crea tu clave para buscar un código libre.</p>
-
-            <input type="text" id="crear-nombre" class="input-field" placeholder="Tu Nombre Completo" autocomplete="off">
-            <input type="password" id="crear-clave" class="input-field" placeholder="Crea una contraseña (Mín. 4 caracteres)">
-            
-            <button class="btn-main" id="btn-crear-usuario" onclick="procesarCrearUsuario()">Buscar cupo y crear perfil</button>
-            <button class="btn-main" onclick="mostrarCrear(false)" style="background: #e2e8f0; color: #475569; margin-top: 10px;">Volver</button>
-            
-            <div class="error-text" id="crear-error-msg"></div>
-            <div id="crear-success-msg" style="color: var(--text-green); font-size: 0.9rem; margin-top: 12px; display: none; font-weight: 800; background: var(--pastel-green); padding: 12px; border-radius: 8px;"></div>
-        </div>
-    </div> <!-- ESTA ES LA ETIQUETA QUE FALTABA PARA CERRAR EL LOGIN-SCREEN -->
-
-
-    <!-- DASHBOARD -->
-    <div id="dashboard-screen">
-        
-       <!-- SIDEBAR / BOTTOM NAV -->
-        <div class="bottom-nav">
-            
-<img src="ELEGIDOS_INSTITUCIONAL_NEGRO.png" alt="ELEGIDOS" class="logo-desktop" style="max-width: 140px; margin-bottom: 30px; padding-left: 10px; display: none;">
-            
-            <button class="nav-item active" onclick="cambiarSeccion('clases', 0)">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                <span class="nav-txt">Clases</span>
-            </button>
-            <button class="nav-item" onclick="cambiarSeccion('boletos', 1)">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16a2 2 0 0 1 2 2v6a3 3 0 0 0 0 6v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6a3 3 0 0 0 0-6V5a2 2 0 0 1 2-2z"></path><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-                <span class="nav-txt">Boletos</span>
-            </button>
-            <button class="nav-item" onclick="cambiarSeccion('qr', 2)">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                <span class="nav-txt">Mi QR</span>
-            </button>
-            <button class="nav-item" onclick="cambiarSeccion('recursos', 3)">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                <span class="nav-txt">Más</span>
-            </button>
-        </div>
-
-        <div class="main-scroll-area">
-            <div class="top-header">
-                <div class="user-row">
-                    <div class="user-info">
-                        <div class="avatar" id="avatar-initial">E</div>
-                        <div class="greeting">
-                            <p>Hola, de vuelta 👋</p>
-                            <h2 id="display-name">Cargando...</h2>
-                        </div>
-                    </div>
-                    <button class="btn-logout" onclick="cerrarSesion()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        <span class="txt-salir" style="display: none;">Salir</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="content-area">
-                
-                <!-- TABS (MÓVIL) -->
-                <div class="categories-wrapper">
-                    <div class="cat-btn active" onclick="cambiarSeccion('clases', 0)">
-                        <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
-                        <div class="cat-label">Asistencia</div>
-                    </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('boletos', 1)">
-                        <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16a2 2 0 0 1 2 2v6a3 3 0 0 0 0 6v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6a3 3 0 0 0 0-6V5a2 2 0 0 1 2-2z"></path><line x1="9" y1="3" x2="9" y2="21"></line></svg></div>
-                        <div class="cat-label">Boletos</div>
-                    </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('qr', 2)">
-                        <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                        <div class="cat-label">Mi QR</div>
-                    </div>
-                    <div class="cat-btn" onclick="cambiarSeccion('recursos', 3)">
-                        <div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
-                        <div class="cat-label">Más</div>
-                    </div>
-                </div>
-
-                <!-- VISTA 1: CLASES -->
-
-<div id="tab-clases" class="tab-content active">
-                    
-<div class="stats-grid">
-                        <div class="stat-card stat-blue"><div class="num" id="stat-total">0</div><div class="label">Clases</div></div>
-                        <div class="stat-card stat-green"><div class="num" id="stat-asistidas">0</div><div class="label">Asistidas</div></div>
-                        <div class="stat-card stat-purple"><div class="num" id="stat-faltas">0</div><div class="label">Faltas</div></div>
-                        <div class="stat-card stat-orange"><div class="num" id="stat-permisos">0</div><div class="label">Permisos</div></div>
-                    </div>
-
-                    <!-- BARRA DE PROGRESO Y MEDALLAS -->
-                    <div class="progress-container">
-                        <div class="progress-header">
-                            <span>Progreso del Curso</span>
-                            <span id="progress-text">0%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" id="progress-fill"></div>
-                        </div>
-                        <div class="badges-container">
-                            <div class="badge" id="badge-streak" title="Asiste a 5 clases seguidas">🔥 Racha Perfecta</div>
-                            <div class="badge flash" id="badge-flash" title="Ingresa en los primeros 10 minutos">⚡ Flash Rápido</div>
-                        </div>
-                    </div>
-
-                    <!-- ENLACE DE CLASE ONLINE (MIÉRCOLES) -->
-
-                    <div id="meet-banner-container" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center;">
-                        <h4 style="color: var(--purple-main); font-weight: 800; font-size: 1.1rem; margin-bottom: 5px;">🎥 Clase en Vivo Activa</h4>
-                        <p style="font-size: 0.85rem; color: #4338ca; margin-bottom: 15px;">La sala de Google Meet está abierta.</p>
-                        <a href="https://meet.google.com/wvh-nhwv-uga" target="_blank" style="background: var(--purple-main); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);">Unirse a la Clase</a>
-                    </div>
-
-                    <div class="section-header">Historial de Clases</div>               
-
-                    <div class="class-list" id="contenedor-clases"></div>
-                </div>
-
-<!-- VISTA NUEVA: BOLETOS ESPECIALES -->
-                <div id="tab-boletos" class="tab-content">
-                    <div class="section-header">Mis Boletos Oficiales</div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Vincula los códigos de tus entradas físicas para validarlas digitalmente.</p>
-                    
-                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: center;">Escanea el código QR de tu entrada física.</p>
-                        
-                        <!-- Contenedor de la cámara para tickets -->
-                        <div id="qr-reader-boletos" style="width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 15px; display: none;"></div>
-                        
-                        <button class="btn-main" id="btn-abrir-escaner-boletos" onclick="abrirEscanerBoletos()" style="max-width: 100%; padding: 14px; font-size: 0.9rem; margin-bottom: 12px; background: #ea580c;">📷 Escanear Boleto Físico</button>
-                        
-                        <input type="text" id="input-boleto" class="input-field" placeholder="O ingresa el código aquí" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; text-transform: uppercase; text-align: center;">
-                        <button class="btn-main" id="btn-vincular-boleto" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onclick="vincularBoleto()">Vincular Manualmente</button>
-                    </div>
-
-                    <div id="contenedor-boletos" style="margin-top: 24px;">
-                        <!-- Aquí se inyectarán los boletos vinculados -->
-                    </div>
-                </div>
-
-                <!-- VISTA 2: QR -->
-                <div id="tab-qr" class="tab-content">
-                    <div class="section-header">Tu Pase de Entrada</div>
-                    <div class="qr-section">
-                        <h3 style="margin-bottom: 5px; color: var(--text-dark);">Identificación Única</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Muestra este código en la entrada</p>
-                        <div class="qr-container" id="qr-code"></div>
-                        <br><div class="code-display" id="display-code">CLASE-2026-XXX</div>
-                    </div>
-                </div>
-
-               <!-- NUEVA VISTA 4: RETO SEMANAL -->
-                <div id="tab-reto" class="tab-content">
-                    <div id="reto-loading" style="display: flex; justify-content: center; align-items: center; height: 60vh;">
-                        <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" style="width: 100px; animation: splashPulse 1.5s infinite ease-in-out; filter: drop-shadow(0 0 20px rgba(147,51,234,0.4));" onerror="this.style.display='none'">
-                    </div>
-                    
-                    <div id="reto-active" style="display: none;">
-                        <div class="section-header">🔥 Reto Dominical</div>
-                        <div class="calendar-card" style="text-align: center; margin-top: 0;">
-                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Escanea el código QR de un compañero diferente cada domingo para ganar puntos sociales y conocer a la comunidad.</p>
-                            
-                            <h2 style="color: var(--text-dark); font-size: 3rem; margin-bottom: 0px;" id="puntos-sociales">0</h2>
-                            <p style="font-size: 0.75rem; color: var(--purple-main); text-transform: uppercase; font-weight: 800; margin-bottom: 20px;">Puntos de Interacción</p>
-                            
-                            <div id="qr-reader" style="width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 15px; display: none;"></div>
-                            
-                            <button class="btn-main" id="btn-abrir-escaner" onclick="abrirEscanerReto()" style="max-width: 100%; padding: 14px; font-size: 0.9rem;">📷 Activar Cámara y Escanear</button>
-                            
-                            <input type="text" id="input-reto-manual" class="input-field" placeholder="O ingresa el código (Ej: CLASE-2026-001)" style="margin-top: 15px; max-width: 100%;">
-                            <button class="btn-main" onclick="registrarRetoManual()" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Validar Código Manual</button>
-                        </div>
-                    </div>
-                </div>
-
-               <!-- VISTA 5: RECURSOS Y PERFIL -->
-                <div id="tab-recursos" class="tab-content">
-                    
-                    <!-- SECCIÓN PERMISOS DIGITALES -->
-                    <div class="section-header">📝 Solicitud de Permiso</div>
-                    <div class="calendar-card" style="margin-top: 0; padding: 20px; border-color: rgba(234, 88, 12, 0.3);">
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">¿No podrás asistir? Envía tu justificante. Se registrará automáticamente en tu historial como permiso.</p>
-                        
-                        <select id="permiso-fecha" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
-                            <option value="">Selecciona la clase a faltar...</option>
-                        </select>
-                        
-                        <textarea id="permiso-razon" class="input-field" placeholder="Motivo de la inasistencia (Ej: Enfermedad, Trabajo...)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
-                        
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <p style="font-size: 0.8rem; color: var(--text-dark); margin-bottom: 8px; font-weight: 600;">Adjuntar Justificante (Opcional)</p>
-                            <input type="file" id="permiso-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: none; margin-bottom: 5px;">
-                        </div>
-
-                        <button class="btn-main" id="btn-enviar-permiso" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: #ea580c; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);" onclick="enviarPermiso()">Enviar Solicitud</button>
-                    </div>
-
-                    <div class="section-header">👤 Mi Perfil ELEGIDOS</div>
-                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
-                        
-                        <!-- Personalizar Banner -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                            <span style="font-size: 0.8rem; font-weight: 600; color: #e2e8f0;">Color del Banner Principal:</span>
-                            <input type="color" id="perfil-color" value="#9333ea" style="border: none; width: 40px; height: 30px; border-radius: 5px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div id="preview-foto" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.1); margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple-main);">
-                                <img id="img-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                <span id="img-placeholder" style="color: #94a3b8; font-size: 0.75rem;">Sin foto</span>
-                            </div>
-                            <div id="box-subir-foto">
-                                <input type="file" id="perfil-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: none; margin-bottom: 5px;">
-                                <p style="font-size: 0.7rem; color: #f87171; margin-top: 0; font-weight: bold;">⚠️ ATENCIÓN: La foto que subas será definitiva para todo el curso y no podrás cambiarla.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- CAMPOS DE TEXTO RECUPERADOS -->
-                        <input type="number" id="perfil-edad" class="input-field" placeholder="Tu edad (Ej: 22)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
-                        <input type="text" id="perfil-comunidad" class="input-field" placeholder="Comunidad / Zona donde vives" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
-                        <select id="perfil-nivel" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
-                            <option value="">Selecciona tu nivel en fotografía</option>
-                            <option value="Básico">Básico</option>
-                            <option value="Intermedio">Intermedio</option>
-                            <option value="Avanzado">Avanzado</option>
-                        </select>
-                        <textarea id="perfil-desc" class="input-field" placeholder="Una descripción corta de ti..." style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
-
-                        <button class="btn-main" id="btn-guardar-perfil" style="max-width: 100%; padding: 14px; font-size: 0.9rem;" onclick="guardarPerfil()">Guardar Perfil</button>
-                        <div id="perfil-msg" style="font-size: 0.8rem; margin-top: 12px; text-align: center; color: #fbbf24;"></div>
-                    </div>
-
-                    <div class="section-header">📞 Soporte Directo</div>
-                    <a href="https://wa.me/50361772297" target="_blank" class="btn-main" style="display: block; text-align: center; text-decoration: none; background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.4); color: #4ade80; max-width: 100%; margin-bottom: 30px;">💬 Escribir a WhatsApp</a>
-
-                    <div class="section-header">Enlaces Oficiales</div>
-                    <div class="class-list" style="display: block; margin-bottom: 30px;">
-                        <div class="class-item" style="border-left: 4px solid var(--purple-main);">
-                            <div class="class-info"><h5>Sitio Web ELEGIDOS</h5><p>Plataforma y portafolios</p></div>
-                            <a href="https://elegidosori.vercel.app/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAacFQP-0RBBTqkr3Fe58wps9-TZQYVZ9O-UXuRHzqZJLu5nYd3XLKFVhoYITvg_aem_MQAULY9OAtbQlzeqHceovw" target="_blank" style="background: var(--purple-light); color: var(--purple-main); padding: 10px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 800; text-decoration: none;">Visitar</a>
-                        </div>
-                    </div>
-
-                    <div class="section-header">🗓️ Calendario Académico 2026</div>
-                    <div class="calendar-card">
-                        
-                        <div class="cal-row">
-                            <div class="cal-title">Inicio de Convocatoria</div>
-                            <div class="cal-date">Sábado 1 de Agosto</div>
-                        </div>
-                        
-                        <div class="cal-row">
-                            <div class="cal-title">Cierre de Inscripciones e Inauguración<span>Curso de Fotografía Digital</span></div>
-                            <div class="cal-date">Dom. 27 de Septiembre<br>1:00 PM</div>
-                        </div>
-                        
-                        <div class="cal-row">
-                            <div class="cal-title">Masterclass I</div>
-                            <div class="cal-date">Dom. 4 de Octubre<br>3:00 PM</div>
-                        </div>
-                        
-                        <div class="cal-row">
-                            <div class="cal-title">Masterclass II</div>
-                            <div class="cal-date">Dom. 25 de Octubre<br>3:00 PM</div>
-                        </div>
-
-                        <div class="cal-highlight">
-                            <div class="cal-highlight-header">
-                                <h4>🌟 FESTIVAL CREATIVO ELEGIDOS</h4>
-                                <div class="cal-date" style="color: #fbbf24;">Dom. 8 de Noviembre<br>1:00 PM - 5:00 PM</div>
-                            </div>
-                            <ul>
-                                <li>3 Masterclasses Exclusivas</li>
-                                <li>Concurso de Fotografía (Profesional y Celular)</li>
-                                <li>Exposición de Fotos</li>
-                                <li>Espacio de Networking</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="cal-row">
-                            <div class="cal-title">Entrega de Proyectos Finales</div>
-                            <div class="cal-date">Dom. 29 de Noviembre</div>
-                        </div>
-                        
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    if(window.innerWidth > 768){
-        document.querySelector('.logo-desktop').style.display = 'block';
-        document.querySelector('.txt-salir').style.display = 'inline';
-    }
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAL_1473Guz-pf8_kcNtHU6iUT4e1DOlrY",
-        authDomain: "elegidosvalidador.firebaseapp.com",
-        databaseURL: "https://elegidosvalidador-default-rtdb.firebaseio.com",
-        projectId: "elegidosvalidador",
-        storageBucket: "elegidosvalidador.firebasestorage.app",
-        messagingSenderId: "944242599608",
-        appId: "1:944242599608:web:8fae4e722cf19a8820f64d"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // Iniciar sesión anónima automáticamente al cargar para pasar las reglas de Firebase
-    firebase.auth().signInAnonymously().catch((error) => {
-        console.error("Error de autenticación anónima:", error);
-    });
-    
-    const CLAVE_UNIVERSAL = "ELEGIDOS26";
-    const INVITADO_USER = "INVITADO-ELEGIDOS";
-    const INVITADO_PASS = "CLASE2026";
-
-    // FECHAS BASE Y VARIABLE DINÁMICA DE CLASES
-    const FECHAS_CURSO_BASE = [
-        { id: "27_1300", fecha: "2026-09-27", hora: "13:00", nombre: "Inauguración Curso", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "30_2000", fecha: "2026-09-30", hora: "20:00", nombre: "Clase 5", expositor: "Mahu Films", modalidad: "Online" },
-        { id: "04_1500", fecha: "2026-10-04", hora: "15:00", nombre: "Masterclass I", expositor: "Mahu Films", modalidad: "Presencial" },
-        { id: "07_2000", fecha: "2026-10-07", hora: "20:00", nombre: "Clase 7", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "11_1500", fecha: "2026-10-11", hora: "15:00", nombre: "Clase 8", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "14_2000", fecha: "2026-10-14", hora: "20:00", nombre: "Clase 9", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "18_1500", fecha: "2026-10-18", hora: "15:00", nombre: "Clase 10", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "21_2000", fecha: "2026-10-21", hora: "20:00", nombre: "Clase 11", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "25_1500", fecha: "2026-10-25", hora: "15:00", nombre: "Masterclass II", expositor: "Dreamez", modalidad: "Presencial" },
-        { id: "28_2000", fecha: "2026-10-28", hora: "20:00", nombre: "Clase 13", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "01_1500", fecha: "2026-11-01", hora: "15:00", nombre: "Clase 14", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "04_2000_2", fecha: "2026-11-04", hora: "20:00", nombre: "Clase 15", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "08_1300", fecha: "2026-11-08", hora: "13:00", nombre: "Festival Creativo ELEGIDOS", expositor: "Los Deschavetados, Los Pixies, Sorpresa", modalidad: "Presencial" },
-        { id: "11_2000_2", fecha: "2026-11-11", hora: "20:00", nombre: "Clase 17", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "15_1500", fecha: "2026-11-15", hora: "15:00", nombre: "Clase 18", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "18_2000_2", fecha: "2026-11-18", hora: "20:00", nombre: "Clase 19", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "22_1500", fecha: "2026-11-22", hora: "15:00", nombre: "Clase 20", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "25_2000_2", fecha: "2026-11-25", hora: "20:00", nombre: "Clase 21", expositor: "Equipo ELEGIDOS", modalidad: "Online" },
-        { id: "29_1500", fecha: "2026-11-29", hora: "15:00", nombre: "Entrega de Proyectos Finales", expositor: "Equipo ELEGIDOS", modalidad: "Presencial" },
-        { id: "02_2000", fecha: "2026-12-02", hora: "20:00", nombre: "Clase 23", expositor: "Equipo ELEGIDOS", modalidad: "Online" }
-    ];
-
-    let FECHAS_CURSO = [...FECHAS_CURSO_BASE];
-
-    let temasClasesGlobales = {}; 
-    let ponentesClasesGlobales = {}; // Aquí guardaremos los ponentes que envíe el Admin
-
-    let datosEstudianteActual = null;
-    let esInvitado = false;
-    let fotoPerfilBase64 = null;;
-
-    function formatearFecha(fechaString) {
-        const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
-        return new Date(fechaString + 'T12:00:00Z').toLocaleDateString('es-ES', opciones);
-    }
-
-function mostrarRecuperacion(mostrar) {
-        document.getElementById("login-form").style.display = mostrar ? "none" : "block";
-        document.getElementById("recovery-form").style.display = mostrar ? "block" : "none";
-        if(document.getElementById("create-form")) document.getElementById("create-form").style.display = "none";
-        document.getElementById("rec-error-msg").style.display = "none";
-    }
-
-    function mostrarCrear(mostrar) {
-        document.getElementById("login-form").style.display = mostrar ? "none" : "block";
-        document.getElementById("create-form").style.display = mostrar ? "block" : "none";
-        document.getElementById("recovery-form").style.display = "none";
-        document.getElementById("crear-error-msg").style.display = "none";
-        document.getElementById("crear-success-msg").style.display = "none";
-    }
-
-    function procesarCrearUsuario() {
-        const nombre = document.getElementById("crear-nombre").value.trim();
-        const clave = document.getElementById("crear-clave").value.trim();
-        const errorMsg = document.getElementById("crear-error-msg");
-        const successMsg = document.getElementById("crear-success-msg");
-        const btn = document.getElementById("btn-crear-usuario");
-
-        if (!nombre || clave.length < 4) {
-            errorMsg.innerText = "Ingresa tu nombre y una contraseña de al menos 4 caracteres.";
-            errorMsg.style.display = "block";
-            return;
-        }
-
-        errorMsg.style.display = "none";
-        btn.innerText = "Buscando cupo libre...";
-        btn.disabled = true;
-
-        // Buscar el código más pequeño libre
-        db.ref('clase').once('value').then((snapshot) => {
-            let codigoAsignar = "";
-            
-            if (snapshot.exists()) {
-                const usuarios = snapshot.val();
-                // Buscar del 1 al 999 el primero que no exista o no tenga nombre
-                for (let i = 1; i <= 999; i++) {
-                    const numStr = String(i).padStart(3, '0');
-                    const testCodigo = `CLASE-2026-${numStr}`;
-                    
-                    if (!usuarios[testCodigo] || !usuarios[testCodigo].nombre || usuarios[testCodigo].nombre.trim() === "") {
-                        codigoAsignar = testCodigo;
-                        break;
-                    }
-                }
-            } else {
-                codigoAsignar = "CLASE-2026-001";
-            }
-
-            if (codigoAsignar === "") {
-                errorMsg.innerText = "Lo sentimos, no hay cupos disponibles en el sistema.";
-                errorMsg.style.display = "block";
-                btn.innerText = "Buscar cupo y crear perfil";
-                btn.disabled = false;
-                return;
-            }
-
-            // Guardar al nuevo estudiante
-            db.ref('clase/' + codigoAsignar).update({
-                nombre: nombre,
-                password: clave,
-                fecha_creacion: new Date().toISOString()
-            }).then(() => {
-                successMsg.innerHTML = `¡Éxito! Tu código es:<br><span style="font-size:1.4rem; color:#15803d; display:block; margin:8px 0;">${codigoAsignar}</span>¡Tómale captura, lo necesitarás para entrar!<br>Iniciando sesión en 5 segundos...`;
-                successMsg.style.display = "block";
-                btn.style.display = "none";
-                
-                // Rellenar las credenciales originales y auto-iniciar sesión
-                document.getElementById("input-codigo").value = codigoAsignar;
-                document.getElementById("input-clave").value = clave;
-
-                setTimeout(() => {
-                    mostrarCrear(false);
-                    btn.style.display = "block";
-                    btn.disabled = false;
-                    btn.innerText = "Buscar cupo y crear perfil";
-                    document.getElementById("crear-nombre").value = "";
-                    document.getElementById("crear-clave").value = "";
-                    iniciarSesion();
-                }, 5000);
-            });
-        }).catch((error) => {
-            errorMsg.innerText = "Error de conexión. Intenta de nuevo.";
-            errorMsg.style.display = "block";
-            btn.innerText = "Buscar cupo y crear perfil";
-            btn.disabled = false;
-        });
-    }
-
-    // Event listener para detectar cuando ingresan el código y mostrar u ocultar el campo de "Contraseña Antigua"
-    document.getElementById("rec-codigo").addEventListener("blur", function() {
-        const codigo = this.value.trim().toUpperCase();
-        if(codigo.startsWith("CLASE-2026-")) {
-             db.ref('clase/' + codigo).once('value').then((snapshot) => {
-                 if(snapshot.exists()){
-                     const data = snapshot.val();
-                     const contraseñaActualDB = data.password;
-                     const containerAntigua = document.getElementById("rec-antigua-container");
-                     
-                     // Mostrar campo de contraseña antigua si ya la han cambiado
-                     if(contraseñaActualDB && contraseñaActualDB !== CLAVE_UNIVERSAL){
-                          containerAntigua.style.display = "flex";
-                     } else {
-                          containerAntigua.style.display = "none";
-                     }
-                 }
-             });
-        }
-    });
-
-    function procesarCambioPassword() {
-        const codigo = document.getElementById("rec-codigo").value.trim().toUpperCase();
-        const passAntigua = document.getElementById("rec-antigua").value.trim();
-        const nuevaPass = document.getElementById("rec-nueva").value.trim();
-        const errorMsg = document.getElementById("rec-error-msg");
-        const containerAntigua = document.getElementById("rec-antigua-container");
-
-        if (!codigo || nuevaPass.length < 4) {
-            errorMsg.innerText = "El código es obligatorio y la nueva contraseña debe tener al menos 4 caracteres.";
-            errorMsg.style.display = "block"; return;
-        }
-
-        db.ref('clase/' + codigo).once('value').then((snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const contraseñaActualDB = data.password;
-
-                // Si nunca han cambiado la clave o es la universal
-                if (!contraseñaActualDB || contraseñaActualDB === CLAVE_UNIVERSAL) {
-                    if (confirm(`¿Confirmas que deseas establecer "${nuevaPass}" como tu nueva contraseña?`)) {
-                        guardarNuevaContraseña(codigo, nuevaPass);
-                    }
-                } else {
-                    // Si ya tenían clave, validamos la antigua
-                    if(containerAntigua.style.display === "none"){
-                        containerAntigua.style.display = "flex";
-                        errorMsg.innerText = "Por favor ingresa tu contraseña actual para confirmar el cambio.";
-                        errorMsg.style.display = "block";
-                        return;
-                    }
-                    
-                    if (passAntigua !== contraseñaActualDB) {
-                        errorMsg.innerText = "❌ La contraseña actual ingresada es incorrecta.";
-                        errorMsg.style.display = "block";
-                        return;
-                    }
-
-                    if (confirm(`¿Confirmas que deseas cambiar tu contraseña a "${nuevaPass}"?`)) {
-                        guardarNuevaContraseña(codigo, nuevaPass);
-                    }
-                }
-            } else {
-                errorMsg.innerText = `❌ El código ${codigo} no existe. Verifica el formato.`;
-                errorMsg.style.display = "block";
-            }
-        }).catch((error) => {
-             errorMsg.innerText = "Error al conectar con la base de datos.";
-             errorMsg.style.display = "block";
-        });
-    }
-
-    function guardarNuevaContraseña(codigo, nuevaPass) {
-        db.ref('clase/' + codigo).update({ password: nuevaPass }).then(() => {
-            alert("✅ Contraseña actualizada correctamente. Ahora inicia sesión con tu nueva contraseña.");
-            document.getElementById("input-codigo").value = codigo;
-            document.getElementById("input-clave").value = nuevaPass;
-            
-            document.getElementById("rec-codigo").value = "";
-            document.getElementById("rec-antigua").value = "";
-            document.getElementById("rec-nueva").value = "";
-            
-            mostrarRecuperacion(false);
-        });
-    }
-
-    function iniciarSesion() {
-    const codigoInput = document.getElementById("input-codigo").value.trim().toUpperCase();
-    const claveInput = document.getElementById("input-clave").value.trim();
-    const errorMsg = document.getElementById("error-msg");
-
-    // nueva lógica para perfiles de directores
-    if (codigoInput === "ADMIN-GLENDA" || codigoInput === "ADMIN-ROGER") {
-        if (claveInput === "ELEGIDOS26") {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("admin-screen").style.display = "block";
-            document.getElementById("admin-name").innerText = codigoInput === "ADMIN-GLENDA" ? "Glenda Flores" : "Roger Mendez";
-            iniciarMonitoreoEnVivo();
-            return;
-        } else {
-            errorMsg.innerText = "Contraseña de administrador incorrecta.";
-            errorMsg.style.display = "block";
-            return;
-        }
-    }
-
-        if (!codigoInput.startsWith("CLASE-2026-")) { 
-            errorMsg.innerText = "Código inválido."; 
-            errorMsg.style.display = "block"; 
-            return; 
-        }
-
-        // Declarar el botón correctamente para evitar el ReferenceError
-        const btn = document.querySelector("#login-form .btn-main");
-        btn.innerText = "Verificando...";
-        
-        db.ref('clase/' + codigoInput).once('value').then((snapshot) => {
-            if (snapshot.exists()) {
-                esInvitado = false;
-                datosEstudianteActual = snapshot.val();
-                
-               // Validar contraseña (la personalizada o la universal por defecto)
-                const passCorrecta = datosEstudianteActual.password || CLAVE_UNIVERSAL;
-                if (claveInput !== passCorrecta) {
-                    errorMsg.innerText = "Contraseña incorrecta."; 
-                    errorMsg.style.display = "block"; 
-                    btn.innerText = "Acceder a mi perfil";
-                    return;
-                }
-
-                cargarDashboard(codigoInput, datosEstudianteActual);
-                localStorage.setItem("elegidos_student_code", codigoInput);
-
-                // Activar escucha en tiempo real para que el portal se actualice al instante al ser escaneado
-                db.ref('clase/' + codigoInput).on('value', (snap) => {
-                    if(snap.exists()){
-                        datosEstudianteActual = snap.val();
-                        renderizarListaClases();
-                        renderizarBoletosVinculados();
-                    }
-                });
-            } else {
-                errorMsg.innerText = "El código no existe."; 
-                errorMsg.style.display = "block"; 
-                btn.innerText = "Acceder a mi perfil";
-            }
-        }).catch(() => {
-            errorMsg.innerText = "Error de red."; 
-            errorMsg.style.display = "block"; 
-            btn.innerText = "Acceder a mi perfil";
-        });
-    }  
-
-
-    function cargarDashboard(codigo, data) {
-        document.getElementById("login-screen").style.display = "none";
-        document.getElementById("dashboard-screen").classList.add("show");
-
-        const nombre = data.nombre ? data.nombre.toLowerCase() : "estudiante";
-        document.getElementById("display-name").innerText = nombre;
-        document.getElementById("display-code").innerText = codigo;
-        document.getElementById("avatar-initial").innerText = nombre.charAt(0).toUpperCase();
-
-        document.getElementById("qr-code").innerHTML = "";
-        new QRCode(document.getElementById("qr-code"), { text: codigo, width: 170, height: 170, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
-
-        if (data.perfil) {
-            document.getElementById("perfil-edad").value = data.perfil.edad || "";
-            document.getElementById("perfil-comunidad").value = data.perfil.comunidad || "";
-            document.getElementById("perfil-nivel").value = data.perfil.nivel || "";
-            document.getElementById("perfil-desc").value = data.perfil.desc || "";
-
-            // APLICAR COLOR DEL BANNER GUARDADO
-            if (data.perfil.color) {
-                document.getElementById("perfil-color").value = data.perfil.color;
-                document.querySelector('.top-header').style.background = `linear-gradient(135deg, ${data.perfil.color} 0%, var(--purple-dark) 100%)`;
-                document.documentElement.style.setProperty('--purple-main', data.perfil.color);
-            }
-
-            if (data.perfil.foto) {
-                fotoPerfilBase64 = data.perfil.foto; 
-                document.getElementById('img-preview').src = data.perfil.foto;
-                document.getElementById('img-preview').style.display = 'block';
-                document.getElementById('img-placeholder').style.display = 'none';
-                
-                const boxSubir = document.getElementById('box-subir-foto');
-                if(boxSubir) boxSubir.style.display = 'none';
-
-                const avatarDiv = document.getElementById('avatar-initial');
-                avatarDiv.innerHTML = `<img src="${data.perfil.foto}" style="width: 100%; height: 100%; border-radius: 16px; object-fit: cover;">`;
-                avatarDiv.style.border = "none";
-            }
-        }
-        verificarBloqueoPerfil(data);
-
-        renderizarListaClases();
-        renderizarBoletosVinculados();
-
-        if (!esInvitado && (!data.perfil || !data.perfil.foto || !data.perfil.edad || !data.perfil.comunidad || !data.perfil.nivel || !data.perfil.desc)) {
-            setTimeout(() => {
-                alert("⚠️ ¡Hola! Antes de continuar, es obligatorio que completes todos los datos de texto, el color de tu portal y la foto de tu perfil (la cual será definitiva).");
-                cambiarSeccion('recursos', 3);
-            }, 300);
-        }
-    }
-
-    function renderizarListaClases() {
-        if(esInvitado) {
-            document.getElementById("contenedor-clases").innerHTML = "<p style='padding:20px; text-align:center;'>Modo Invitado activo.</p>";
-            return;
-        }
-
-        const contenedor = document.getElementById("contenedor-clases");
-        contenedor.innerHTML = "";
-        const ahora = new Date();
-        let asistidas = 0; let ausencias = 0; let permisos = 0;
-        
-        let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
-
-        const asistenciasData = datosEstudianteActual ? datosEstudianteActual.asistencias : null;
-        let ultimaClaseAsistidaIndex = -1;
-
-        // Encontrar la clase más futura a la que haya asistido para aplicar inasistencias en los huecos
-        if (asistenciasData) {
-            FECHAS_CURSO.forEach((item, idx) => {
-                let asistioAqui = asistenciasData[item.id] || asistenciasData[item.fecha];
-                if (item.fecha === "2026-10-04" && asistenciasData["evento_elegidos"]) asistioAqui = true;
-                if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && asistenciasData["evento_masterclass"]) asistioAqui = true;
-                if (item.fecha === "2026-11-08" && asistenciasData["evento_festival"]) asistioAqui = true;
-
-                if (asistioAqui) {
-                    ultimaClaseAsistidaIndex = idx;
-                }
-            });
-        }
-
-        FECHAS_CURSO.forEach((item, idx) => {
-            const row = document.createElement("div"); 
-            row.className = "class-item";
-            row.style.alignItems = "flex-start";
-
-            let horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
-
-            if (asistenciasData) {
-                if (item.fecha === "2026-10-04" && asistenciasData["evento_elegidos"]) horaIngreso = asistenciasData["evento_elegidos"];
-                if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && asistenciasData["evento_masterclass"]) horaIngreso = asistenciasData["evento_masterclass"];
-                if (item.fecha === "2026-11-08" && asistenciasData["evento_festival"]) horaIngreso = asistenciasData["evento_festival"];
-            }
-
-            const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-            const hoyStr = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
-            const fechaHoraClase = new Date(item.fecha + 'T' + item.hora + ':00');
-            
-            const esHoy = (hoyStr === item.fecha);
-            const esPasado = (hoyStr > item.fecha);
-
-            let statusBadge = ""; 
-            let timeInfo = "";
-
-            if (horaIngreso) {
-                if (horaIngreso.toLowerCase().includes("permiso")) {
-                    permisos++;
-                    statusBadge = `<span class="status-badge" style="background: #ffedd5; color: #c2410c;">Permiso</span>`; 
-                    timeInfo = `Justificado: ${horaIngreso}`;
-                } else {
-                    asistidas++; 
-                    rachaActual++;
-                    if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
-                    statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
-                    timeInfo = `Llegada: ${horaIngreso}`;
-                }
-            } 
-            else if (esHoy) {
-                if (ahora >= fechaHoraClase) {
-                    statusBadge = `<span class="status-badge status-today">Activa</span>`; 
-                    timeInfo = `Hora: ${item.hora} - Disponible`;
-                } else {
-                    statusBadge = `<span class="status-badge status-wait">Hoy ${item.hora}</span>`; 
-                    timeInfo = `Inicia a las ${item.hora}`;
-                }
-            } 
-            else if (esPasado || idx < ultimaClaseAsistidaIndex) {
-                ausencias++;
-                rachaActual = 0; 
-                statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
-                timeInfo = `Falta registrada`;
-            } 
-            else {
-                statusBadge = `<span class="status-badge" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-light);">Próx.</span>`; 
-                timeInfo = `Inicia a las ${item.hora}`;
-            }
-
-            // Extraer el tema dinámico de Firebase (o dejar en blanco si no hay)
-            const temaDinamico = temasClasesGlobales[item.id] || "";
-            const spanTema = temaDinamico ? `<span style="display: block; font-size: 0.75rem; color: var(--purple-main); font-weight: 700; margin-bottom: 4px;">${temaDinamico}</span>` : "";
-
-            // Extraer ponente dinámico o usar el por defecto
-            const ponenteFinal = ponentesClasesGlobales[item.id] || item.expositor;
-            const modalidadInfo = item.modalidad === 'Online' ? '💻 Online' : '📍 Presencial';
-
-            row.innerHTML = `
-                <div class="class-info" style="flex: 1;">
-                    <h5 style="margin-bottom: 2px; color: var(--text-dark);">${item.nombre} — ${formatearFecha(item.fecha)}</h5>
-                    ${spanTema}
-                    <p style="margin-bottom: 2px; color: var(--text-muted);">${timeInfo}</p>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
-                        <span style="font-size: 0.7rem; font-style: italic; color: var(--text-muted); opacity: 0.8;">Por: ${ponenteFinal}</span>
-                        <span style="font-size: 0.65rem; background: rgba(255,255,255,0.05); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">${modalidadInfo}</span>
-                    </div>
-                </div>
-                <div>${statusBadge}</div>
-            `;
-            contenedor.appendChild(row);
-        });
-
-        document.getElementById("stat-asistidas").innerText = asistidas;
-        document.getElementById("stat-faltas").innerText = ausencias;
-        document.getElementById("stat-permisos").innerText = permisos;
-        document.getElementById("stat-total").innerText = FECHAS_CURSO.length;
-        
-        const porcentajeProgreso = Math.round((asistidas / FECHAS_CURSO.length) * 100) || 0;
-        document.getElementById("progress-text").innerText = porcentajeProgreso + "%";
-        document.getElementById("progress-fill").style.width = porcentajeProgreso + "%";
-
-        if (rachaMaxima >= 5) {
-            document.getElementById("badge-streak").classList.add("active");
-        } else {
-            document.getElementById("badge-streak").classList.remove("active");
-        }
-
-        if (tieneFlash) {
-            document.getElementById("badge-flash").classList.add("active");
-        } else {
-            document.getElementById("badge-flash").classList.remove("active");
-        }
-
-        // --- NUEVA LÓGICA: DETECCIÓN DINÁMICA DEL BOTÓN DE MEET ---
-        const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        const hoyMeet = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
-        const meetContainer = document.getElementById("meet-banner-container");
-        
-        let mostrarMeet = false;
-
-        // Buscamos si existe alguna clase HOY que sea Online
-        const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoyMeet && c.modalidad === 'Online');
-
-        if (claseDeHoy) {
-            // Creamos un objeto de fecha y hora exacta de la clase de hoy
-            const horaClase = new Date(`${hoyMeet}T${claseDeHoy.hora}:00`);
-            
-            // Calculamos 15 minutos antes de la clase
-            const horaApertura = new Date(horaClase.getTime() - (15 * 60000));
-            
-            // Calculamos 90 minutos después (para que el botón desaparezca al finalizar)
-            const horaCierre = new Date(horaClase.getTime() + (90 * 60000));
-
-            // Si la hora actual está dentro de esa ventana de tiempo, mostramos el botón
-            if (fechaSV >= horaApertura && fechaSV <= horaCierre) {
-                mostrarMeet = true;
-            }
-        }
-
-        if (mostrarMeet) {
-            if (meetContainer) meetContainer.style.display = "block";
-        } else {
-            if (meetContainer) meetContainer.style.display = "none";
-        }
-    }
-
-// --- LÓGICA DE BOLETOS ESPECIALES ---
-    
-    // Configuración de fechas de eventos para validar si están vigentes
-    const FECHAS_EVENTOS = {
-        elegidos: "2026-10-04",
-        masterclass: "2026-10-27",
-        festival: "2026-11-08"
-    };
-
-    // Mapa exacto de las imágenes de los tickets
-    const IMAGENES_EVENTOS = {
-        elegidos: "ticket MAHU.jpg",
-        masterclass: "ticket DREAMEZ.jpg", 
-        festival: "ticket FESTIVAL.jpg"
-    };
-
-    function renderizarBoletosVinculados() {
-        const contenedor = document.getElementById("contenedor-boletos");
-        contenedor.innerHTML = "";
-        
-        if (!datosEstudianteActual || !datosEstudianteActual.boletos) {
-            contenedor.innerHTML = "<p style='text-align: center; font-size: 0.85rem; color: #94a3b8; padding: 20px;'>No tienes ningún boleto vinculado a tu cuenta.</p>";
-            return;
-        }
-
-        // CORRECCIÓN: Usar la hora exacta de El Salvador para calcular "hoy"
-        const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        const hoy = fechaActualSV.getFullYear() + '-' + 
-                    String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + 
-                    String(fechaActualSV.getDate()).padStart(2, '0');
-
-        Object.keys(datosEstudianteActual.boletos).forEach(codigoBoleto => {
-            const eventoId = datosEstudianteActual.boletos[codigoBoleto];
-            const fechaEvento = FECHAS_EVENTOS[eventoId];
-            
-            // Creamos la tarjeta con un mensaje de "Verificando" temporalmente
-            const card = document.createElement("div");
-            card.className = "class-item";
-            card.style.flexDirection = "column";
-            card.style.alignItems = "flex-start";
-            card.style.marginBottom = "15px";
-            card.innerHTML = `<div style="padding: 10px; width:100%; text-align:center; color: #94a3b8; font-size: 0.8rem;">Verificando estado del ticket...</div>`;
-            contenedor.appendChild(card);
-            
-            // 1. Verificar si el alumno ya tiene asistencia marcada en su perfil para esa fecha
-            let asistioEnPerfil = false;
-            if (datosEstudianteActual.asistencias) {
-                const claseDelEvento = FECHAS_CURSO.find(c => c.fecha === fechaEvento);
-                if (claseDelEvento && datosEstudianteActual.asistencias[claseDelEvento.id]) {
-                    asistioEnPerfil = true;
-                } else if (datosEstudianteActual.asistencias[fechaEvento]) {
-                    asistioEnPerfil = true;
-                }
-            }
-
-            // 2. Verificar el nodo del boleto en Firebase
-            db.ref(`${eventoId}/${codigoBoleto}`).once('value').then(snap => {
-                const dataBoleto = snap.exists() ? snap.val() : null;
-                
-                // --- CORRECCIÓN BUG TICKET FANTASMA ---
-                const codigoReal = localStorage.getItem("elegidos_student_code");
-                if (!dataBoleto || dataBoleto.vinculado_a !== codigoReal) {
-                    // Es un ticket huérfano asignado por error en la caché, lo eliminamos del perfil
-                    db.ref(`clase/${codigoReal}/boletos/${codigoBoleto}`).remove();
-                    return; // Cancelamos el renderizado para que no se vea
-                }
-                
-                let asistio = asistioEnPerfil;
-                if (dataBoleto && (dataBoleto.usado === true || dataBoleto.estado === 'usado' || dataBoleto.asistencia === true || dataBoleto.hora_ingreso)) {
-                    asistio = true;
-                }
-
-                let estadoHTML = "";
-                let btnTicketHTML = `<button onclick="mostrarImagenBoleto('${codigoBoleto}', '${eventoId}')" style="margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; background: #ea580c; color: #ffffff; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);">🎟️ Mostrar Ticket Virtual</button>`;
-                
-               if (asistio) {
-                    estadoHTML = `<span class="status-badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.65rem;">✅ SÍ ASISTIÓ EN EL EVENTO</span>`;
-                } else if (hoy < fechaEvento) {
-                    estadoHTML = `<span class="status-badge" style="background: #e0f2fe; color: #0369a1;">Aún no inicia</span>`;
-                } else if (hoy > fechaEvento) {
-                    estadoHTML = `<span class="status-badge" style="background: #fee2e2; color: #991b1b;">Finalizado</span>`;
-                } else {
-                    estadoHTML = `<span class="status-badge" style="background: #fef3c7; color: #b45309;">HOY ES EL EVENTO</span>`;
-                }
-
-                // Pintamos la tarjeta de verde si asistió, o naranja si no
-                card.style.borderLeft = asistio ? "4px solid #16a34a" : "4px solid #ea580c"; 
-                
-                card.innerHTML = `
-                    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-                        <div class="class-info">
-                            <h5 style="color: ${asistio ? '#16a34a' : '#ea580c'}; font-size: 1rem;">${codigoBoleto}</h5>
-                            <p style="text-transform: uppercase;">Evento: ${eventoId}</p>
-                        </div>
-                        ${estadoHTML}
-                    </div>
-                    ${btnTicketHTML}
-                    <div id="ticket-container-${codigoBoleto}" style="width: 100%; display: none; justify-content: center; margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 12px;"></div>
-                `;
-            });
-        });
-    }
-    function vincularBoleto() {
-        const inputField = document.getElementById("input-boleto");
-        const codigoBoleto = inputField.value.trim().toUpperCase();
-        const codigoEstudiante = localStorage.getItem("elegidos_student_code");
-
-        if (!codigoBoleto) return alert("Ingresa un código de boleto.");
-
-        let eventoDetectado = null;
-        if (codigoBoleto.startsWith("ELEGIDOS-2026-")) eventoDetectado = 'elegidos';
-        else if (codigoBoleto.startsWith("DREAMEZ-2026-")) eventoDetectado = 'masterclass';
-        else if (codigoBoleto.startsWith("FESTIVAL-2026-")) eventoDetectado = 'festival';
-        else return alert("❌ El código no corresponde a ningún evento oficial ELEGIDOS.");
-
-        const btn = document.getElementById("btn-vincular-boleto");
-        btn.innerText = "Verificando...";
-        btn.disabled = true;
-
-        db.ref(`${eventoDetectado}/${codigoBoleto}`).once('value').then(snap => {
-            if (!snap.exists()) {
-                alert("❌ Este boleto no existe en la base de datos oficial.");
-                resetBtnBoleto(btn);
-                return;
-            }
-
-            const dataBoleto = snap.val();
-
-            if (dataBoleto.vinculado_a) {
-                if (dataBoleto.vinculado_a === codigoEstudiante) {
-                    alert("Ya tienes este boleto vinculado a tu cuenta.");
-                } else {
-                    alert("❌ Este boleto ya fue registrado por otro estudiante y es intransferible.");
-                }
-                resetBtnBoleto(btn);
-                return;
-            }
-
-            // APLICAMOS LA LÓGICA DE UNIFICACIÓN:
-            // 1. Guardamos qué boleto compró en su perfil (solo para historial)
-            // 2. Marcamos en su perfil de 'clase' que tiene ACCESO PERMITIDO a ese evento
-            // 3. Bloqueamos el boleto original para que nadie más lo use
-            const updates = {};
-            updates[`clase/${codigoEstudiante}/boletos/${codigoBoleto}`] = eventoDetectado;
-            updates[`clase/${codigoEstudiante}/accesos_especiales/${eventoDetectado}`] = true; 
-            updates[`${eventoDetectado}/${codigoBoleto}/vinculado_a`] = codigoEstudiante;
-
-            db.ref().update(updates).then(() => {
-                alert(`✅ Boleto vinculado. Ahora tu QR general de estudiante (${codigoEstudiante}) funcionará como tu pase de acceso para este evento.`);
-                inputField.value = "";
-                
-                if(!datosEstudianteActual.boletos) datosEstudianteActual.boletos = {};
-                datosEstudianteActual.boletos[codigoBoleto] = eventoDetectado;
-                renderizarListaClases();
-                renderizarBoletosVinculados();
-                
-                resetBtnBoleto(btn);
-            }).catch(e => {
-                alert("Error al vincular: " + e);
-                resetBtnBoleto(btn);
-            });
-        });
-    }
-
-    function resetBtnBoleto(btn) {
-        btn.innerText = "Vincular Boleto";
-        btn.disabled = false;
-    }
-
-    function mostrarImagenBoleto(codigoBoleto, eventoId) {
-        const containerId = `ticket-container-${codigoBoleto}`;
-        const container = document.getElementById(containerId);
-        
-        if (container.style.display === "flex") {
-            container.style.display = "none";
-            return;
-        }
-
-        container.style.display = "flex";
-        
-        // Buscar la imagen oficial del evento
-        const imagenSrc = IMAGENES_EVENTOS[eventoId] || "ticket MAHU.jpg";
-
-        container.innerHTML = `
-            <div style="text-align: center; width: 100%; animation: fadeIn 0.3s ease;">
-                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 10px;">En puerta presentas esta pantalla, o escaneas tu QR de alumno habitual.</p>
-                <img src="${imagenSrc}" alt="Ticket ${eventoId}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid #ea580c; display: block; margin: 0 auto;">
-            </div>
-        `;
-    }
-
-    function cambiarSeccion(tab, index) {
-        // Validación ESTRICTA: Verificar foto Y todos los campos de texto
-        if (!esInvitado && datosEstudianteActual) {
-            const p = datosEstudianteActual.perfil;
-            if (!p || !p.foto || !p.edad || !p.comunidad || !p.nivel || !p.desc) {
-                if (tab !== 'recursos') {
-                    alert("⚠️ Acción obligatoria: Debes subir una foto y llenar TODOS tus datos personales para desbloquear el portal.");
-                    tab = 'recursos';
-                    index = 3; 
-                }
-            }
-        }
-
-        document.querySelectorAll('.cat-btn').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.cat-btn')[index].classList.add('active');
-
-        document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); n.classList.remove('active-live'); });
-        
-        const navTarget = document.querySelectorAll('.nav-item')[index];
-        if(tab === 'envivo') { navTarget.classList.add('active-live'); } else { navTarget.classList.add('active'); }
-
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${tab}`).classList.add('active');
-    }
-
-    function cerrarSesion() {
-        localStorage.removeItem("elegidos_student_code");
-        localStorage.removeItem("anuncio_visto_texto"); // Borra el recuerdo para que el anuncio vuelva a salir
-        
-        document.getElementById("dashboard-screen").classList.remove("show");
-        document.getElementById("login-screen").style.display = "flex";
-        document.getElementById("input-codigo").value = ""; 
-        document.getElementById("input-clave").value = "";
-        
-        // Recargar la página asegura que los anuncios y datos se limpien perfectamente para el siguiente usuario
-        window.location.reload();
-    }
-
-// Aseguramos que cargue apenas esté listo el DOM y mantenemos sesión activa
-    document.addEventListener("DOMContentLoaded", () => {
-        const codigoGuardado = localStorage.getItem("elegidos_student_code");
-        if(codigoGuardado && codigoGuardado.startsWith("CLASE-2026-")) {
-            document.getElementById("input-codigo").value = codigoGuardado;
-            db.ref('clase/' + codigoGuardado).once('value').then((snapshot) => {
-                if(snapshot.exists()) {
-                    datosEstudianteActual = snapshot.val();
-                    cargarDashboard(codigoGuardado, datosEstudianteActual);
-                }
-            });
-        }
-
-        const inputFoto = document.getElementById('perfil-foto');    
-
-        if (inputFoto) {
-            inputFoto.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const MAX_WIDTH = 150; 
-                        const MAX_HEIGHT = 150;
-                        let width = img.width; 
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                        } else {
-                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                        }
-                        
-                        canvas.width = width; 
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        fotoPerfilBase64 = canvas.toDataURL('image/jpeg', 0.5); 
-                        
-                        const imgPreview = document.getElementById('img-preview');
-                        const imgPlaceholder = document.getElementById('img-placeholder');
-                        if(imgPreview && imgPlaceholder) {
-                            imgPreview.src = fotoPerfilBase64;
-                            imgPreview.style.display = 'block';
-                            imgPlaceholder.style.display = 'none';
-                        }
-                    }
-                    img.src = event.target.result;
-                }
-                reader.readAsDataURL(file);
-            });
-        }
-    });
-
-    function verificarBloqueoPerfil(data) {
-        const p = data.perfil || {};
-        
-        // Solo bloqueamos si TODOS los campos obligatorios existen (perfil 100% completo)
-        const estaCompleto = (p.foto && p.edad && p.comunidad && p.nivel && p.desc);
-
-        if (p.ultimaActualizacion && estaCompleto) {
-            const ultimo = new Date(p.ultimaActualizacion);
-            const hoy = new Date();
-            const diasPasados = Math.floor((hoy - ultimo) / (1000 * 60 * 60 * 24));
-            
-            if (diasPasados < 30) {
-                document.getElementById("perfil-edad").disabled = true;
-                document.getElementById("perfil-comunidad").disabled = true;
-                document.getElementById("perfil-nivel").disabled = true;
-                document.getElementById("perfil-desc").disabled = true;
-                document.getElementById("btn-guardar-perfil").style.display = "none";
-                document.getElementById("perfil-msg").innerText = `Perfil bloqueado por seguridad. Podrás actualizarlo en ${30 - diasPasados} días.`;
-                return;
-            }
-        }
-        
-        // Si falta algo, mantenemos abierto el candado para que termine de llenarlo
-        document.getElementById("perfil-edad").disabled = false;
-        document.getElementById("perfil-comunidad").disabled = false;
-        document.getElementById("perfil-nivel").disabled = false;
-        document.getElementById("perfil-desc").disabled = false;
-        document.getElementById("btn-guardar-perfil").style.display = "block";
-        document.getElementById("perfil-msg").innerText = "Puedes configurar o actualizar tu perfil.";
-    }
-
-    function guardarPerfil() {
-        const codigo = localStorage.getItem("elegidos_student_code");
-        const edad = document.getElementById("perfil-edad").value.trim();
-        const comunidad = document.getElementById("perfil-comunidad").value.trim();
-        const nivel = document.getElementById("perfil-nivel").value;
-        const desc = document.getElementById("perfil-desc").value.trim();
-
-        if(!edad || !comunidad || !nivel || !desc) {
-            return alert("Por favor, llena todos los campos de texto (edad, comunidad, nivel y descripción).");
-        }
-
-        if(!fotoPerfilBase64 && (!datosEstudianteActual.perfil || !datosEstudianteActual.perfil.foto)) {
-            return alert("Por favor, selecciona una foto de perfil.");
-        }
-        
-        if(confirm("¿Estás seguro de guardar tu perfil? No podrás modificar estos datos de nuevo hasta dentro de 30 días.")){
-            const updateData = {
-                edad: edad,
-                comunidad: comunidad,
-                nivel: nivel,
-                desc: desc,
-                foto: fotoPerfilBase64 || (datosEstudianteActual.perfil ? datosEstudianteActual.perfil.foto || "" : ""),
-                ultimaActualizacion: new Date().toISOString()
-            };
-            
-            db.ref(`clase/${codigo}/perfil`).set(updateData).then(() => {
-                alert("✅ Perfil guardado exitosamente.");
-                datosEstudianteActual.perfil = updateData;
-                verificarBloqueoPerfil(datosEstudianteActual);
-            });
-        }
-    }
-
-    function cambiarPasswordDashboard() {
-        const nuevaPass = document.getElementById("dash-pass-nueva").value.trim();
-        const codigo = localStorage.getItem("elegidos_student_code");
-        
-        if(nuevaPass.length < 4) return alert("La contraseña debe tener un mínimo de 4 caracteres.");
-        
-        // Confirmación ya validada en el botón previo
-        db.ref(`clase/${codigo}`).update({ password: nuevaPass }).then(() => {
-            alert("✅ Contraseña actualizada correctamente.");
-            document.getElementById("dash-pass-nueva").value = "";
-            datosEstudianteActual.password = nuevaPass;
-            
-            document.getElementById('caja-cambio-clave').style.display = 'none';
-            document.getElementById('btn-toggle-pass').style.display = 'block';
-        });
-    }
-
-// --- LÓGICA DE PERMISOS DIGITALES ---
-    let fotoPermisoBase64 = null;
-
-    function llenarSelectPermisos() {
-        const select = document.getElementById("permiso-fecha");
-        if(!select) return;
-        select.innerHTML = '<option value="">Selecciona la clase a faltar...</option>';
-        const ahora = new Date();
-        
-        FECHAS_CURSO.forEach(clase => {
-            const fechaClase = new Date(clase.fecha + 'T12:00:00Z');
-            const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-            const hoyStr = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
-            
-            // Solo muestra clases del futuro o de hoy
-            if(fechaClase >= ahora || clase.fecha === hoyStr) {
-                select.innerHTML += `<option value="${clase.fecha}">${clase.nombre} - ${clase.fecha}</option>`;
-            }
-        });
-    }
-
-    function enviarPermiso() {
-        const codigo = localStorage.getItem("elegidos_student_code");
-        const fecha = document.getElementById("permiso-fecha").value;
-        const razon = document.getElementById("permiso-razon").value.trim();
-        
-        if (!fecha || !razon) return alert("Por favor, selecciona la fecha y escribe el motivo del permiso.");
-        
-        document.getElementById("btn-enviar-permiso").innerText = "Enviando...";
-        
-        const updates = {};
-        // Se guarda directamente en el historial como 'Permiso Solicitado'
-        updates[`clase/${codigo}/asistencias/${fecha}`] = "Permiso: " + razon;
-        // Se guarda en la bandeja de permisos para que el Admin lo pueda revisar
-        updates[`clase/${codigo}/permisos_solicitados/${fecha}`] = {
-            razon: razon,
-            foto: fotoPermisoBase64 || "",
-            timestamp: new Date().toISOString()
-        };
-        
-        db.ref().update(updates).then(() => {
-            alert("✅ Permiso enviado. Ha quedado registrado en tu historial de asistencia.");
-            document.getElementById("permiso-razon").value = "";
-            document.getElementById("permiso-foto").value = "";
-            fotoPermisoBase64 = null;
-            document.getElementById("btn-enviar-permiso").innerText = "Enviar Solicitud";
-            renderizarListaClases();
-        }).catch(e => {
-            alert("Error: " + e);
-            document.getElementById("btn-enviar-permiso").innerText = "Enviar Solicitud";
-        });
-    }
-
-    // --- LÓGICA DEL RETO DOMINICAL ---
-    function verificarRetoActivo() {
-        // La fecha de activación es el 27 Sept 2026 a la 1:00 PM
-        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        const fechaInicio = new Date("2026-09-27T13:00:00");
-        
-        if (ahora >= fechaInicio) {
-            document.getElementById("reto-loading").style.display = "none";
-            document.getElementById("reto-active").style.display = "block";
-            
-            const pts = (datosEstudianteActual && datosEstudianteActual.puntos_sociales) ? datosEstudianteActual.puntos_sociales : 0;
-            document.getElementById("puntos-sociales").innerText = pts;
-        } else {
-            document.getElementById("reto-loading").style.display = "flex";
-            document.getElementById("reto-active").style.display = "none";
-        }
-    }
-
-    // --- ESCÁNER PARA EL RETO DOMINICAL ---
-    let escanerReto = null;
-    function abrirEscanerReto() {
-        document.getElementById("qr-reader").style.display = "block";
-        document.getElementById("btn-abrir-escaner").style.display = "none";
-        
-        escanerReto = new Html5Qrcode("qr-reader");
-        escanerReto.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            codigoQR => {
-                escanerReto.stop().then(() => {
-                    document.getElementById("qr-reader").style.display = "none";
-                    document.getElementById("btn-abrir-escaner").style.display = "block";
-                    registrarRetoManual(codigoQR);
-                });
-            },
-            err => { /* ignorar errores continuos de lectura */ }
-        ).catch(err => {
-            alert("No se pudo iniciar la cámara. Verifica los permisos de tu navegador.");
-            document.getElementById("qr-reader").style.display = "none";
-            document.getElementById("btn-abrir-escaner").style.display = "block";
-        });
-    }
-
-    // --- ESCÁNER PARA LOS TICKETS DE EVENTOS ---
-    let escanerBoletos = null;
-    function abrirEscanerBoletos() {
-        document.getElementById("qr-reader-boletos").style.display = "block";
-        document.getElementById("btn-abrir-escaner-boletos").style.display = "none";
-        
-        escanerBoletos = new Html5Qrcode("qr-reader-boletos");
-        escanerBoletos.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            codigoQR => {
-                escanerBoletos.stop().then(() => {
-                    document.getElementById("qr-reader-boletos").style.display = "none";
-                    document.getElementById("btn-abrir-escaner-boletos").style.display = "block";
-                    // Coloca lo leído en el input y valida automáticamente
-                    document.getElementById("input-boleto").value = codigoQR;
-                    vincularBoleto();
-                });
-            },
-            err => { /* ignorar errores continuos */ }
-        ).catch(err => {
-            alert("No se pudo iniciar la cámara. Verifica los permisos de tu navegador.");
-            document.getElementById("qr-reader-boletos").style.display = "none";
-            document.getElementById("btn-abrir-escaner-boletos").style.display = "block";
-        });
-    }
-
-    function registrarRetoManual(codigoOpcional) {
-        const codigoPropio = localStorage.getItem("elegidos_student_code");
-        const codigoEscaneado = (codigoOpcional || document.getElementById("input-reto-manual").value.trim().toUpperCase());
-        
-        if(!codigoEscaneado.startsWith("CLASE-2026-")) return alert("Código inválido. Asegúrate de escanear el QR correcto de un compañero.");
-        if(codigoEscaneado === codigoPropio) return alert("❌ Hey tramposo, no puedes escanear tu propio código.");
-        
-        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        if(ahora.getDay() !== 0) {
-            return alert("⚠️ El Reto Social solo se puede realizar los días Domingo de forma presencial.");
-        }
-
-        // Verificar si ya escaneó a esta persona alguna vez
-        if(datosEstudianteActual.retos && datosEstudianteActual.retos[codigoEscaneado]) {
-            return alert("❌ Ya has escaneado a este compañero en un domingo anterior. ¡El reto es conocer a alguien nuevo!");
-        }
-        
-        db.ref('clase/' + codigoEscaneado).once('value').then(snap => {
-            if(!snap.exists()) return alert("El código de tu compañero no existe en la base de datos.");
-            
-            const currentPoints = (datosEstudianteActual.puntos_sociales || 0) + 1;
-            const updates = {};
-            updates[`clase/${codigoPropio}/retos/${codigoEscaneado}`] = true;
-            updates[`clase/${codigoPropio}/puntos_sociales`] = currentPoints;
-            
-            db.ref().update(updates).then(() => {
-                alert(`🎉 ¡Reto dominical completado! Has ganado 1 punto de interacción con ${snap.val().nombre}.`);
-                document.getElementById("input-reto-manual").value = "";
-                document.getElementById("puntos-sociales").innerText = currentPoints;
-                if(!datosEstudianteActual.retos) datosEstudianteActual.retos = {};
-                datosEstudianteActual.retos[codigoEscaneado] = true;
-                datosEstudianteActual.puntos_sociales = currentPoints;
-            });
-        });
-    }
-
-    // Actualizar el DOM Content Loaded para capturar la imagen de los permisos también
-    document.addEventListener("DOMContentLoaded", () => {
-        const inputPermiso = document.getElementById('permiso-foto');
-        if (inputPermiso) {
-            inputPermiso.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const MAX_WIDTH = 800; // Resolución media para que sea legible
-                        let width = img.width; 
-                        let height = img.height;
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                        canvas.width = width; canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        fotoPermisoBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                    }
-                    img.src = event.target.result;
-                }
-                reader.readAsDataURL(file);
-            });
-        }
-    });
-
-window.onload = () => {
-
-        // --- DESVANECER PANTALLA DE CARGA ---
-        setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            if(splash) {
-                splash.style.opacity = '0';
-                setTimeout(() => splash.style.display = 'none', 500);
-            }
-        }, 1200);
-
-        // Inyectar aclaración de horarios en la sección de Clases (esperamos un momento para que el DOM esté listo)
-        setTimeout(() => {
-            const headers = document.querySelectorAll('.section-header');
-            headers.forEach(header => {
-                if (header.innerText === "Historial de Clases") {
-                    const nota = document.createElement("p");
-                    nota.style.fontSize = "0.75rem";
-                    nota.style.color = "var(--text-muted)";
-                    nota.style.marginBottom = "15px";
-                    nota.innerHTML = "<em>* Recuerda: Las clases de los <strong>Domingos son PRESENCIALES</strong> y las clases de los <strong>Miércoles son VIRTUALES</strong>.</em>";
-                    header.parentNode.insertBefore(nota, header.nextSibling);
-                }
-            });
-        }, 500);
-
-        // 0. Sincronización Inteligente: Base + Cambios en Admin
-        db.ref('configuracion/calendarioClases').on('value', snap => {
-            // 1. Partimos siempre de tu base de ELEGIDOS intacta
-            let listaActualizada = JSON.parse(JSON.stringify(FECHAS_CURSO_BASE));
-
-            if (snap.exists()) {
-                const data = snap.val();
-                
-                Object.keys(data).forEach(key => {
-                    const itemFirebase = data[key];
-                    const indexExistente = listaActualizada.findIndex(c => c.id === key);
-                    
-                    // Normalizar los nombres de variables desde el panel Admin
-                    const datosNuevos = {
-                        fecha: itemFirebase.fecha,
-                        hora: itemFirebase.hora || "15:00",
-                        nombre: itemFirebase.titulo || itemFirebase.nombre || "Nueva Clase",
-                        expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS",
-                        modalidad: itemFirebase.modalidad || "Presencial"
-                    };
-
-                    if (indexExistente !== -1) {
-                        listaActualizada[indexExistente] = { ...listaActualizada[indexExistente], ...datosNuevos };
-                    } else {
-                        listaActualizada.push({ id: key, ...datosNuevos });
-                    }
-                });
-            }
-
-            // 2. Reordenar todo cronológicamente (las clases nuevas caerán exactamente donde deben ir)
-            listaActualizada.sort((a, b) => new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`));
-            
-            // 3. Asignar la lista fusionada a la variable principal del portal
-            FECHAS_CURSO = listaActualizada;
-
-            // 4. Renderizar la vista de nuevo para que calcule PRÓX, ASISTIÓ y FALTÓ con la lista completa
-            if (typeof datosEstudianteActual !== 'undefined' && datosEstudianteActual) {
-                renderizarListaClases();
-                if (typeof llenarSelectPermisos === 'function') llenarSelectPermisos();
-            }
-        });
-        db.ref('configuracion/temasClases').on('value', snap => {
-            if (snap.exists()) {
-                temasClasesGlobales = snap.val();
-                if (datosEstudianteActual) renderizarListaClases(); 
-            }
-        });
-
-        db.ref('configuracion/ponentesClases').on('value', snap => {
-            if (snap.exists()) {
-                ponentesClasesGlobales = snap.val();
-                if (datosEstudianteActual) renderizarListaClases(); 
-            }
-        });
-
-        // 2. Lógica del Anuncio Global (Ahora detecta imágenes del admin)
-        db.ref('configuracion/anuncioGlobal').on('value', snap => {
-            if (snap.exists()) {
-                const data = snap.val();
-                const ahora = new Date().toISOString();
-                
-                if (data.activo && data.expiracion > ahora) {
-                    // Verificar si ya vio ESTE mensaje específico
-                    if (localStorage.getItem('anuncio_visto_texto') !== data.mensaje) {
-                        document.getElementById('anuncio-global-texto').innerText = data.mensaje;
-                        
-                        // Si trae imagen en base64 la mostramos
-                        const imgElem = document.getElementById('anuncio-global-img');
-                        if (data.imagen && data.imagen !== "") {
-                            imgElem.src = data.imagen;
-                            imgElem.style.display = "block";
-                        } else {
-                            imgElem.style.display = "none";
-                            imgElem.src = "";
-                        }
-                        
-                        document.getElementById('anuncio-global-overlay').style.display = 'flex';
-                    }
-                } else {
-                    document.getElementById('anuncio-global-overlay').style.display = 'none';
-                }
-            }
-        });
-
-        // 3. Cargar sesión de estudiante
-        const savedCode = localStorage.getItem("elegidos_student_code");
-        if (savedCode) {
-            if(savedCode === INVITADO_USER) {
-                document.getElementById("input-codigo").value = INVITADO_USER;
-                document.getElementById("input-clave").value = INVITADO_PASS;
-                iniciarSesion();
-            } else {
-                db.ref('clase/' + savedCode).once('value').then((snapshot) => {
-                    if (snapshot.exists()) { 
-                        datosEstudianteActual = snapshot.val(); 
-                        cargarDashboard(savedCode, datosEstudianteActual); 
-                        
-                        // Escucha en tiempo real para recargar vistas si hay cambios
-                        db.ref('clase/' + savedCode).on('value', (snap) => {
-                            if (snap.exists()) {
-                                datosEstudianteActual = snap.val();
-                                
-                                // Mantener el color del banner actualizado en vivo
-                                if(datosEstudianteActual.perfil && datosEstudianteActual.perfil.color) {
-                                    document.querySelector('.top-header').style.background = `linear-gradient(135deg, ${datosEstudianteActual.perfil.color} 0%, var(--purple-dark) 100%)`;
-                                    document.documentElement.style.setProperty('--purple-main', datosEstudianteActual.perfil.color);
-                                }
-                                
-                                renderizarListaClases();
-                                renderizarBoletosVinculados();
-				llenarSelectPermisos();   
-        			verificarRetoActivo()
-                            }
-                        });
-                    }
-                });
-            }
-        }
-    };    
-
-</script>
-</body>
-</html>
