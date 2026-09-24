@@ -82,7 +82,23 @@
 
         .content-area { padding: 0 24px; position: relative; z-index: 10; margin-top: 15px; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 20px; }
-        .stat-card { padding: 12px 4px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.3); position: relative; overflow: hidden; }
+        ..stat-card { padding: 12px 4px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.3); position: relative; overflow: hidden; }
+
+        /* --- ESTILOS DE LA RULETA EN VIVO --- */
+        @keyframes pulseRuleta { 
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,200,0.6); } 
+            50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(255,0,200,1); } 
+            100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,200,0.6); } 
+        }
+        @keyframes ruletaAparece {
+            from { opacity: 0; backdrop-filter: blur(0px); }
+            to { opacity: 1; backdrop-filter: blur(25px); }
+        }
+        .ruleta-nombre-item {
+            padding: 15px 0; color: #fff; font-size: 3rem; font-weight: 900;
+            text-shadow: 0 10px 25px rgba(139, 0, 255, 0.8);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
         .stat-icon { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0; margin-bottom: 2px; }
         .stat-icon svg { width: 16px; height: 16px; }
         .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; border-radius: 0 0 16px 16px; }
@@ -381,6 +397,22 @@
             .noti-header-left img { height: 24px; }
             .noti-header-center h3 { font-size: 1rem; }
         }
+
+        /* --- ESTILOS DE LA RULETA EN VIVO --- */
+        @keyframes pulseRuleta { 
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,200,0.6); } 
+            50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(255,0,200,1); } 
+            100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,200,0.6); } 
+        }
+        @keyframes ruletaAparece {
+            from { opacity: 0; backdrop-filter: blur(0px); }
+            to { opacity: 1; backdrop-filter: blur(25px); }
+        }
+        .ruleta-nombre-item {
+            padding: 15px 0; color: #fff; font-size: 3rem; font-weight: 900;
+            text-shadow: 0 10px 25px rgba(139, 0, 255, 0.8);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
     </style>
 
     <!-- ESTRUCTURA DEL CENTRO DE NOTIFICACIONES -->
@@ -593,9 +625,12 @@
         }
         
         // --- 📡 SISTEMA AVANZADO DE RECEPCIÓN EN TIEMPO REAL (DOBLE ANTENA) ---
+        let antenaNotificacionesActiva = false;
         function cargarNotificacionesGlobales() {
+            if (antenaNotificacionesActiva) return; // Evita duplicar oyentes en bucle
             const codigoActual = localStorage.getItem("elegidos_student_code");
-            if (!codigoActual) return; // Si no hay usuario, apagamos la antena
+            if (!codigoActual) return; 
+            antenaNotificacionesActiva = true;
 
             let globales = [];
             let personales = [];
@@ -762,7 +797,174 @@
             <div class="error-text" id="crear-error-msg"></div>
             <div id="crear-success-msg" style="color: var(--text-green); font-size: 0.95rem; margin-top: 16px; display: none; font-weight: 700; background: #f0fdf4; padding: 20px; border-radius: 16px; border: 1px solid rgba(22, 163, 74, 0.1); text-align: center;"></div>
         </div>
+        
+        <!-- PANTALLA DE ADMINISTRADOR (GENERADOR DE PIN Y RULETA ELEGIDOS) -->
+        <div id="admin-screen" style="display: none; width: 100%; padding: 40px 24px; text-align: center;">
+            <img src="LOGO CURSO FOTOGRAFIA DIGITAL.png" alt="ELEGIDOS" class="login-logo" style="margin: 0 auto 20px;" onerror="this.style.display='none'">
+            <h1 class="login-title" style="font-size: 2.5rem; text-align: center; margin-bottom: 10px;">Panel Admin ELEGIDOS</h1>
+            <p class="login-subtitle" style="text-align: center; margin-bottom: 30px;">Bienvenido(a), <span id="admin-name" style="font-weight: 900; color: var(--purple-main);">Admin</span></p>
+
+            <!-- TARJETA 1: GENERADOR DE PIN ORIGINAL -->
+            <div class="calendar-card" style="background: white; padding: 30px 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; border: 1px solid var(--border-light);">
+                <div style="background: linear-gradient(135deg, #8b5cf6, #ec4899); width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h3 style="font-size: 1.2rem; font-weight: 900; margin-bottom: 10px;">Asistencia Virtual (Meet)</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Genera un PIN de 4 dígitos para que los alumnos confirmen su asistencia durante la clase en vivo de hoy.</p>
+                
+                <button onclick="generarPinParaHoy()" class="btn-main" id="btn-generar-pin" style="max-width: 100%; margin: 0 auto;">Generar PIN de Hoy</button>
+                
+                <div id="admin-pin-display" style="display: none; margin-top: 25px;">
+                    <p style="font-size: 0.85rem; font-weight: 800; color: #16a34a; margin-bottom: 8px;">✅ PIN ACTIVO EN FIREBASE:</p>
+                    <div id="pin-number-text" style="font-size: 3.5rem; font-weight: 900; letter-spacing: 12px; color: #0f172a; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 15px;">
+                        0000
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA 2: SISTEMA AVANZADO DE RULETA -->
+            <div class="calendar-card" style="background: white; padding: 30px 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; border: 1px solid var(--border-light);">
+                <div style="background: linear-gradient(135deg, #11001c, #8b00ff); width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                </div>
+                <h3 style="font-size: 1.2rem; font-weight: 900; margin-bottom: 10px;">Sorteo Dinámico ELEGIDOS</h3>
+                
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; background: #f8fafc; padding: 10px 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <label style="font-size: 0.95rem; font-weight: 800; color: #0f172a; cursor: pointer;" for="toggle-prueba">Activar Modo Prueba</label>
+                    <input type="checkbox" id="toggle-prueba" onchange="actualizarModoPrueba()" style="width: 22px; height: 22px; accent-color: #8b00ff; cursor: pointer;">
+                </div>
+                <p id="txt-alerta-prueba" style="font-size: 0.75rem; color: #ea580c; font-weight: 700; margin-top: -10px; margin-bottom: 15px; display: none;">⚠️ VISIBLE SOLO PARA ADMIN. NO ENVÍA A FIREBASE.</p>
+
+                <button onclick="iniciarAlgoritmoRuleta()" class="btn-main" id="btn-generar-ruleta" style="max-width: 100%; margin: 0 auto; background: linear-gradient(90deg, #11001c 0%, #5b21b6 50%, #8b00ff 100%) !important; box-shadow: 0 15px 30px rgba(139, 0, 255, 0.3) !important;">Lanzar Ruleta</button>
+            </div>
+
+            <button onclick="cerrarSesion()" class="btn-main" style="max-width: 100%; margin-top: 30px; background: #ef4444 !important; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);">Cerrar Sesión</button>
+        </div>
+
+        <!-- OVERLAY DE LA RULETA (FRONTEND GLOBAL) -->
+        <div id="ruleta-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(25px); z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <div id="ruleta-container" style="animation: ruletaAparece 0.5s ease-out; width: 100%; max-width: 600px; padding: 20px;">
+                <h2 id="ruleta-titulo" style="color: #ff00c8; font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 30px; text-shadow: 0 5px 15px rgba(255,0,200,0.5);">Buscando ganador...</h2>
+                <div id="ruleta-nombre-ganador" class="ruleta-nombre-item" style="border-top: 2px solid rgba(255,255,255,0.1); border-bottom: 2px solid rgba(255,255,255,0.1); padding: 30px 10px;">
+                    INICIANDO
+                </div>
+            </div>
+            <button onclick="cerrarRuleta()" id="btn-cerrar-ruleta" class="btn-main" style="display: none; margin-top: 50px; background: #ffffff !important; color: #000000 !important; max-width: 250px; font-weight: 900;">Cerrar Pantalla</button>
+        </div>
+
+        <!-- LÓGICA ESTRUCTURAL DE LA RULETA (VERSIÓN PROFESIONAL) -->
+        <script>
+            let modoPruebaActivo = false;
+            let ruletaGirando = false; // Bloqueo de seguridad para evitar múltiples clics
+            
+            // Simulación Profesional de base de datos para los participantes
+            const listaParticipantes = [
+                "Glenda Flores", "Anthony Lazo", "Andrea Martínez", 
+                "Luis Pérez", "Carlos Gómez", "Mariana Ríos",
+                "José Castillo", "Mónica Ruiz", "Héctor Silva"
+            ];
+
+            function actualizarModoPrueba() {
+                const checkbox = document.getElementById("toggle-prueba");
+                modoPruebaActivo = checkbox.checked;
+                document.getElementById("txt-alerta-prueba").style.display = modoPruebaActivo ? "block" : "none";
+            }
+
+            function iniciarAlgoritmoRuleta() {
+                // Previene que la ruleta se rompa si el admin hace doble clic rápido
+                if (ruletaGirando) return; 
+                
+                const overlay = document.getElementById("ruleta-overlay");
+                const titulo = document.getElementById("ruleta-titulo");
+                const nombreDisplay = document.getElementById("ruleta-nombre-ganador");
+                const btnCerrar = document.getElementById("btn-cerrar-ruleta");
+                
+                // Reset de Interfaz
+                ruletaGirando = true;
+                btnCerrar.style.display = "none";
+                titulo.innerText = modoPruebaActivo ? "PRUEBA: BUSCANDO GANADOR..." : "BUSCANDO GANADOR...";
+                titulo.style.color = "#ff00c8";
+                nombreDisplay.style.animation = "none";
+                overlay.style.display = "flex";
+
+                // Sincronización con Firebase (con bloque try-catch para no dañar el código si Firebase falla)
+                if (!modoPruebaActivo && typeof db !== 'undefined') {
+                    try {
+                        db.ref('sistema/ruleta_estado').set({ activa: true, timestamp: Date.now() }); 
+                    } catch(error) { console.warn("Firebase no está inicializado aún."); }
+                }
+
+                // Motor de Giro Profesional con Easing (requestAnimationFrame corre a 60 FPS)
+                const duracionAnimacion = 4500; // 4.5 segundos de giro
+                const tiempoInicio = performance.now();
+                
+                function animarRuleta(tiempoActual) {
+                    const tiempoTranscurrido = tiempoActual - tiempoInicio;
+                    let progreso = Math.min(tiempoTranscurrido / duracionAnimacion, 1);
+                    
+                    if (progreso < 1) {
+                        // Fórmula Ease-Out Quart para un frenado hiperrealista
+                        const easeOut = 1 - Math.pow(1 - progreso, 4);
+                        
+                        // Generamos un índice rápido que se frena visualmente en concordancia con el easeOut
+                        const velocidadVisual = Math.floor(easeOut * 200); 
+                        const indiceAleatorio = velocidadVisual % listaParticipantes.length;
+                        
+                        nombreDisplay.innerText = listaParticipantes[indiceAleatorio];
+                        requestAnimationFrame(animarRuleta);
+                    } else {
+                        // Selección Finalizada
+                        finalizarSeleccion();
+                    }
+                }
+                
+                // Arrancar el motor de alta precisión
+                requestAnimationFrame(animarRuleta);
+            }
+
+            function finalizarSeleccion() {
+                const titulo = document.getElementById("ruleta-titulo");
+                const nombreDisplay = document.getElementById("ruleta-nombre-ganador");
+                const btnCerrar = document.getElementById("btn-cerrar-ruleta");
+                
+                // Selecciona al ganador absoluto final
+                const indexFinal = Math.floor(Math.random() * listaParticipantes.length);
+                const nombreGanador = listaParticipantes[indexFinal];
+                
+                nombreDisplay.innerText = nombreGanador;
+                nombreDisplay.style.animation = "pulseRuleta 1.5s infinite alternate";
+                titulo.innerText = modoPruebaActivo ? "¡GANADOR DE PRUEBA!" : "¡TENEMOS GANADOR!";
+                titulo.style.color = "#16a34a"; // Verde éxito
+                btnCerrar.style.display = "flex";
+                
+                ruletaGirando = false; // Liberamos el botón para el siguiente uso
+                
+                if (!modoPruebaActivo && typeof db !== 'undefined') {
+                    try {
+                        db.ref('sistema/ruleta_ganador').set({ nombre: nombreGanador, timestamp: Date.now() });
+                    } catch(error) { console.warn("Firebase no está inicializado aún."); }
+                }
+            }
+
+            function cerrarRuleta() {
+                document.getElementById("ruleta-overlay").style.display = "none";
+                document.getElementById("ruleta-titulo").style.color = "#ff00c8"; // Reset al color original
+                
+                // Limpiar pantalla al cerrar
+                document.getElementById("ruleta-nombre-ganador").innerText = "INICIANDO";
+                document.getElementById("ruleta-nombre-ganador").style.animation = "none";
+                
+                if (!modoPruebaActivo && typeof db !== 'undefined') {
+                    try {
+                        db.ref('sistema/ruleta_estado').set({ activa: false });
+                    } catch(error) { console.warn("Firebase no está inicializado aún."); }
+                }
+            }
+        </script>
     </div>
+
+
+    <!-- DASHBOARD -->
 
 
     <!-- DASHBOARD -->
@@ -817,6 +1019,20 @@
                         <div style="color: #0b0f19; font-size: 1rem; font-weight: 800; line-height: 1.3;">Notificaciones<br><span style="color: #4b5563; font-size: 0.85rem; font-weight: 700;">Ver anuncios recientes</span></div>
                     </div>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+
+                <!-- BANNER BOTÓN RULETA EN VIVO (CATEDRÁTICO O ADMIN ACTIVA) -->
+                <div id="banner-ruleta-live" onclick="abrirRuletaPantallaCompleta()" style="display: none; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #8b00ff 0%, #ff00c8 100%); border: 1px solid rgba(255, 255, 255, 0.5); padding: 20px 24px; border-radius: 24px; margin-top: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 0, 200, 0.35); animation: pulseRuleta 2s infinite;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(0,0,0,0.2); flex-shrink: 0; font-size: 1.5rem;">
+                            🎡
+                        </div>
+                        <div style="color: #ffffff; font-size: 1rem; font-weight: 800; line-height: 1.3;">
+                            Ruleta en Vivo<br>
+                            <span id="txt-banner-ruleta" style="color: #fbcfe8; font-size: 0.85rem; font-weight: 700;">¡Sorteo activo! Haz clic para abrir</span>
+                        </div>
+                    </div>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
             </div>
 
@@ -1399,20 +1615,42 @@ function mostrarRecuperacion(mostrar) {
             codigoInput = "CLASE-2026-" + codigoInput.padStart(3, '0');
         }
 
-        if (codigoInput === "ADMIN-GLENDA" || codigoInput === "ADMIN-ROGER") {
-            if (claveInput === "ELEGIDOS26") {
-                document.getElementById("login-screen").style.display = "none";
-                const adminScreen = document.getElementById("admin-screen");
-                if (adminScreen) adminScreen.style.display = "block";
-                const adminName = document.getElementById("admin-name");
-                if (adminName) adminName.innerText = codigoInput === "ADMIN-GLENDA" ? "Glenda Flores" : "Roger Mendez";
-                if (typeof iniciarMonitoreoEnVivo === 'function') iniciarMonitoreoEnVivo();
-                return;
-            } else {
-                errorMsg.innerText = "Contraseña de administrador incorrecta.";
+       if (codigoInput.startsWith("ADMIN-")) {
+            // Verificación silenciosa en Firebase de perfiles Administradores
+            db.ref('administradores/' + codigoInput).once('value').then(snapAdmin => {
+                let esAdminValido = false;
+                let nombreAdmin = codigoInput === "ADMIN-GLENDA" ? "Glenda Flores" : (codigoInput === "ADMIN-ROGER" ? "Roger Mendez" : "Administrador");
+
+                if (snapAdmin.exists()) {
+                    const dataAdmin = snapAdmin.val();
+                    if (dataAdmin.password === claveInput || claveInput === CLAVE_UNIVERSAL) {
+                        esAdminValido = true;
+                        if (dataAdmin.nombre) nombreAdmin = dataAdmin.nombre;
+                    }
+                } else if ((codigoInput === "ADMIN-GLENDA" || codigoInput === "ADMIN-ROGER") && claveInput === "ELEGIDOS26") {
+                    esAdminValido = true;
+                }
+
+                if (esAdminValido) {
+                    localStorage.setItem("elegidos_student_code", codigoInput);
+                    localStorage.setItem("elegidos_is_admin", "true");
+                    
+                    // Inicia sesión cargando la interfaz estética de estudiante
+                    datosEstudianteActual = { nombre: nombreAdmin, asistencias: {}, boletos: {} };
+                    cargarDashboard(codigoInput, datosEstudianteActual);
+                    
+                    if (btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
+                } else {
+                    errorMsg.innerText = "Contraseña de administrador incorrecta.";
+                    errorMsg.style.display = "block";
+                    if (btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
+                }
+            }).catch(err => {
+                errorMsg.innerText = "Error de red al verificar administrador.";
                 errorMsg.style.display = "block";
-                return;
-            }
+                if (btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
+            });
+            return;
         }
 
         errorMsg.style.display = "none";
@@ -1429,6 +1667,7 @@ function mostrarRecuperacion(mostrar) {
                     localStorage.setItem("elegidos_student_code", codigoInput);
                     localStorage.setItem("elegidos_session_timestamp", Date.now()); 
                     localStorage.setItem("elegidos_cache_" + codigoInput, JSON.stringify(data));
+localStorage.removeItem("elegidos_is_admin");
 
                     datosEstudianteActual = data;
                     cargarDashboard(codigoInput, data);
@@ -1450,35 +1689,83 @@ function mostrarRecuperacion(mostrar) {
         });
     }
 
+    // --- MOTOR DE SIMULACIÓN DE FECHA PARA MODO PRUEBA / ADMIN ---
+    function obtenerFechaSistema() {
+        const fechaSim = localStorage.getItem("fecha_simulada_admin");
+        if (fechaSim) {
+            return new Date(fechaSim);
+        }
+        return new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+    }
+
+    function cambiarFechaSimulada(nuevaFechaStr) {
+        if (!nuevaFechaStr) {
+            localStorage.removeItem("fecha_simulada_admin");
+        } else {
+            localStorage.setItem("fecha_simulada_admin", nuevaFechaStr.includes("T") ? nuevaFechaStr : nuevaFechaStr + "T12:00:00");
+        }
+        window.location.reload();
+    }
+
+    let presencialConectada = false;
     function cargarDashboard(codigo, data) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("dashboard-screen").classList.add("show");
-// --- CONEXIÓN DE ESTADO ONLINE EN TIEMPO REAL ---
-    const codigoAlumno = codigo; // Toma dinámicamente el código del estudiante activo
-    const userRef = firebase.database().ref('clase/' + codigoAlumno);
-    const connectedRef = firebase.database().ref('.info/connected');
 
-    connectedRef.on('value', (snap) => {
-      if (snap.val() === true) {
-        // Alumno está dentro del portal
-        userRef.update({
-          online: true,
-          ultima_conexion: firebase.database.ServerValue.TIMESTAMP
-        });
+        // Bloqueo de seguridad: Evita registrar conexiones duplicadas repetidamente
+        if (!presencialConectada) {
+            presencialConectada = true;
+            const codigoAlumno = codigo; 
+            const userRef = firebase.database().ref('clase/' + codigoAlumno);
+            const connectedRef = firebase.database().ref('.info/connected');
 
-        // Detectar cuando el alumno cierra la pestaña o pierde conexión
-        userRef.child('online').onDisconnect().set(false);
-        userRef.child('ultima_conexion').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
-      }
-    });
-        // Inicializar la escucha a Firebase al cargar el panel
-        cargarNotificacionesGlobales();
+            connectedRef.on('value', (snap) => {
+              if (snap.val() === true) {
+                userRef.update({
+                  online: true,
+                  ultima_conexion: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                userRef.child('online').onDisconnect().set(false);
+                userRef.child('ultima_conexion').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+              }
+            });
+
+            cargarNotificacionesGlobales();
+            iniciarEscuchaRuletaGlobal(); // <--- Activa la recepción inmediata de la Ruleta al iniciar sesión
+        }
 
         const nombre = data.nombre ? data.nombre.toLowerCase() : "estudiante";
         document.getElementById("display-name").innerText = nombre;
         document.getElementById("avatar-initial").innerText = nombre.charAt(0).toUpperCase();
 
-        const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        // Condición estricta: SÓLO si su código empieza por ADMIN- se habilitan las herramientas
+        const esAdminReal = codigo.startsWith("ADMIN-") && localStorage.getItem("elegidos_is_admin") === "true";
+        let adminBtnHeader = document.getElementById("badge-admin-header");
+
+        if (esAdminReal) {
+            if (!adminBtnHeader) {
+                adminBtnHeader = document.createElement("div");
+                adminBtnHeader.id = "badge-admin-header";
+                adminBtnHeader.style.cssText = "display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px;";
+                const fechaSimActiva = localStorage.getItem("fecha_simulada_admin") || "";
+                const horaSimActiva = localStorage.getItem("hora_simulada_admin") || "";
+                adminBtnHeader.innerHTML = `
+                    <button onclick="const adminScreen=document.getElementById('admin-screen'); const dashScreen=document.getElementById('dashboard-screen'); if(adminScreen&&dashScreen){ dashScreen.classList.remove('show'); adminScreen.style.display='block'; const adminName=document.getElementById('admin-name'); if(adminName) adminName.innerText='${nombre}'; }" style="background: linear-gradient(135deg, #11001c, #8b00ff); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; border-radius: 100px; font-weight: 800; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 15px rgba(139,0,255,0.4); display: flex; align-items: center; gap: 6px;">👑 Consola Administrador</button>
+                    <div style="background: #1e1b4b; border: 1px solid #6366f1; padding: 6px 14px; border-radius: 100px; display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #a5b4fc; font-weight: bold; flex-wrap: wrap;">
+                        <span>📅 Día:</span> <input type="date" id="input-fecha-header" value="${fechaSimActiva}" min="2025-01-01" max="2030-12-31" style="background: #0f172a; color: #fff; color-scheme: dark; border: 1px solid #4338ca; border-radius: 6px; padding: 2px 5px; font-size: 0.75rem; cursor: pointer;">
+                        <span>⏰ Hora:</span> <input type="time" id="input-hora-header" value="${horaSimActiva}" style="background: #0f172a; color: #fff; color-scheme: dark; border: 1px solid #4338ca; border-radius: 6px; padding: 2px 5px; font-size: 0.75rem; cursor: pointer;">
+                        <button onclick="cambiarFechaSimulada(document.getElementById('input-fecha-header').value, document.getElementById('input-hora-header').value)" style="background:#22c55e; color:white; border:none; border-radius:4px; padding:3px 8px; font-size:0.7rem; font-weight:bold; cursor:pointer;">Aplicar</button>
+                        ${(fechaSimActiva || horaSimActiva) ? '<button onclick="cambiarFechaSimulada(\'\', \'\')" style="background:#ef4444; color:white; border:none; border-radius:4px; padding:3px 6px; font-size:0.7rem; font-weight:bold; cursor:pointer;">Ahora Real</button>' : ''}
+                    </div>`;
+                document.querySelector(".top-header").appendChild(adminBtnHeader);
+            }
+        } else {
+            // Si es un estudiante normal (como Juan José), eliminamos cualquier botón de Admin si existía de antes
+            if (adminBtnHeader) adminBtnHeader.remove();
+        }
+
+        const fechaSV = obtenerFechaSistema();
         const hoy = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
         
         // EVENTOS ESPECIALES OBLIGATORIOS DONDE SE EXIGE TICKET PARA ASISTIR
@@ -1584,7 +1871,7 @@ function mostrarRecuperacion(mostrar) {
                 if (item.fecha === "2026-11-08" && asistenciasData["evento_festival"]) horaIngreso = asistenciasData["evento_festival"];
             }
 
-            const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+            const fechaActualSV = obtenerFechaSistema();
             const hoyStr = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
             const fechaHoraClase = new Date(item.fecha + 'T' + item.hora + ':00');
             
@@ -1705,8 +1992,8 @@ function mostrarRecuperacion(mostrar) {
         document.getElementById("progress-text").innerText = porcentajeProgreso + "%";
         document.getElementById("progress-fill").style.width = porcentajeProgreso + "%";
 
-        const fechaSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        const hoyMeet = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
+        const fechaSV = obtenerFechaSistema();
+        const hoy = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
         const meetContainer = document.getElementById("meet-banner-container");
         
         let mostrarMeet = false;
@@ -1768,7 +2055,7 @@ function mostrarRecuperacion(mostrar) {
         return;
     }
 
-    const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+    const fechaActualSV = obtenerFechaSistema();
     const hoy = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
 
     boletosValidos.forEach(codigoBoleto => {
@@ -1900,6 +2187,8 @@ function mostrarImagenBoleto(codigo, eventoId) {
     function cerrarSesion() {
         localStorage.removeItem("elegidos_student_code");
         localStorage.removeItem("anuncio_visto_texto"); 
+        localStorage.removeItem("elegidos_is_admin");
+        localStorage.removeItem("fecha_simulada_admin");
         
         document.getElementById("dashboard-screen").classList.remove("show");
         document.getElementById("login-screen").style.display = "flex";
@@ -2104,7 +2393,7 @@ function mostrarImagenBoleto(codigo, eventoId) {
         });
     }
     function verificarRetoActivo() {
-        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const ahora = obtenerFechaSistema();
         const fechaInicio = new Date("2026-09-27T13:00:00");
         
         if (ahora >= fechaInicio) {
@@ -2350,9 +2639,40 @@ function mostrarImagenBoleto(codigo, eventoId) {
             });
         }, 300);
 
+        // --- FUNCIÓN DE FECHA Y HORA SIMULADA PARA MODO PRUEBA / ADMIN ---
+        window.obtenerFechaSistema = function() {
+            const fechaSim = localStorage.getItem("fecha_simulada_admin");
+            const horaSim = localStorage.getItem("hora_simulada_admin");
+            
+            let d = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+            
+            if (fechaSim) {
+                const parts = fechaSim.split("-");
+                d.setFullYear(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            }
+            if (horaSim) {
+                const hParts = horaSim.split(":");
+                d.setHours(parseInt(hParts[0], 10), parseInt(hParts[1], 10), 0, 0);
+            }
+            return d;
+        };
+
+        window.cambiarFechaSimulada = function(nuevaFechaStr, nuevaHoraStr) {
+            if (nuevaFechaStr !== undefined && nuevaFechaStr !== null) {
+                if (!nuevaFechaStr) localStorage.removeItem("fecha_simulada_admin");
+                else localStorage.setItem("fecha_simulada_admin", nuevaFechaStr);
+            }
+            if (nuevaHoraStr !== undefined && nuevaHoraStr !== null) {
+                if (!nuevaHoraStr) localStorage.removeItem("hora_simulada_admin");
+                else localStorage.setItem("hora_simulada_admin", nuevaHoraStr);
+            }
+            window.location.reload();
+        };
+
         db.ref('configuracion/calendarioClases').on('value', snap => {
             let listaCombinadaMap = new Map();
-            FECHAS_CURSO_BASE.forEach(clase => { listaCombinadaMap.set(clase.fecha, JSON.parse(JSON.stringify(clase))); });
+            // Usamos la clave por 'id' para permitir MÚLTIPLES y NUEVAS fechas sin bloqueos
+            FECHAS_CURSO_BASE.forEach(clase => { listaCombinadaMap.set(clase.id, JSON.parse(JSON.stringify(clase))); });
             if (snap.exists()) {
                 const data = snap.val();
                 Object.keys(data).forEach(key => {
@@ -2360,7 +2680,7 @@ function mostrarImagenBoleto(codigo, eventoId) {
                     if (!itemFirebase.fecha) return;
                     const nombreClase = itemFirebase.titulo || itemFirebase.nombre || "Nueva Clase";
                     const datosNuevos = { id: key, fecha: itemFirebase.fecha, hora: itemFirebase.hora || "15:00", nombre: nombreClase, expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS", modalidad: itemFirebase.modalidad || "Presencial", tema: itemFirebase.tema || "" };
-                    listaCombinadaMap.set(itemFirebase.fecha, { ...listaCombinadaMap.get(itemFirebase.fecha), ...datosNuevos });
+                    listaCombinadaMap.set(key, { ...(listaCombinadaMap.get(key) || {}), ...datosNuevos });
                 });
             }
             FECHAS_CURSO = Array.from(listaCombinadaMap.values());
@@ -2371,11 +2691,28 @@ function mostrarImagenBoleto(codigo, eventoId) {
         db.ref('configuracion/temasClases').on('value', snap => { if (snap.exists()) { temasClasesGlobales = snap.val(); if (datosEstudianteActual) renderizarListaClases(); }});
         db.ref('configuracion/ponentesClases').on('value', snap => { if (snap.exists()) { ponentesClasesGlobales = snap.val(); if (datosEstudianteActual) renderizarListaClases(); }});
 
-        const savedCode = localStorage.getItem("elegidos_student_code");
+       // --- DETECCIÓN DE MODO PRUEBA POR URL (?testMode=CLASE-2026-XXX) Y CAMBIO DE FECHA ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const testCode = urlParams.get('testMode');
+        
+        let savedCode = localStorage.getItem("elegidos_student_code");
+        if (testCode && testCode.startsWith("CLASE-2026-")) {
+            savedCode = testCode;
+            const fechaSimActiva = localStorage.getItem("fecha_simulada_admin") ? localStorage.getItem("fecha_simulada_admin").split("T")[0] : "";
+            const bannerTest = document.createElement("div");
+            bannerTest.style.cssText = "position:fixed; top:0; left:0; width:100%; background:#9333ea; color:white; text-align:center; padding:6px; font-size:0.8rem; font-weight:800; z-index:9999999; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;";
+            bannerTest.innerHTML = `🧪 MODO PRUEBA (${testCode}) 
+            <label style='font-size:0.75rem;'>📅 Cambiar Fecha: <input type='date' id='input-fecha-sim' value='${fechaSimActiva}' min='2025-01-01' max='2030-12-31' style='background:#fff; color:#000; border:none; border-radius:4px; padding:2px 5px; font-size:0.75rem; cursor:pointer;'></label>
+            <button onclick='cambiarFechaSimulada(document.getElementById("input-fecha-sim").value)' style='padding:3px 8px; background:#22c55e; color:white; border:none; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;'>Aplicar Fecha</button>
+            ${fechaSimActiva ? "<button onclick='cambiarFechaSimulada(\"\")' style='padding:3px 6px; background:#ef4444; color:white; border:none; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;'>Restablecer Hoy</button>" : ""}
+            <button onclick='probarRuletaLocal()' style='padding:3px 8px; background:white; color:#9333ea; border:none; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;'>Simular Ruleta</button>`;
+            document.body.prepend(bannerTest);
+        }
+
         const sessionTime = localStorage.getItem("elegidos_session_timestamp");
 
         if (savedCode) {
-            if (sessionTime) {
+            if (sessionTime && !testCode) {
                 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
                 if (Date.now() - parseInt(sessionTime) > SEVEN_DAYS_MS) {
                     alert("Tu sesión ha expirado por inactividad. Vuelve a ingresar.");
@@ -2390,7 +2727,7 @@ function mostrarImagenBoleto(codigo, eventoId) {
                 iniciarSesion();
             } else {
                 const cachedData = localStorage.getItem("elegidos_cache_" + savedCode);
-                if (cachedData) {
+                if (cachedData && !testCode) {
                     datosEstudianteActual = JSON.parse(cachedData);
                     cargarDashboard(savedCode, datosEstudianteActual);
                 }
@@ -2405,7 +2742,7 @@ function mostrarImagenBoleto(codigo, eventoId) {
                             document.documentElement.style.setProperty('--purple-main', datosEstudianteActual.perfil.color);
                         }
                         
-                        if(!cachedData) cargarDashboard(savedCode, datosEstudianteActual);
+                        cargarDashboard(savedCode, datosEstudianteActual);
                         renderizarListaClases();
                         renderizarBoletosVinculados();
                         llenarSelectPermisos();   
@@ -2414,6 +2751,9 @@ function mostrarImagenBoleto(codigo, eventoId) {
                 });
             }
         }
+
+        // --- INICIALIZAR ESCUCHA EN TIEMPO REAL DE RULETA GLOBAL ---
+        iniciarEscuchaRuletaGlobal();
     };
 
     // =========================================================
@@ -2526,6 +2866,129 @@ function mostrarImagenBoleto(codigo, eventoId) {
             btn.innerText = "Validar PIN";
         });
     };
+
+    // 4. Generador de PIN para el Administrador
+    window.generarPinParaHoy = function() {
+        if (!navigator.onLine) return alert("📡 Sin conexión a internet.");
+        
+        const pin = Math.floor(1000 + Math.random() * 9000); // 4 dígitos aleatorios
+        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+        
+        const btn = document.getElementById('btn-generar-pin');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Generando...";
+        btn.disabled = true;
+
+        db.ref('sistema/asistencia_virtual/' + hoy).set(pin).then(() => {
+            const display = document.getElementById("admin-pin-display");
+            display.style.display = "block";
+            document.getElementById("pin-number-text").innerText = pin;
+            btn.innerText = "Regenerar PIN";
+            btn.disabled = false;
+        }).catch(e => {
+            alert("Error al conectar con la base de datos.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    };
+
+   // =========================================================
+    // MOTOR DE RULETA EN VIVO Y SIMULACIÓN LOCAL
+    // =========================================================
+    let animacionRuletaInterval = null;
+    let antenaRuletaActiva = false;
+
+    function iniciarEscuchaRuletaGlobal() {
+        if (antenaRuletaActiva) return; // Previene crear múltiples listeners en paralelo
+        antenaRuletaActiva = true;
+
+        db.ref('sistema/ruleta').on('value', snap => {
+            const data = snap.val();
+            ejecutarEfectoRuletaVisual(data);
+        });
+    }
+
+    function abrirRuletaPantallaCompleta() {
+        const overlay = document.getElementById("ruleta-overlay");
+        if (overlay) overlay.style.display = 'flex';
+    }
+
+    function ejecutarEfectoRuletaVisual(data) {
+        const overlay = document.getElementById("ruleta-overlay");
+        const cinta = document.getElementById("ruleta-cinta");
+        const statusText = document.getElementById("ruleta-status-text");
+        const bannerLive = document.getElementById("banner-ruleta-live");
+        const txtBanner = document.getElementById("txt-banner-ruleta");
+
+        if (!data || data.estado === 'inactiva') {
+            if (overlay) overlay.style.display = 'none';
+            if (bannerLive) bannerLive.style.display = 'none';
+            if (animacionRuletaInterval) clearInterval(animacionRuletaInterval);
+            return;
+        }
+
+        if (data.estado === 'girando') {
+            if (bannerLive) bannerLive.style.display = 'flex';
+            if (overlay) overlay.style.display = 'flex';
+            if (txtBanner) txtBanner.innerText = "⚡ Sorteo girando en vivo...";
+            if (statusText) {
+                statusText.innerText = "⚡ PASANDO NOMBRES EN VIVO...";
+                statusText.style.color = "#ff00c8";
+            }
+
+            const participantes = (data.participantes && data.participantes.length > 0) 
+                ? data.participantes 
+                : ["Analizando conectados..."];
+
+            if (animacionRuletaInterval) clearInterval(animacionRuletaInterval);
+
+            // Efecto de movimiento veloz pasando nombre por nombre
+            animacionRuletaInterval = setInterval(() => {
+                const randomName = participantes[Math.floor(Math.random() * participantes.length)];
+                if (cinta) cinta.innerHTML = `<div class="ruleta-nombre-item">${randomName}</div>`;
+            }, 45);
+        } 
+        else if (data.estado === 'resultado') {
+            if (animacionRuletaInterval) clearInterval(animacionRuletaInterval);
+
+            const ganador = data.ganador || "Nadie";
+            if (txtBanner) txtBanner.innerText = "🎉 Ganador: " + ganador;
+            if (cinta) cinta.innerHTML = `<div class="ruleta-nombre-item" style="color: #22c55e; font-size: 3.5rem; text-shadow: 0 0 30px rgba(34,197,94,0.8);">${ganador}</div>`;
+            if (statusText) {
+                statusText.innerHTML = "🎉 <b>¡ELEGIDO(A) PARA LA DINÁMICA!</b> 🎉";
+                statusText.style.color = "#22c55e";
+            }
+
+            // Oculta automáticamente tanto la pantalla completa como el banner tras 7 segundos
+            setTimeout(() => {
+                if (overlay) overlay.style.display = 'none';
+                if (bannerLive) bannerLive.style.display = 'none';
+            }, 7000);
+        }
+    }
+
+    // Función de prueba para verificar la ruleta directamente en el portal sin usar el Admin
+    function probarRuletaLocal() {
+        const nombresTest = ["Glenda Flores", "Anthony Lazo", "Andrea Martínez", "Carlos Gómez", "Mariana Ríos"];
+        
+        ejecutarEfectoRuletaVisual({
+            estado: 'girando',
+            participantes: nombresTest
+        });
+
+        setTimeout(() => {
+            const ganadorRandom = nombresTest[Math.floor(Math.random() * nombresTest.length)];
+            ejecutarEfectoRuletaVisual({
+                estado: 'resultado',
+                ganador: ganadorRandom
+            });
+
+            setTimeout(() => {
+                ejecutarEfectoRuletaVisual({ estado: 'inactiva' });
+            }, 4000);
+        }, 4000);
+    }
 </script>
 
 <!-- POPUP ASISTENCIA VIRTUAL (PIN) -->
@@ -2545,6 +3008,24 @@ function mostrarImagenBoleto(codigo, eventoId) {
         <button class="btn-main" id="btn-validar-pin" onclick="validarPinAsistencia()" style="max-width: 220px; margin: 0 auto;">Validar PIN</button>
         <p id="msg-pin-error" style="color: #dc2626; font-size: 0.85rem; font-weight: 700; margin-top: 15px; display: none; background: #fef2f2; padding: 10px; border-radius: 12px;">PIN incorrecto. Verifica la pantalla.</p>
     </div>
+</div>
+
+<!-- OVERLAY RULETA EN VIVO (SUPERPUESTA A CONECTADOS) -->
+<div id="ruleta-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(9, 9, 11, 0.96); z-index:99999999; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:white; animation: ruletaAparece 0.4s forwards;">
+    <div style="position:absolute; width:40vw; height:40vw; background:var(--purple-main); filter:blur(100px); opacity:0.3; border-radius:50%; top:-10%; left:-10%; pointer-events:none;"></div>
+    <div style="position:absolute; width:40vw; height:40vw; background:var(--pink-accent); filter:blur(100px); opacity:0.2; border-radius:50%; bottom:-10%; right:-10%; pointer-events:none;"></div>
+
+    <h2 style="color: #f8fafc; font-size:1.5rem; margin-bottom: 40px; letter-spacing: 4px; text-transform: uppercase; font-weight: 900;">⚡ SORTEO EN VIVO ELEGIDOS ⚡</h2>
+    
+    <div style="background: rgba(255,255,255,0.03); border: 2px solid rgba(139, 0, 255, 0.5); padding: 40px 20px; border-radius: 36px; width: 90%; max-width: 500px; box-shadow: inset 0 0 50px rgba(139,0,255,0.1), 0 20px 50px rgba(0,0,0,0.5); position: relative; z-index: 10;">
+        <div id="ruleta-nombres" style="height: 70px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+            <div id="ruleta-cinta" style="width: 100%;">
+                <!-- Nombre por nombre rápido -->
+            </div>
+        </div>
+    </div>
+    
+    <p id="ruleta-status-text" style="margin-top: 40px; font-size: 1.2rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">SELECCIONANDO EN VIVO...</p>
 </div>
 </body>
 </html>
