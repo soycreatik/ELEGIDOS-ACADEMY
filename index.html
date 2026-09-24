@@ -394,9 +394,102 @@
             .noti-filters { padding: 10px 20px 15px; }
             .noti-list { padding: 15px 20px; }
             .noti-input-area { padding: 15px 20px 20px; }
-            .noti-header-left img { height: 24px; }
+            ..noti-header-left img { height: 24px; }
             .noti-header-center h3 { font-size: 1rem; }
         }
+
+        /* --- ESTILOS DE MIS CALIFICACIONES Y ASISTENCIAS (GLASSMORPHISM DARK) --- */
+        .calif-container {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 25px;
+            color: #fff;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .calif-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .calif-summary-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 16px 12px;
+            text-align: center;
+        }
+
+        .calif-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .calif-status-seguro { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .calif-status-ajuste { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .calif-status-riesgo { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .calif-table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .calif-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .calif-table th {
+            background: rgba(255, 255, 255, 0.03);
+            color: #94a3b8;
+            padding: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .calif-table td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .calif-nota-pill {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            display: inline-block;
+            text-align: center;
+            min-width: 45px;
+        }
+        .nota-excelente { background: rgba(217, 70, 239, 0.2); color: #f472b6; border: 1px solid rgba(217, 70, 239, 0.4); }
+        .nota-buena { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .nota-regular { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .nota-baja { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        
+   
 
         /* --- ESTILOS DE LA RULETA EN VIVO --- */
         @keyframes pulseRuleta { 
@@ -1106,6 +1199,24 @@
                         }
                     </script>
 
+                                           
+
+                    <!-- TARJETA/PESTAÑA: MIS CALIFICACIONES Y ASISTENCIAS -->
+                    <!-- TARJETA/PESTAÑA: MIS CALIFICACIONES Y ASISTENCIAS -->
+                    <div class="promo-card" onclick="abrirMisCalificaciones()" style="display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); padding: 20px 24px; border-radius: 24px; margin-bottom: 24px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #ec4899); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.35); flex-shrink: 0; font-size: 1.4rem;">
+                                📊
+                            </div>
+                            <div style="color: #ffffff; font-size: 1rem; font-weight: 800; line-height: 1.3;">
+                                Mis Calificaciones y Asistencias<br>
+                                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Toca para ver rendimiento del cuatrimestre</span>
+                            </div>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
+
+                    <!-- HISTORIAL DE CLASES ORIGINAL RESTAURADO -->
                     <div class="section-header">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1829,6 +1940,7 @@ localStorage.removeItem("elegidos_is_admin");
         }
     }
 
+
     function renderizarListaClases() {
         if(esInvitado) {
             document.getElementById("contenedor-clases").innerHTML = "<p style='padding:20px; text-align:center;'>Modo Invitado activo.</p>";
@@ -2042,6 +2154,163 @@ localStorage.removeItem("elegidos_is_admin");
     if (!datosEstudianteActual || !datosEstudianteActual.boletos) {
         contenedor.innerHTML = "<p style='text-align: center; font-size: 0.85rem; color: #94a3b8; padding: 20px;'>No tienes ningún boleto vinculado a tu cuenta.</p>";
         return;
+    }
+// =========================================================================
+    // LÓGICA DE MIS CALIFICACIONES Y ASISTENCIAS (CUATRIMESTRE SEP-DIC)
+    // =========================================================================
+
+    function renderizarCalificacionesYAsistencias() {
+        const tbody = document.getElementById("tabla-calificaciones-body");
+        if (!tbody) return;
+
+        // Configuración de los 4 meses del cuatrimestre
+        const MESES = [
+            { id: 9, nombre: "Septiembre", desc: "Inicio y Diagnóstico", targetKey: "sep" },
+            { id: 10, nombre: "Octubre", desc: "Consolidación y Entregas", targetKey: "oct" },
+            { id: 11, nombre: "Noviembre", desc: "Proyectos integradores", targetKey: "nov" },
+            { id: 12, nombre: "Diciembre", desc: "Examen Final y Cierre", targetKey: "dic" }
+        ];
+
+        // Extraemos calificaciones de la BD o creamos estructura proyectada si no existe
+        const califsBD = (datosEstudianteActual && datosEstudianteActual.calificaciones) ? datosEstudianteActual.calificaciones : {};
+        const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
+
+        let sumaNotas = 0;
+        let mesesConNota = 0;
+        let totalClasesCuatrimestre = 0;
+        let asistenciasCuatrimestre = 0;
+        let faltasTotales = 0;
+
+        let htmlFilas = "";
+
+        MESES.forEach(mes => {
+            // Filtrar clases de este mes
+            const clasesMes = FECHAS_CURSO.filter(c => {
+                if (!c.fecha) return false;
+                const m = parseInt(c.fecha.split("-")[1], 10);
+                return m === mes.id;
+            });
+
+            let asistenciasMes = 0;
+            let faltasJustificadas = 0;
+            let faltasInjustificadas = 0;
+
+            clasesMes.forEach(clase => {
+                totalClasesCuatrimestre++;
+                const registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
+                if (registro) {
+                    if (String(registro).toLowerCase().includes("permiso")) {
+                        faltasJustificadas++;
+                    } else {
+                        asistenciasMes++;
+                        asistenciasCuatrimestre++;
+                    }
+                } else {
+                    // Verificar si la fecha ya pasó
+                    const fechaClase = new Date(clase.fecha + "T23:59:59");
+                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+                    if (ahora > fechaClase) {
+                        faltasInjustificadas++;
+                        faltasTotales++;
+                    }
+                }
+            });
+
+            const totalEnMes = clasesMes.length || 1;
+            const pctAsistenciaMes = Math.round((asistenciasMes / totalEnMes) * 100);
+
+            // Obtener nota del mes o asignación por defecto
+            const notaMes = califsBD[mes.targetKey] !== undefined ? parseFloat(califsBD[mes.targetKey]) : null;
+
+            let notaBadgeHTML = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">Por calificar</span>`;
+            if (notaMes !== null) {
+                sumaNotas += notaMes;
+                mesesConNota++;
+                let clasePill = notaMes >= 9.0 ? "nota-excelente" : (notaMes >= 8.0 ? "nota-buena" : (notaMes >= 7.0 ? "nota-regular" : "nota-baja"));
+                notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}">${notaMes.toFixed(1)}</span>`;
+            }
+
+            htmlFilas += `
+                <tr>
+                    <td>
+                        <strong style="color: #fff; font-size: 0.95rem; display: block;">${mes.nombre}</strong>
+                        <span style="font-size: 0.7rem; color: #94a3b8;">${mes.desc}</span>
+                    </td>
+                    <td style="font-size: 0.8rem; color: #cbd5e1;">
+                        Evaluación continua, Tareas & Prácticas
+                    </td>
+                    <td style="text-align: center; cursor: pointer;" onclick="abrirDetalleFaltasMes('${mes.nombre}', ${asistenciasMes}, ${totalEnMes}, ${faltasJustificadas}, ${faltasInjustificadas})">
+                        <span style="font-weight: 800; color: ${pctAsistenciaMes >= 80 ? '#4ade80' : '#f87171'};">${pctAsistenciaMes}%</span><br>
+                        <small style="font-size: 0.65rem; color: #94a3b8; text-decoration: underline;">${asistenciasMes}/${totalEnMes} ses. (ver)</small>
+                    </td>
+                    <td style="text-align: center;">
+                        ${notaBadgeHTML}
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = htmlFilas;
+
+        // PANEL SUPERIOR: PROMEDIO Y ESTADO DINÁMICO
+        const promedioProyectado = mesesConNota > 0 ? (sumaNotas / mesesConNota) : 8.5; 
+        const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
+
+        document.getElementById("calif-promedio-global").innerText = promedioProyectado.toFixed(1);
+        document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobal + "%";
+        document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
+        document.getElementById("calif-faltas-total").innerText = faltasTotales;
+
+        // Estado Dinámico
+        const containerBadge = document.getElementById("calif-status-badge-container");
+        if (containerBadge) {
+            if (promedioProyectado >= 8.0 && pctAsistenciaGlobal >= 80) {
+                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-seguro">🟢 Cierre Seguro</span>`;
+            } else if (promedioProyectado >= 7.0 && pctAsistenciaGlobal >= 70) {
+                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
+            } else {
+                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo de Recuperatorio</span>`;
+            }
+        }
+
+        calcularSimulacionCierre();
+    }
+
+    // SIMULADOR DE NOTA EN DICIEMBRE<!-- MÓDULO NUEVO: MIS CALIFICACIONES Y ASISTENCIAS -->
+    function calcularSimulacionCierre() {
+        const inputNota = document.getElementById("sim-input-nota");
+        const msgElem = document.getElementById("sim-resultado-msg");
+        if (!inputNota || !msgElem) return;
+
+        const notaEstimada = parseFloat(inputNota.value);
+        const promedioActual = parseFloat(document.getElementById("calif-promedio-global").innerText) || 8.0;
+
+        if (isNaN(notaEstimada)) {
+            const notaNecesaria = Math.max(7.0, (7.0 * 2) - promedioActual);
+            msgElem.innerHTML = `<span style="color: #cbd5e1;">Meta: Necesitas al menos un <strong>${notaNecesaria.toFixed(1)}</strong> en las evaluaciones de cierre para eximir la materia.</span>`;
+            return;
+        }
+
+        const promedioFinalSimulado = ((promedioActual + notaEstimada) / 2).toFixed(1);
+        if (promedioFinalSimulado >= 7.0) {
+            msgElem.innerHTML = `<span style="color: #4ade80;">🎉 ¡Aprobarías la materia con un promedio final estimado de <strong>${promedioFinalSimulado}</strong>!</span>`;
+        } else {
+            msgElem.innerHTML = `<span style="color: #f87171;">⚠️ Con esa nota tu promedio sería <strong>${promedioFinalSimulado}</strong>. Requieres subir tu calificación para evitar recuperación.</span>`;
+        }
+    }
+
+    // MODAL DE FALTAS DEL MES
+    function abrirDetalleFaltasMes(nombreMes, asistidas, total, justificadas, injustificadas) {
+        document.getElementById("modal-faltas-titulo").innerText = `Asistencia de ${nombreMes}`;
+        document.getElementById("modal-faltas-body").innerHTML = `
+            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px;">
+                <p>🟢 <strong>Clases Asistidas:</strong> ${asistidas} de ${total}</p>
+                <p style="margin-top: 6px;">🟠 <strong>Faltas Justificadas (Permisos):</strong> ${justificadas}</p>
+                <p style="margin-top: 6px;">🔴 <strong>Inasistencias Injustificadas:</strong> ${injustificadas}</p>
+            </div>
+            <p style="font-size: 0.75rem; color: #94a3b8; text-align: center;">Recuerda que debes mantener mínimo un 80% de asistencia para tu diploma oficial.</p>
+        `;
+        document.getElementById("modal-detalle-faltas").classList.add("activo");
     }
 
     const boletosValidos = Object.keys(datosEstudianteActual.boletos).filter(codigo => {
@@ -2385,6 +2654,8 @@ function mostrarImagenBoleto(codigo, eventoId) {
             datosEstudianteActual.asistencias[claseId] = "Permiso: " + razon;
             
             renderizarListaClases();
+renderizarListaClases();
+renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
             llenarSelectPermisos(); 
         }).catch(e => {
             alert("Error al enviar permiso (Fallo de red): " + e);
@@ -3027,5 +3298,206 @@ function mostrarImagenBoleto(codigo, eventoId) {
     
     <p id="ruleta-status-text" style="margin-top: 40px; font-size: 1.2rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">SELECCIONANDO EN VIVO...</p>
 </div>
+<!-- VENTANA EMERGENTE (MODAL): MIS CALIFICACIONES Y ASISTENCIAS -->
+<div class="noti-overlay" id="modal-mis-calificaciones" style="z-index: 9999999;">
+    <div class="noti-card" style="max-width: 720px; height: 85vh; max-height: 85vh; padding: 28px; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 32px; overflow-y: auto; color: #fff;">
+        <button class="noti-close" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: #fff; border: none;" onclick="cerrarMisCalificaciones()">✕</button>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; padding-right: 40px;">
+            <div>
+                <h3 style="font-size: 1.7rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; margin-bottom: 4px;">
+                    Mis Calificaciones <span style="color: var(--pink-accent);">y Asistencias</span>
+                </h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; font-weight: 500;">
+                    Cuatrimestre Académico (Sep - Dic). Rendimiento mes a mes.
+                </p>
+            </div>
+            <div id="calif-status-badge-container">
+                <span class="calif-status-badge calif-status-seguro">🟢 Calculando...</span>
+            </div>
+        </div>
+
+        <!-- 1. RESUMEN GLOBAL -->
+        <div class="calif-summary-grid">
+            <div class="calif-summary-card">
+                <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px;">Promedio Proyectado</span>
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: #f472b6; margin: 0;" id="calif-promedio-global">0.0</h2>
+            </div>
+            <div class="calif-summary-card">
+                <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px;">Asistencia Global</span>
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: #4ade80; margin: 0;" id="calif-asistencia-pct">0%</h2>
+                <span style="font-size: 0.65rem; color: #cbd5e1;" id="calif-asistencia-conteo">0 / 0 clases</span>
+            </div>
+            <div class="calif-summary-card">
+                <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px;">Faltas Totales</span>
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: #f87171; margin: 0;" id="calif-faltas-total">0</h2>
+            </div>
+        </div>
+
+        <!-- 2. TABLA CUATRIMESTRAL DE MESES -->
+        <div class="calif-table-wrapper">
+            <table class="calif-table">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Evaluaciones & Tareas</th>
+                        <th style="text-align: center;">Asistencia</th>
+                        <th style="text-align: center;">Nota Mes</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-calificaciones-body">
+                    <!-- Inyectado dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL SECUNDARIO DE FALTAS DEL MES -->
+<div class="noti-overlay" id="modal-detalle-faltas" style="z-index: 99999999;">
+    <div class="noti-card" style="max-height: max-content; padding: 30px 20px;">
+        <button class="noti-close" style="position: absolute; top: 15px; right: 15px;" onclick="document.getElementById('modal-detalle-faltas').classList.remove('activo')">✕</button>
+        <h3 id="modal-faltas-titulo" style="font-size: 1.2rem; font-weight: 900; color: #0f172a; margin-bottom: 15px;">Detalle de Asistencia</h3>
+        <div id="modal-faltas-body" style="font-size: 0.85rem; color: #475569; max-height: 250px; overflow-y: auto;">
+            <!-- Contenido dinámico -->
+        </div>
+    </div>
+</div>
+<script>
+    // =========================================================================
+    // LÓGICA DE MIS CALIFICACIONES Y ASISTENCIAS (MODAL LIGERO)
+    // =========================================================================
+
+    function abrirMisCalificaciones() {
+        renderizarCalificacionesYAsistencias();
+        const modal = document.getElementById("modal-mis-calificaciones");
+        if (modal) modal.classList.add("activo");
+    }
+
+    function cerrarMisCalificaciones() {
+        const modal = document.getElementById("modal-mis-calificaciones");
+        if (modal) modal.classList.remove("activo");
+    }
+
+    function renderizarCalificacionesYAsistencias() {
+        const tbody = document.getElementById("tabla-calificaciones-body");
+        if (!tbody) return;
+
+        const MESES = [
+            { id: 9, nombre: "Septiembre", desc: "Inicio y Diagnóstico", targetKey: "sep" },
+            { id: 10, nombre: "Octubre", desc: "Consolidación y Entregas", targetKey: "oct" },
+            { id: 11, nombre: "Noviembre", desc: "Proyectos integradores", targetKey: "nov" },
+            { id: 12, nombre: "Diciembre", desc: "Examen Final y Cierre", targetKey: "dic" }
+        ];
+
+        const califsBD = (datosEstudianteActual && datosEstudianteActual.calificaciones) ? datosEstudianteActual.calificaciones : {};
+        const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
+
+        let sumaNotas = 0;
+        let mesesConNota = 0;
+        let totalClasesCuatrimestre = 0;
+        let asistenciasCuatrimestre = 0;
+        let faltasTotales = 0;
+
+        let htmlFilas = "";
+
+        MESES.forEach(mes => {
+            const clasesMes = FECHAS_CURSO.filter(c => {
+                if (!c.fecha) return false;
+                const m = parseInt(c.fecha.split("-")[1], 10);
+                return m === mes.id;
+            });
+
+            let asistenciasMes = 0;
+            let faltasJustificadas = 0;
+            let faltasInjustificadas = 0;
+
+            clasesMes.forEach(clase => {
+                totalClasesCuatrimestre++;
+                const registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
+                if (registro) {
+                    if (String(registro).toLowerCase().includes("permiso")) {
+                        faltasJustificadas++;
+                    } else {
+                        asistenciasMes++;
+                        asistenciasCuatrimestre++;
+                    }
+                } else {
+                    const fechaClase = new Date(clase.fecha + "T23:59:59");
+                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+                    if (ahora > fechaClase) {
+                        faltasInjustificadas++;
+                        faltasTotales++;
+                    }
+                }
+            });
+
+            const totalEnMes = clasesMes.length || 1;
+            const pctAsistenciaMes = Math.round((asistenciasMes / totalEnMes) * 100);
+            const notaMes = califsBD[mes.targetKey] !== undefined ? parseFloat(califsBD[mes.targetKey]) : null;
+
+            let notaBadgeHTML = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">Por calificar</span>`;
+            if (notaMes !== null) {
+                sumaNotas += notaMes;
+                mesesConNota++;
+                let clasePill = notaMes >= 9.0 ? "nota-excelente" : (notaMes >= 8.0 ? "nota-buena" : (notaMes >= 7.0 ? "nota-regular" : "nota-baja"));
+                notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}">${notaMes.toFixed(1)}</span>`;
+            }
+
+            htmlFilas += `
+                <tr>
+                    <td>
+                        <strong style="color: #fff; font-size: 0.95rem; display: block;">${mes.nombre}</strong>
+                        <span style="font-size: 0.7rem; color: #94a3b8;">${mes.desc}</span>
+                    </td>
+                    <td style="font-size: 0.8rem; color: #cbd5e1;">
+                        Evaluación continua, Tareas & Prácticas
+                    </td>
+                    <td style="text-align: center; cursor: pointer;" onclick="abrirDetalleFaltasMes('${mes.nombre}', ${asistenciasMes}, ${totalEnMes}, ${faltasJustificadas}, ${faltasInjustificadas})">
+                        <span style="font-weight: 800; color: ${pctAsistenciaMes >= 80 ? '#4ade80' : '#f87171'};">${pctAsistenciaMes}%</span><br>
+                        <small style="font-size: 0.65rem; color: #94a3b8; text-decoration: underline;">${asistenciasMes}/${totalEnMes} ses. (ver)</small>
+                    </td>
+                    <td style="text-align: center;">
+                        ${notaBadgeHTML}
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = htmlFilas;
+
+        const promedioProyectado = mesesConNota > 0 ? (sumaNotas / mesesConNota) : 8.5; 
+        const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
+
+        document.getElementById("calif-promedio-global").innerText = promedioProyectado.toFixed(1);
+        document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobal + "%";
+        document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
+        document.getElementById("calif-faltas-total").innerText = faltasTotales;
+
+        const containerBadge = document.getElementById("calif-status-badge-container");
+        if (containerBadge) {
+            if (promedioProyectado >= 8.0 && pctAsistenciaGlobal >= 80) {
+                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-seguro">🟢 Cierre Seguro</span>`;
+            } else if (promedioProyectado >= 7.0 && pctAsistenciaGlobal >= 70) {
+                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
+            } else {
+                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo de Recuperatorio</span>`;
+            }
+        }
+    }
+
+    function abrirDetalleFaltasMes(nombreMes, asistidas, total, justificadas, injustificadas) {
+        document.getElementById("modal-faltas-titulo").innerText = `Asistencia de ${nombreMes}`;
+        document.getElementById("modal-faltas-body").innerHTML = `
+            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px;">
+                <p>🟢 <strong>Clases Asistidas:</strong> ${asistidas} de ${total}</p>
+                <p style="margin-top: 6px;">🟠 <strong>Faltas Justificadas (Permisos):</strong> ${justificadas}</p>
+                <p style="margin-top: 6px;">🔴 <strong>Inasistencias Injustificadas:</strong> ${injustificadas}</p>
+            </div>
+            <p style="font-size: 0.75rem; color: #94a3b8; text-align: center;">Recuerda mantener mínimo un 80% de asistencia para tu diploma oficial.</p>
+        `;
+        document.getElementById("modal-detalle-faltas").classList.add("activo");
+    }
+</script>
 </body>
 </html>
