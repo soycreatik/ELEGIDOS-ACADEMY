@@ -264,7 +264,7 @@
             .btn-logout { position: relative; right: auto; top: auto; transform: none; padding: 12px 20px; font-size: 0.95rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); z-index: 10; flex-shrink: 0; }
             .btn-logout:hover { transform: translateY(-2px); }
 
-            .content-area { flex: 1; padding: 135px 60px 70px 60px; margin-top: 0; background: transparent; position: relative; z-index: 10; }
+            .content-area { flex: 1; padding: 20px 60px 70px 60px; margin-top: 0; background: transparent; position: relative; z-index: 10; overflow: visible; }
             .categories-wrapper { display: none; }
             .class-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
             .calendar-card { max-width: 100%; }
@@ -563,6 +563,8 @@
             const countTodos = document.getElementById('noti-count-todos');
             const bellCounter = document.getElementById('noti-bell-counter');
             const headerSubtitle = document.getElementById('noti-header-subtitle');
+            // Buscamos el subtítulo de la tarjeta naranja principal
+            const cardSubtitle = document.querySelector('.promo-card span');
             
             if (countTodos) countTodos.innerText = noLeidas;
             
@@ -572,12 +574,20 @@
                     bellCounter.style.display = 'flex';
                 }
                 if (headerSubtitle) headerSubtitle.innerText = `Tienes ${noLeidas} mensajes nuevos`;
-                
-                // Activar también la campana externa de la tarjeta de notificaciones
+                // Cambiar el texto de la tarjeta principal si hay mensajes
+                if (cardSubtitle) {
+                    cardSubtitle.innerText = `Tienes ${noLeidas} mensaje(s) sin leer`;
+                    cardSubtitle.style.color = "#ea580c";
+                }
                 verificarMensajesAdmin(true);
             } else {
                 if (bellCounter) bellCounter.style.display = 'none';
                 if (headerSubtitle) headerSubtitle.innerText = `No tienes mensajes nuevos`;
+                // Restaurar el texto de la tarjeta principal
+                if (cardSubtitle) {
+                    cardSubtitle.innerText = `Ver anuncios recientes`;
+                    cardSubtitle.style.color = "#4b5563";
+                }
                 verificarMensajesAdmin(false);
             }
         }
@@ -722,12 +732,13 @@
 
         <div id="recovery-form" style="display: none;">
             <h1 class="login-title" style="font-size: 2.5rem;">Cambiar Clave</h1>
-            <p class="login-subtitle">Ingresa tu código y tu nueva contraseña.</p>
+            <p class="login-subtitle">Ingresa tu código y el correo vinculado a tu cuenta.</p>
 
             <input type="text" id="rec-codigo" class="input-field" placeholder="Tu Código (Ej: CLASE-2026-001)" autocomplete="off">
             
-            <div id="rec-antigua-container" style="display:none; width: 100%; justify-content: center;">
-                <input type="password" id="rec-antigua" class="input-field" placeholder="Contraseña Actual" style="margin-bottom: 16px;">
+            <div id="rec-correo-container" style="display:none; width: 100%; justify-content: center; flex-direction: column; align-items: center;">
+                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px; font-weight: 600; text-align: center;">Por seguridad, verifica el correo vinculado:</p>
+                <input type="email" id="rec-correo" class="input-field" placeholder="Correo electrónico de recuperación" style="margin-bottom: 16px;">
             </div>
             
             <input type="password" id="rec-nueva" class="input-field" placeholder="Nueva Contraseña (Mín. 4 caracteres)">
@@ -739,16 +750,17 @@
 
         <div id="create-form" style="display: none;">
             <h1 class="login-title" style="font-size: 2.5rem;">Nuevo Ingreso</h1>
-            <p class="login-subtitle">Ingresa tu nombre y crea tu clave para buscar un código libre.</p>
+            <p class="login-subtitle">Crea tu perfil y vincula un correo de recuperación.</p>
 
             <input type="text" id="crear-nombre" class="input-field" placeholder="Tu Nombre Completo" autocomplete="off">
+            <input type="email" id="crear-correo" class="input-field" placeholder="Correo electrónico (Para recuperar clave)" autocomplete="off">
             <input type="password" id="crear-clave" class="input-field" placeholder="Crea una contraseña (Mín. 4 caracteres)">
             
             <button class="btn-main" id="btn-crear-usuario" onclick="procesarCrearUsuario()">Buscar cupo y crear perfil</button>
             <button class="btn-main" onclick="mostrarCrear(false)" style="background: var(--card-bg) !important; color: var(--text-dark) !important; border: 1px solid var(--border-light) !important; margin-top: 12px; box-shadow: none;">Volver atrás</button>
             
             <div class="error-text" id="crear-error-msg"></div>
-            <div id="crear-success-msg" style="color: var(--text-green); font-size: 0.95rem; margin-top: 16px; display: none; font-weight: 700; background: #f0fdf4; padding: 16px; border-radius: 16px; border: 1px solid rgba(22, 163, 74, 0.1);"></div>
+            <div id="crear-success-msg" style="color: var(--text-green); font-size: 0.95rem; margin-top: 16px; display: none; font-weight: 700; background: #f0fdf4; padding: 20px; border-radius: 16px; border: 1px solid rgba(22, 163, 74, 0.1); text-align: center;"></div>
         </div>
     </div>
 
@@ -775,6 +787,10 @@
             <button class="nav-item" onclick="cambiarSeccion('recursos', 3)">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                 <span class="nav-txt">Más</span>
+            </button>
+            <button class="nav-item" onclick="cambiarSeccion('perfil', 4)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span class="nav-txt">Perfil</span>
             </button>
         </div>
 
@@ -843,7 +859,7 @@
                     <div id="meet-banner-container" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center;">
                         <h4 style="color: var(--purple-main); font-weight: 800; font-size: 1.1rem; margin-bottom: 5px;">🎥 Clase en Vivo Activa</h4>
                         <p style="font-size: 0.85rem; color: #4338ca; margin-bottom: 15px;">La sala de Google Meet está abierta.</p>
-                        <a href="https://meet.google.com/wvh-nhwv-uga" target="_blank" style="background: var(--purple-main); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);">Unirse a la Clase</a>
+                        <a href="#" onclick="registrarIngresoMeet('https://meet.google.com/wvh-nhwv-uga'); return false;" style="background: var(--purple-main); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);">Unirse a la Clase</a>
                     </div>
 
                     <script>
@@ -953,7 +969,7 @@
                     </div>
                 </div>
 
-               <!-- VISTA 5: RECURSOS Y PERFIL -->
+               <!-- VISTA 5: RECURSOS (MÁS) -->
                 <div id="tab-recursos" class="tab-content">
                     
                     <!-- SECCIÓN PERMISOS DIGITALES -->
@@ -967,55 +983,15 @@
                         </div>
                     </div>
                     <div class="calendar-card" style="margin-top: 0; padding: 20px; border-color: rgba(234, 88, 12, 0.3);">
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">¿No podrás asistir? Envía tu justificante. Se registrará automáticamente en tu historial como permiso.</p>
-                        
                         <select id="permiso-fecha" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
                             <option value="">Selecciona la clase a faltar...</option>
                         </select>
-                        
                         <textarea id="permiso-razon" class="input-field" placeholder="Motivo de la inasistencia (Ej: Enfermedad, Trabajo...)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
-                        
                         <div style="text-align: center; margin-bottom: 15px;">
                             <p style="font-size: 0.8rem; color: var(--text-dark); margin-bottom: 8px; font-weight: 600;">Adjuntar Justificante (Opcional)</p>
-                            <input type="file" id="permiso-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: none; margin-bottom: 5px;">
+                            <input type="file" id="permiso-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.05); border: none; margin-bottom: 5px;">
                         </div>
-
                         <button class="btn-main" id="btn-enviar-permiso" style="max-width: 100%; padding: 14px; font-size: 0.9rem; background: linear-gradient(90deg, #0a0a0a 0%, #6b21a8 45%, #ec4899 75%, #ff6a00 100%); box-shadow: 0 4px 15px rgba(139, 0, 255, 0.3);" onclick="enviarPermiso()">Enviar Solicitud</button>
-                    </div>
-
-                    <div class="section-header">👤 Mi Perfil ELEGIDOS</div>
-                    <div class="calendar-card" style="margin-top: 0; padding: 20px;">
-                        
-                        <!-- Personalizar Banner -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                            <span style="font-size: 0.8rem; font-weight: 600; color: #e2e8f0;">Color del Banner Principal:</span>
-                            <input type="color" id="perfil-color" value="#9333ea" style="border: none; width: 40px; height: 30px; border-radius: 5px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div id="preview-foto" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.1); margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple-main);">
-                                <img id="img-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                <span id="img-placeholder" style="color: #94a3b8; font-size: 0.75rem;">Sin foto</span>
-                            </div>
-                            <div id="box-subir-foto">
-                                <input type="file" id="perfil-foto" accept="image/*" class="input-field" style="max-width: 100%; padding: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.2); border: none; margin-bottom: 5px;">
-                                <p style="font-size: 0.7rem; color: #f87171; margin-top: 0; font-weight: bold;">⚠️ ATENCIÓN: La foto que subas será definitiva para todo el curso y no podrás cambiarla.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- CAMPOS DE TEXTO RECUPERADOS -->
-                        <input type="number" id="perfil-edad" class="input-field" placeholder="Tu edad (Ej: 22)" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
-                        <input type="text" id="perfil-comunidad" class="input-field" placeholder="Comunidad / Zona donde vives" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem;">
-                        <select id="perfil-nivel" class="input-field" style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; appearance: auto;">
-                            <option value="">Selecciona tu nivel en fotografía</option>
-                            <option value="Básico">Básico</option>
-                            <option value="Intermedio">Intermedio</option>
-                            <option value="Avanzado">Avanzado</option>
-                        </select>
-                        <textarea id="perfil-desc" class="input-field" placeholder="Una descripción corta de ti..." style="max-width: 100%; margin-bottom: 12px; padding: 14px; font-size: 0.9rem; resize: none; height: 80px;"></textarea>
-
-                        <button class="btn-main" id="btn-guardar-perfil" style="max-width: 100%; padding: 14px; font-size: 0.9rem;" onclick="guardarPerfil()">Guardar Perfil</button>
-                        <div id="perfil-msg" style="font-size: 0.8rem; margin-top: 12px; text-align: center; color: #fbbf24;"></div>
                     </div>
 
                     <div class="section-header">📞 Soporte Directo</div>
@@ -1025,7 +1001,7 @@
                     <div class="class-list" style="display: block; margin-bottom: 30px;">
                         <div class="class-item" style="border-left: 4px solid var(--purple-main);">
                             <div class="class-info"><h5>Sitio Web ELEGIDOS</h5><p>Plataforma y portafolios</p></div>
-                            <a href="https://elegidosori.vercel.app/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAacFQP-0RBBTqkr3Fe58wps9-TZQYVZ9O-UXuRHzqZJLu5nYd3XLKFVhoYITvg_aem_MQAULY9OAtbQlzeqHceovw" target="_blank" style="background: var(--purple-light); color: var(--purple-main); padding: 10px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 800; text-decoration: none;">Visitar</a>
+                            <a href="https://elegidosori.vercel.app/" target="_blank" style="background: var(--pastel-purple); color: var(--purple-main); padding: 10px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 800; text-decoration: none;">Visitar</a>
                         </div>
                     </div>
 
@@ -1035,10 +1011,78 @@
                     </div>
                 </div>
 
+                <!-- VISTA 6: PERFIL PROFESIONAL (ESTILO DARK UI) -->
+                <div id="tab-perfil" class="tab-content" style="background: #09090b; padding: 30px 20px; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); border: 1px solid #27272a; position: relative; overflow: hidden;">
+                    
+                    <!-- Glow effects de fondo -->
+                    <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: var(--purple-main); filter: blur(80px); opacity: 0.4; border-radius: 50%; pointer-events: none;"></div>
+                    <div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: #ec4899; filter: blur(80px); opacity: 0.3; border-radius: 50%; pointer-events: none;"></div>
+
+                    <div class="section-header" style="color: #ffffff; margin-bottom: 30px; position: relative; z-index: 2;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="background: linear-gradient(135deg, #a855f7, #6366f1); padding: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            <span>Mi Perfil ELEGIDOS</span>
+                        </div>
+                    </div>
+                    
+                    <div style="position: relative; z-index: 2;">
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);">
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                                <span style="font-size: 0.9rem; font-weight: 600; color: #a1a1aa;">Color del Portal:</span>
+                                <div style="position: relative; width: 40px; height: 40px; border-radius: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                    <input type="color" id="perfil-color" value="#8b00ff" style="position: absolute; top: -10px; left: -10px; width: 60px; height: 60px; border: none; cursor: pointer; background: transparent; padding: 0;">
+                                </div>
+                            </div>
+
+                            <div style="text-align: center; margin-bottom: 10px;">
+                                <div style="position: relative; display: inline-block;">
+                                    <div id="preview-foto" style="width: 110px; height: 110px; border-radius: 50%; background: #18181b; margin: 0 auto 20px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; background-clip: padding-box; position: relative; z-index: 2; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                                        <img id="img-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                        <span id="img-placeholder" style="color: #71717a; font-size: 0.85rem; font-weight: 600;">Sin foto</span>
+                                    </div>
+                                    <div style="position: absolute; top: -3px; right: -3px; bottom: -3px; left: -3px; z-index: 1; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #ec4899, #3b82f6); animation: rotate 4s linear infinite; margin: 0 auto 20px auto; width: 116px; height: 116px;"></div>
+                                </div>
+                                
+                                <div id="box-subir-foto" style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 15px; border: 1px dashed rgba(255,255,255,0.1);">
+                                    <input type="file" id="perfil-foto" accept="image/*" style="width: 100%; font-size: 0.85rem; color: #a1a1aa; file-selector-button: font-weight: bold; file-selector-button: border-radius: 8px; file-selector-button: border: none; file-selector-button: background: #27272a; file-selector-button: color: #fff; file-selector-button: padding: 8px 12px; file-selector-button: cursor: pointer;">
+                                    <p style="font-size: 0.75rem; color: #fbbf24; margin-top: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 8px;">⚠️ ATENCIÓN: La foto será definitiva.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Box Oscura: Campos de Texto -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);">
+                            <label style="color: #a1a1aa; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; display: block;">Edad</label>
+                            <input type="number" id="perfil-edad" placeholder="Ej: 22" style="width: 100%; margin-bottom: 16px; padding: 16px; font-size: 1rem; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; outline: none; transition: 0.3s;">
+                            
+                            <label style="color: #a1a1aa; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; display: block;">Comunidad / Zona</label>
+                            <input type="text" id="perfil-comunidad" placeholder="Ej: Santa Ana" style="width: 100%; margin-bottom: 16px; padding: 16px; font-size: 1rem; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; outline: none; transition: 0.3s;">
+                            
+                            <label style="color: #a1a1aa; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; display: block;">Nivel en Fotografía</label>
+                            <select id="perfil-nivel" style="width: 100%; margin-bottom: 16px; padding: 16px; font-size: 1rem; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; appearance: auto; outline: none;">
+                                <option value="" style="color: #a1a1aa;">Selecciona tu nivel</option>
+                                <option value="Básico">Básico</option>
+                                <option value="Intermedio">Intermedio</option>
+                                <option value="Avanzado">Avanzado</option>
+                            </select>
+                            
+                            <label style="color: #a1a1aa; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; display: block;">Sobre ti</label>
+                            <textarea id="perfil-desc" placeholder="Una descripción corta..." style="width: 100%; margin-bottom: 0; padding: 16px; font-size: 1rem; resize: none; height: 100px; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; outline: none; transition: 0.3s;"></textarea>
+                        </div>
+
+                        <button class="btn-main" id="btn-guardar-perfil" style="width: 100%; padding: 18px; font-size: 1.05rem; background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%) !important; color: #fff !important; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); text-transform: uppercase; letter-spacing: 1px; border-radius: 100px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s;" onclick="guardarPerfil()">💾 Guardar Perfil</button>
+                        <div id="perfil-msg" style="font-size: 0.85rem; margin-top: 15px; text-align: center; color: #34d399; font-weight: 600;"></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+<style>@keyframes rotate { 100% { transform: rotate(360deg); } }</style>
 
 <script>
     if(window.innerWidth > 768){
@@ -1159,13 +1203,22 @@ function mostrarRecuperacion(mostrar) {
 
     function procesarCrearUsuario() {
         const nombre = document.getElementById("crear-nombre").value.trim();
+        const correo = document.getElementById("crear-correo").value.trim();
         const clave = document.getElementById("crear-clave").value.trim();
         const errorMsg = document.getElementById("crear-error-msg");
         const successMsg = document.getElementById("crear-success-msg");
         const btn = document.getElementById("btn-crear-usuario");
 
-        if (!nombre || clave.length < 4) {
-            errorMsg.innerText = "Ingresa tu nombre y una contraseña de al menos 4 caracteres.";
+        if (!nombre || !correo || clave.length < 4) {
+            errorMsg.innerText = "Ingresa tu nombre, tu correo y una contraseña de al menos 4 caracteres.";
+            errorMsg.style.display = "block";
+            return;
+        }
+        
+        // Validación básica de correo
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo)) {
+            errorMsg.innerText = "Por favor, ingresa un correo electrónico válido.";
             errorMsg.style.display = "block";
             return;
         }
@@ -1205,10 +1258,11 @@ function mostrarRecuperacion(mostrar) {
             // Guardar al nuevo estudiante
             db.ref('clase/' + codigoAsignar).update({
                 nombre: nombre,
+                correo: correo,
                 password: clave,
                 fecha_creacion: new Date().toISOString()
             }).then(() => {
-                successMsg.innerHTML = `¡Éxito! Tu código es:<br><span style="font-size:1.4rem; color:#15803d; display:block; margin:8px 0;">${codigoAsignar}</span>¡Tómale captura, lo necesitarás para entrar!<br>Iniciando sesión en 5 segundos...`;
+                successMsg.innerHTML = `<span style="font-size:1.1rem; color:#15803d; font-weight:900;">¡CREACIÓN EXITOSA!</span><br><br><span style="font-size:0.9rem; color:#475569;">Tu CÓDIGO ÚNICO de estudiante es:</span><br><div style="font-size:2.2rem; font-weight:900; color:#16a34a; background:#dcfce7; padding:15px; border-radius:12px; margin:15px 0; border:2px dashed #15803d; letter-spacing:1px;">${codigoAsignar}</div><span style="font-size:0.85rem; color:#ea580c; font-weight:800;">⚠️ TÓMALE UNA CAPTURA AHORA MISM0 ⚠️<br>Lo necesitarás SIEMPRE para ingresar.</span><br><br><span style="font-size:0.8rem; color:#64748b;">Iniciando sesión automáticamente en 8 segundos...</span>`;
                 successMsg.style.display = "block";
                 btn.style.display = "none";
                 
@@ -1222,9 +1276,10 @@ function mostrarRecuperacion(mostrar) {
                     btn.disabled = false;
                     btn.innerText = "Buscar cupo y crear perfil";
                     document.getElementById("crear-nombre").value = "";
+                    document.getElementById("crear-correo").value = "";
                     document.getElementById("crear-clave").value = "";
                     iniciarSesion();
-                }, 5000);
+                }, 8000);
             });
         }).catch((error) => {
             errorMsg.innerText = "Error de conexión. Intenta de nuevo.";
@@ -1234,21 +1289,21 @@ function mostrarRecuperacion(mostrar) {
         });
     }
 
-    // Event listener para detectar cuando ingresan el código y mostrar u ocultar el campo de "Contraseña Antigua"
+    // Event listener para detectar cuando ingresan el código y mostrar el campo de correo para recuperación
     document.getElementById("rec-codigo").addEventListener("blur", function() {
         const codigo = this.value.trim().toUpperCase();
         if(codigo.startsWith("CLASE-2026-")) {
              db.ref('clase/' + codigo).once('value').then((snapshot) => {
                  if(snapshot.exists()){
                      const data = snapshot.val();
-                     const contraseñaActualDB = data.password;
-                     const containerAntigua = document.getElementById("rec-antigua-container");
+                     const correoVinculadoDB = data.correo;
+                     const containerCorreo = document.getElementById("rec-correo-container");
                      
-                     // Mostrar campo de contraseña antigua si ya la han cambiado
-                     if(contraseñaActualDB && contraseñaActualDB !== CLAVE_UNIVERSAL){
-                          containerAntigua.style.display = "flex";
+                     // Mostrar campo de correo si el usuario tiene uno vinculado
+                     if(correoVinculadoDB){
+                          containerCorreo.style.display = "flex";
                      } else {
-                          containerAntigua.style.display = "none";
+                          containerCorreo.style.display = "none";
                      }
                  }
              });
@@ -1257,10 +1312,10 @@ function mostrarRecuperacion(mostrar) {
 
     function procesarCambioPassword() {
         const codigo = document.getElementById("rec-codigo").value.trim().toUpperCase();
-        const passAntigua = document.getElementById("rec-antigua").value.trim();
+        const correoIngresado = document.getElementById("rec-correo").value.trim().toLowerCase();
         const nuevaPass = document.getElementById("rec-nueva").value.trim();
         const errorMsg = document.getElementById("rec-error-msg");
-        const containerAntigua = document.getElementById("rec-antigua-container");
+        const containerCorreo = document.getElementById("rec-correo-container");
 
         if (!codigo || nuevaPass.length < 4) {
             errorMsg.innerText = "El código es obligatorio y la nueva contraseña debe tener al menos 4 caracteres.";
@@ -1270,29 +1325,29 @@ function mostrarRecuperacion(mostrar) {
         db.ref('clase/' + codigo).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                const contraseñaActualDB = data.password;
+                const correoActualDB = data.correo ? data.correo.toLowerCase() : null;
 
-                // Si nunca han cambiado la clave o es la universal
-                if (!contraseñaActualDB || contraseñaActualDB === CLAVE_UNIVERSAL) {
-                    if (confirm(`¿Confirmas que deseas establecer "${nuevaPass}" como tu nueva contraseña?`)) {
-                        guardarNuevaContraseña(codigo, nuevaPass);
-                    }
-                } else {
-                    // Si ya tenían clave, validamos la antigua
-                    if(containerAntigua.style.display === "none"){
-                        containerAntigua.style.display = "flex";
-                        errorMsg.innerText = "Por favor ingresa tu contraseña actual para confirmar el cambio.";
+                // Si la cuenta tiene correo vinculado
+                if (correoActualDB) {
+                    if (containerCorreo.style.display === "none") {
+                        containerCorreo.style.display = "flex";
+                        errorMsg.innerText = "Por favor ingresa tu correo vinculado para confirmar el cambio.";
                         errorMsg.style.display = "block";
                         return;
                     }
                     
-                    if (passAntigua !== contraseñaActualDB) {
-                        errorMsg.innerText = "❌ La contraseña actual ingresada es incorrecta.";
+                    if (correoIngresado !== correoActualDB) {
+                        errorMsg.innerText = "❌ El correo ingresado no coincide con el vinculado a la cuenta.";
                         errorMsg.style.display = "block";
                         return;
                     }
 
                     if (confirm(`¿Confirmas que deseas cambiar tu contraseña a "${nuevaPass}"?`)) {
+                        guardarNuevaContraseña(codigo, nuevaPass);
+                    }
+                } else {
+                    // Si no tenía correo vinculado, permite el cambio libre pero notifica
+                    if (confirm(`Tu cuenta no tiene correo vinculado. ¿Confirmas que deseas cambiar tu contraseña a "${nuevaPass}"?`)) {
                         guardarNuevaContraseña(codigo, nuevaPass);
                     }
                 }
@@ -1313,7 +1368,8 @@ function mostrarRecuperacion(mostrar) {
             document.getElementById("input-clave").value = nuevaPass;
             
             document.getElementById("rec-codigo").value = "";
-            document.getElementById("rec-antigua").value = "";
+            const elCorreo = document.getElementById("rec-correo");
+            if(elCorreo) elCorreo.value = "";
             document.getElementById("rec-nueva").value = "";
             
             mostrarRecuperacion(false);
@@ -1321,9 +1377,17 @@ function mostrarRecuperacion(mostrar) {
     }
 
     function iniciarSesion() {
+        if (!navigator.onLine) {
+            const errorMsg = document.getElementById("error-msg");
+            errorMsg.innerText = "📡 Estás desconectado. Verifica tu conexión a internet e intenta de nuevo.";
+            errorMsg.style.display = "block";
+            return;
+        }
+
         let codigoInput = document.getElementById("input-codigo").value.trim().toUpperCase();
         const claveInput = document.getElementById("input-clave").value.trim();
         const errorMsg = document.getElementById("error-msg");
+        const btn = document.querySelector('#login-form .btn-main');
 
         if (!codigoInput || !claveInput) {
             errorMsg.innerText = "Por favor, ingresa tu código y contraseña.";
@@ -1331,12 +1395,10 @@ function mostrarRecuperacion(mostrar) {
             return;
         }
 
-        // --- AUTO-COMPLETAR CÓDIGO CON LOS 3 ÚLTIMOS NÚMEROS ---
         if (/^\d{1,3}$/.test(codigoInput)) {
             codigoInput = "CLASE-2026-" + codigoInput.padStart(3, '0');
         }
 
-        // Lógica exclusiva para perfiles de directores
         if (codigoInput === "ADMIN-GLENDA" || codigoInput === "ADMIN-ROGER") {
             if (claveInput === "ELEGIDOS26") {
                 document.getElementById("login-screen").style.display = "none";
@@ -1353,33 +1415,38 @@ function mostrarRecuperacion(mostrar) {
             }
         }
 
-        // Lógica para ESTUDIANTES
         errorMsg.style.display = "none";
-        const btn = document.querySelector('#login-form .btn-main');
-        if(btn) btn.innerText = "Verificando...";
+        
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Verificando credenciales...";
+        }
 
         db.ref('clase/' + codigoInput).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 if (data.password === claveInput || claveInput === CLAVE_UNIVERSAL) {
                     localStorage.setItem("elegidos_student_code", codigoInput);
+                    localStorage.setItem("elegidos_session_timestamp", Date.now()); 
+                    localStorage.setItem("elegidos_cache_" + codigoInput, JSON.stringify(data));
+
                     datosEstudianteActual = data;
                     cargarDashboard(codigoInput, data);
-                    if(btn) btn.innerText = "Acceder a mi perfil";
+                    if(btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
                 } else {
                     errorMsg.innerText = "Contraseña incorrecta.";
                     errorMsg.style.display = "block";
-                    if(btn) btn.innerText = "Acceder a mi perfil";
+                    if(btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
                 }
             } else {
                 errorMsg.innerText = "El código ingresado no existe.";
                 errorMsg.style.display = "block";
-                if(btn) btn.innerText = "Acceder a mi perfil";
+                if(btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
             }
         }).catch((error) => {
-            errorMsg.innerText = "Error de conexión. Intenta de nuevo.";
+            errorMsg.innerText = "❌ Fallo de red al conectar con la base de datos.";
             errorMsg.style.display = "block";
-            if(btn) btn.innerText = "Acceder a mi perfil";
+            if(btn) { btn.disabled = false; btn.innerText = "Acceder a mi perfil"; }
         });
     }
 
@@ -1487,10 +1554,9 @@ function mostrarRecuperacion(mostrar) {
         contenedor.innerHTML = "";
         let htmlAcademico = ""; 
 
-        
         const ahora = new Date();
         let asistidas = 0; let ausencias = 0; let permisos = 0;
-        let rachaActual = 0; let rachaMaxima = 0; let tieneFlash = false;
+        let rachaActual = 0; let rachaMaxima = 0;
 
         const asistenciasData = datosEstudianteActual ? datosEstudianteActual.asistencias : null;
         let ultimaClaseAsistidaIndex = -1;
@@ -1511,6 +1577,7 @@ function mostrarRecuperacion(mostrar) {
 
             let horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
 
+            // Integración de tickets de eventos especiales como asistencia
             if (asistenciasData) {
                 if (item.fecha === "2026-10-04" && asistenciasData["evento_elegidos"]) horaIngreso = asistenciasData["evento_elegidos"];
                 if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && asistenciasData["evento_masterclass"]) horaIngreso = asistenciasData["evento_masterclass"];
@@ -1539,16 +1606,16 @@ function mostrarRecuperacion(mostrar) {
             let timeInfo = "";
 
             if (horaIngreso) {
-                if (horaIngreso.toLowerCase().includes("permiso")) {
+                if (String(horaIngreso).toLowerCase().includes("permiso")) {
                     permisos++;
                     statusBadge = `<span class="status-badge" style="background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5;">Permiso</span>`; 
-                    timeInfo = `Justificado: ${horaIngreso}`;
+                    timeInfo = `<span style="color:#ea580c; font-weight:700;">Justificado:</span> ${horaIngreso.replace('Permiso:', '').trim()}`;
                 } else {
                     asistidas++; 
                     rachaActual++;
                     if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
                     statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
-                    timeInfo = `Llegada: ${horaIngreso}`;
+                    timeInfo = `<span style="color:#16a34a; font-weight:700;">Hora de llegada:</span> ${horaIngreso}`;
                 }
             } 
             else if (esHoy) {
@@ -1569,7 +1636,7 @@ function mostrarRecuperacion(mostrar) {
                 ausencias++;
                 rachaActual = 0; 
                 statusBadge = `<span class="status-badge status-fail">Ausente</span>`; 
-                timeInfo = `Falta registrada`;
+                timeInfo = `<span style="color:#dc2626; font-weight:700;">No te presentaste</span>`;
             } 
             else {
                 statusBadge = `<span class="status-badge status-wait">Próx.</span>`; 
@@ -1577,8 +1644,6 @@ function mostrarRecuperacion(mostrar) {
             }
 
             const temaDinamico = temasClasesGlobales[item.id] || item.tema || "";
-            const ponenteFinal = ponentesClasesGlobales[item.id] || item.expositor || item.ponente || "Equipo ELEGIDOS";
-            
             const iconoModalidad = item.modalidad === 'Online' ? '💻' : '📍';
             const textoModalidad = item.modalidad === 'Online' ? 'Online' : 'Presencial';
             
@@ -1594,7 +1659,7 @@ function mostrarRecuperacion(mostrar) {
                 </div>
                 <div class="class-info" style="flex: 1;">
                     <h5>${htmlTitulo}</h5>
-                    <p>${timeInfo}</p>
+                    <p style="margin-bottom: 4px;">${timeInfo}</p>
                     <div class="meta-tags">
                         <span class="meta-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.modalidad === 'Online' ? 'Por Zoom' : 'Presencial'}</span>
                         <span class="meta-tag"><span class="tag-dot" style="background: ${item.modalidad === 'Online' ? '#2563eb' : '#ec4899'};"></span>${textoModalidad}</span>
@@ -1784,11 +1849,21 @@ function mostrarImagenBoleto(codigo, eventoId) {
     function cambiarSeccion(tab, index) {
         if (!esInvitado && datosEstudianteActual) {
             const p = datosEstudianteActual.perfil;
-            if (!p || !p.foto || !p.edad || !p.comunidad || !p.nivel || !p.desc) {
-                if (tab !== 'recursos') {
-                    alert("⚠️ Acción obligatoria: Debes subir una foto y llenar TODOS tus datos personales para desbloquear el portal.");
-                    tab = 'recursos';
-                    index = 3; 
+            
+            if (!p || !p.ultimaActualizacion) {
+                let faltaFoto = !p || !p.foto;
+                let faltaTexto = !p || (!p.edad || !p.comunidad || !p.nivel || !p.desc);
+
+                if (faltaFoto || faltaTexto) {
+                    // Si intenta ir a cualquier lado que NO sea Perfil o Recursos (A recursos lo dejamos pasar porque ahí está soporte)
+                    if (tab !== 'perfil' && tab !== 'recursos') {
+                        if(faltaFoto && faltaTexto) alert("⚠️ Acción obligatoria: Sube una foto y llena tus datos personales para desbloquear tu portal.");
+                        else if(faltaFoto) alert("📸 Ya casi terminas: Solo te falta subir tu fotografía para continuar.");
+                        else if(faltaTexto) alert("📝 Ya casi terminas: Llena los campos de texto faltantes en tu perfil para continuar.");
+                        
+                        tab = 'perfil';
+                        index = 4; 
+                    }
                 }
             }
         }
@@ -1924,6 +1999,7 @@ function mostrarImagenBoleto(codigo, eventoId) {
         const comunidad = document.getElementById("perfil-comunidad").value.trim();
         const nivel = document.getElementById("perfil-nivel").value;
         const desc = document.getElementById("perfil-desc").value.trim();
+        const btn = document.getElementById("btn-guardar-perfil");
 
         if(!edad || !comunidad || !nivel || !desc) {
             return alert("Por favor, llena todos los campos de texto (edad, comunidad, nivel y descripción).");
@@ -1934,6 +2010,10 @@ function mostrarImagenBoleto(codigo, eventoId) {
         }
         
         if(confirm("¿Estás seguro de guardar tu perfil? No podrás modificar estos datos de nuevo hasta dentro de 30 días.")){
+            btn.disabled = true;
+            const textOriginal = btn.innerHTML;
+            btn.innerHTML = "⏳ Guardando...";
+
             const updateData = {
                 edad: edad,
                 comunidad: comunidad,
@@ -1947,61 +2027,25 @@ function mostrarImagenBoleto(codigo, eventoId) {
                 alert("✅ Perfil guardado exitosamente.");
                 datosEstudianteActual.perfil = updateData;
                 verificarBloqueoPerfil(datosEstudianteActual);
+                btn.disabled = false;
+                btn.innerHTML = textOriginal;
+            }).catch(e => {
+                alert("Error de conexión al guardar: " + e);
+                btn.disabled = false;
+                btn.innerHTML = textOriginal;
             });
         }
     }
 
-    function cambiarPasswordDashboard() {
-        const nuevaPass = document.getElementById("dash-pass-nueva").value.trim();
-        const codigo = localStorage.getItem("elegidos_student_code");
-        
-        if(nuevaPass.length < 4) return alert("La contraseña debe tener un mínimo de 4 caracteres.");
-        
-        db.ref(`clase/${codigo}`).update({ password: nuevaPass }).then(() => {
-            alert("✅ Contraseña actualizada correctamente.");
-            document.getElementById("dash-pass-nueva").value = "";
-            datosEstudianteActual.password = nuevaPass;
-            
-            document.getElementById('caja-cambio-clave').style.display = 'none';
-            document.getElementById('btn-toggle-pass').style.display = 'block';
-        });
-    }
-
-    let fotoPermisoBase64 = null;
-
-function llenarSelectPermisos() {
-        const select = document.getElementById("permiso-fecha");
-        if (!select) return;
-        select.innerHTML = '<option value="">Selecciona la clase a faltar...</option>';
-        
-        const fechaActualSV = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        
-        FECHAS_CURSO.forEach(clase => {
-            const fechaHoraClase = new Date(clase.fecha + 'T' + clase.hora + ':00-06:00');
-            const esFutura = fechaHoraClase > fechaActualSV;
-            
-            let estadoRegistrado = "";
-            if (datosEstudianteActual && datosEstudianteActual.asistencias) {
-                estadoRegistrado = String(datosEstudianteActual.asistencias[clase.id] || datosEstudianteActual.asistencias[clase.fecha] || "").toLowerCase();
-            }
-
-            // CANDADO: La clase DEBE ser futura Y NO debe tener registro previo de ausencia o asistencia
-            if (esFutura && !estadoRegistrado) {
-                const nombreLimpio = (clase.nombre || clase.titulo || "").toUpperCase();
-                
-                if (nombreLimpio.includes("ENTREGA") || nombreLimpio.includes("PROYECTO") || nombreLimpio.includes("FINAL")) {
-                    select.innerHTML += `<option disabled value="" style="color:#dc2626; font-weight:bold;">🚫 ${clase.nombre} (REQUISITO OBLIGATORIO PARA GRADUARSE)</option>`;
-                } else {
-                    select.innerHTML += `<option value="${clase.id}">${clase.nombre} — ${formatearFecha(clase.fecha)} (${clase.hora} hrs)</option>`;
-                }
-            }
-        });
-    }
+    // ... [Mantén tus funciones cambiarPasswordDashboard y llenarSelectPermisos intactas aquí] ...
 
     function enviarPermiso() {
+        if (!navigator.onLine) return alert("📡 Estás desconectado. Necesitas internet para enviar el permiso.");
+        
         const codigo = localStorage.getItem("elegidos_student_code");
         const claseId = document.getElementById("permiso-fecha").value;
         const razon = document.getElementById("permiso-razon").value.trim();
+        const btn = document.getElementById("btn-enviar-permiso");
         
         if (!claseId || !razon) return alert("Por favor, selecciona la clase y escribe el motivo del permiso.");
 
@@ -2010,8 +2054,6 @@ function llenarSelectPermisos() {
 
         if (claseSeleccionada) {
             const fechaHoraClase = new Date(claseSeleccionada.fecha + 'T' + claseSeleccionada.hora + ':00-06:00');
-            
-            // CANDADO DE SEGURIDAD 1: Fecha/Hora iniciada o vencida
             if (fechaActualSV >= fechaHoraClase) {
                 alert("❌ SOLICITUD RECHAZADA: La clase ya inició o ha finalizado. Solo se aceptan permisos para clases futuras.");
                 document.getElementById("permiso-fecha").value = "";
@@ -2020,7 +2062,6 @@ function llenarSelectPermisos() {
             }
         }
 
-        // CANDADO DE SEGURIDAD 2: Verificación directa contra el perfil del alumno usando el ID exacto
         if (datosEstudianteActual && datosEstudianteActual.asistencias) {
             const registroPrevio = datosEstudianteActual.asistencias[claseId] || (claseSeleccionada ? datosEstudianteActual.asistencias[claseSeleccionada.fecha] : null);
             if (registroPrevio) {
@@ -2031,7 +2072,8 @@ function llenarSelectPermisos() {
             }
         }
         
-        document.getElementById("btn-enviar-permiso").innerText = "Enviando...";
+        btn.disabled = true;
+        btn.innerText = "⏳ Enviando Solicitud...";
         
         const updates = {};
         updates[`clase/${codigo}/asistencias/${claseId}`] = "Permiso: " + razon;
@@ -2047,7 +2089,8 @@ function llenarSelectPermisos() {
             document.getElementById("permiso-razon").value = "";
             document.getElementById("permiso-foto").value = "";
             fotoPermisoBase64 = null;
-            document.getElementById("btn-enviar-permiso").innerText = "Enviar Solicitud";
+            btn.disabled = false;
+            btn.innerText = "Enviar Solicitud";
             
             if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
             datosEstudianteActual.asistencias[claseId] = "Permiso: " + razon;
@@ -2055,8 +2098,9 @@ function llenarSelectPermisos() {
             renderizarListaClases();
             llenarSelectPermisos(); 
         }).catch(e => {
-            alert("Error al enviar permiso: " + e);
-            document.getElementById("btn-enviar-permiso").innerText = "Enviar Solicitud";
+            alert("Error al enviar permiso (Fallo de red): " + e);
+            btn.disabled = false;
+            btn.innerText = "Enviar Solicitud";
         });
     }
     function verificarRetoActivo() {
@@ -2143,8 +2187,9 @@ function llenarSelectPermisos() {
         });
     }
 
-    // ¡ESTA ES LA FUNCIÓN VITAL QUE FALTABA PARA QUE REGISTRE EL TICKET!
     function vincularBoleto() {
+        if (!navigator.onLine) return alert("📡 Estás desconectado. Necesitas conexión a internet para escanear y vincular un boleto.");
+        
         const inputElement = document.getElementById("input-boleto");
         const codigoBoleto = inputElement.value.trim().toUpperCase();
         const codigoEstudiante = localStorage.getItem("elegidos_student_code");
@@ -2205,37 +2250,57 @@ function llenarSelectPermisos() {
         });
     }
     function registrarRetoManual(codigoOpcional) {
+        if (!navigator.onLine) return alert("📡 Sin conexión a internet. No podemos validar el reto.");
+        
         const codigoPropio = localStorage.getItem("elegidos_student_code");
         const codigoEscaneado = (codigoOpcional || document.getElementById("input-reto-manual").value.trim().toUpperCase());
+        const btn = document.querySelector("#tab-reto button[onclick='registrarRetoManual()']");
         
         if(!codigoEscaneado.startsWith("CLASE-2026-")) return alert("Código inválido. Asegúrate de escanear el QR correcto de un compañero.");
         if(codigoEscaneado === codigoPropio) return alert("❌ Hey tramposo, no puedes escanear tu propio código.");
         
-        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
-        if(ahora.getDay() !== 0) {
-            return alert("⚠️ El Reto Social solo se puede realizar los días Domingo de forma presencial.");
-        }
-
         if(datosEstudianteActual.retos && datosEstudianteActual.retos[codigoEscaneado]) {
             return alert("❌ Ya has escaneado a este compañero en un domingo anterior. ¡El reto es conocer a alguien nuevo!");
         }
-        
-        db.ref('clase/' + codigoEscaneado).once('value').then(snap => {
-            if(!snap.exists()) return alert("El código de tu compañero no existe en la base de datos.");
+
+        if(btn) { btn.disabled = true; btn.innerText = "⏳ Verificando servidor..."; }
+
+        db.ref('.info/serverTimeOffset').once('value').then(offsetSnap => {
+            const offset = offsetSnap.val() || 0;
+            const horaVerdaderaServidor = new Date(Date.now() + offset);
             
-            const currentPoints = (datosEstudianteActual.puntos_sociales || 0) + 1;
-            const updates = {};
-            updates[`clase/${codigoPropio}/retos/${codigoEscaneado}`] = true;
-            updates[`clase/${codigoPropio}/puntos_sociales`] = currentPoints;
+            const opcionesSV = { timeZone: "America/El_Salvador" };
+            const fechaFalsaSV = new Date(horaVerdaderaServidor.toLocaleString("en-US", opcionesSV));
             
-            db.ref().update(updates).then(() => {
-                alert(`🎉 ¡Reto dominical completado! Has ganado 1 punto de interacción con ${snap.val().nombre}.`);
-                document.getElementById("input-reto-manual").value = "";
-                document.getElementById("puntos-sociales").innerText = currentPoints;
-                if(!datosEstudianteActual.retos) datosEstudianteActual.retos = {};
-                datosEstudianteActual.retos[codigoEscaneado] = true;
-                datosEstudianteActual.puntos_sociales = currentPoints;
+            if(fechaFalsaSV.getDay() !== 0) {
+                if(btn) { btn.disabled = false; btn.innerText = "Validar Código Manual"; }
+                return alert("⚠️ ACCESO DENEGADO: El Reto Social solo se puede realizar los días Domingo. (Validado mediante el reloj global del servidor).");
+            }
+
+            db.ref('clase/' + codigoEscaneado).once('value').then(snap => {
+                if(!snap.exists()) {
+                    if(btn) { btn.disabled = false; btn.innerText = "Validar Código Manual"; }
+                    return alert("El código de tu compañero no existe en la base de datos.");
+                }
+                
+                const currentPoints = (datosEstudianteActual.puntos_sociales || 0) + 1;
+                const updates = {};
+                updates[`clase/${codigoPropio}/retos/${codigoEscaneado}`] = true;
+                updates[`clase/${codigoPropio}/puntos_sociales`] = currentPoints;
+                
+                db.ref().update(updates).then(() => {
+                    alert(`🎉 ¡Reto dominical completado! Has ganado 1 punto de interacción con ${snap.val().nombre}.`);
+                    document.getElementById("input-reto-manual").value = "";
+                    document.getElementById("puntos-sociales").innerText = currentPoints;
+                    if(!datosEstudianteActual.retos) datosEstudianteActual.retos = {};
+                    datosEstudianteActual.retos[codigoEscaneado] = true;
+                    datosEstudianteActual.puntos_sociales = currentPoints;
+                    if(btn) { btn.disabled = false; btn.innerText = "Validar Código Manual"; }
+                });
             });
+        }).catch(err => {
+            alert("Error al conectar con el servidor: " + err);
+            if(btn) { btn.disabled = false; btn.innerText = "Validar Código Manual"; }
         });
     }
 
@@ -2267,7 +2332,6 @@ function llenarSelectPermisos() {
     });
 
     window.onload = () => {
-
         const splash = document.getElementById('splash-screen');
         if(splash) {
             splash.style.opacity = '0';
@@ -2279,9 +2343,7 @@ function llenarSelectPermisos() {
             headers.forEach(header => {
                 if (header.innerText === "Historial de Clases") {
                     const nota = document.createElement("p");
-                    nota.style.fontSize = "0.75rem";
-                    nota.style.color = "var(--text-muted)";
-                    nota.style.marginBottom = "15px";
+                    nota.style.fontSize = "0.75rem"; nota.style.color = "var(--text-muted)"; nota.style.marginBottom = "15px";
                     nota.innerHTML = "<em>* Recuerda: Las clases de los <strong>Domingos son PRESENCIALES</strong> y las clases de los <strong>Miércoles son VIRTUALES</strong>.</em>";
                     header.parentNode.insertBefore(nota, header.nextSibling);
                 }
@@ -2290,92 +2352,199 @@ function llenarSelectPermisos() {
 
         db.ref('configuracion/calendarioClases').on('value', snap => {
             let listaCombinadaMap = new Map();
-            
-            FECHAS_CURSO_BASE.forEach(clase => {
-                listaCombinadaMap.set(clase.fecha, JSON.parse(JSON.stringify(clase)));
-            });
-
+            FECHAS_CURSO_BASE.forEach(clase => { listaCombinadaMap.set(clase.fecha, JSON.parse(JSON.stringify(clase))); });
             if (snap.exists()) {
                 const data = snap.val();
                 Object.keys(data).forEach(key => {
                     const itemFirebase = data[key];
                     if (!itemFirebase.fecha) return;
-
                     const nombreClase = itemFirebase.titulo || itemFirebase.nombre || "Nueva Clase";
-                    
-                    const datosNuevos = {
-                        id: key,
-                        fecha: itemFirebase.fecha,
-                        hora: itemFirebase.hora || "15:00",
-                        nombre: nombreClase,
-                        expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS",
-                        modalidad: itemFirebase.modalidad || "Presencial",
-                        tema: itemFirebase.tema || ""
-                    };
-
+                    const datosNuevos = { id: key, fecha: itemFirebase.fecha, hora: itemFirebase.hora || "15:00", nombre: nombreClase, expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS", modalidad: itemFirebase.modalidad || "Presencial", tema: itemFirebase.tema || "" };
                     listaCombinadaMap.set(itemFirebase.fecha, { ...listaCombinadaMap.get(itemFirebase.fecha), ...datosNuevos });
                 });
             }
-
             FECHAS_CURSO = Array.from(listaCombinadaMap.values());
             FECHAS_CURSO.sort((a, b) => new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`));
-
-            if (typeof datosEstudianteActual !== 'undefined' && datosEstudianteActual) {
-                renderizarListaClases();
-                if (typeof llenarSelectPermisos === 'function') llenarSelectPermisos();
-            }
+            if (typeof datosEstudianteActual !== 'undefined' && datosEstudianteActual) { renderizarListaClases(); if (typeof llenarSelectPermisos === 'function') llenarSelectPermisos(); }
         });
 
-        db.ref('configuracion/temasClases').on('value', snap => {
-            if (snap.exists()) {
-                temasClasesGlobales = snap.val();
-                if (datosEstudianteActual) renderizarListaClases(); 
-            }
-        });
-
-        db.ref('configuracion/ponentesClases').on('value', snap => {
-            if (snap.exists()) {
-                ponentesClasesGlobales = snap.val();
-                if (datosEstudianteActual) renderizarListaClases(); 
-            }
-        });
-
-        
+        db.ref('configuracion/temasClases').on('value', snap => { if (snap.exists()) { temasClasesGlobales = snap.val(); if (datosEstudianteActual) renderizarListaClases(); }});
+        db.ref('configuracion/ponentesClases').on('value', snap => { if (snap.exists()) { ponentesClasesGlobales = snap.val(); if (datosEstudianteActual) renderizarListaClases(); }});
 
         const savedCode = localStorage.getItem("elegidos_student_code");
+        const sessionTime = localStorage.getItem("elegidos_session_timestamp");
+
         if (savedCode) {
+            if (sessionTime) {
+                const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+                if (Date.now() - parseInt(sessionTime) > SEVEN_DAYS_MS) {
+                    alert("Tu sesión ha expirado por inactividad. Vuelve a ingresar.");
+                    cerrarSesion();
+                    return;
+                }
+            }
+
             if(savedCode === INVITADO_USER) {
                 document.getElementById("input-codigo").value = INVITADO_USER;
                 document.getElementById("input-clave").value = INVITADO_PASS;
                 iniciarSesion();
             } else {
-                db.ref('clase/' + savedCode).once('value').then((snapshot) => {
-                    if (snapshot.exists()) { 
-                        datosEstudianteActual = snapshot.val(); 
-                        cargarDashboard(savedCode, datosEstudianteActual); 
+                const cachedData = localStorage.getItem("elegidos_cache_" + savedCode);
+                if (cachedData) {
+                    datosEstudianteActual = JSON.parse(cachedData);
+                    cargarDashboard(savedCode, datosEstudianteActual);
+                }
+
+                db.ref('clase/' + savedCode).on('value', (snap) => {
+                    if (snap.exists()) {
+                        datosEstudianteActual = snap.val();
+                        localStorage.setItem("elegidos_cache_" + savedCode, JSON.stringify(datosEstudianteActual));
                         
-                        db.ref('clase/' + savedCode).on('value', (snap) => {
-                            if (snap.exists()) {
-                                datosEstudianteActual = snap.val();
-                                
-                                if(datosEstudianteActual.perfil && datosEstudianteActual.perfil.color) {
-                                    if(window.innerWidth <= 768) {
-                                        document.querySelector('.top-header').style.background = `linear-gradient(135deg, ${datosEstudianteActual.perfil.color} 0%, var(--purple-dark) 100%)`;
-                                    }
-                                    document.documentElement.style.setProperty('--purple-main', datosEstudianteActual.perfil.color);
-                                }
-                                
-                                renderizarListaClases();
-                                renderizarBoletosVinculados();
-                                llenarSelectPermisos();   
-                                verificarRetoActivo();
-                            }
-                        });
+                        if(datosEstudianteActual.perfil && datosEstudianteActual.perfil.color) {
+                            if(window.innerWidth <= 768) { document.querySelector('.top-header').style.background = `linear-gradient(135deg, ${datosEstudianteActual.perfil.color} 0%, var(--purple-dark) 100%)`; }
+                            document.documentElement.style.setProperty('--purple-main', datosEstudianteActual.perfil.color);
+                        }
+                        
+                        if(!cachedData) cargarDashboard(savedCode, datosEstudianteActual);
+                        renderizarListaClases();
+                        renderizarBoletosVinculados();
+                        llenarSelectPermisos();   
+                        verificarRetoActivo();
                     }
                 });
             }
         }
-    };    
+    };
+
+    // =========================================================
+    // SISTEMA DE ASISTENCIA VIRTUAL (HUELLA + RELOJ + PIN)
+    // =========================================================
+    
+    let intervaloReloj = null;
+    let popupAsistenciaMostrado = false;
+
+    // 1. Deja la marca invisible y abre Meet
+    window.registrarIngresoMeet = function(url) {
+        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+        
+        localStorage.setItem('ingreso_meet_' + hoy, 'true'); // ¡Huella registrada!
+        window.open(url, "_blank");
+    };
+
+    // 2. El vigilante en segundo plano
+    window.iniciarRelojAsistenciaVirtual = function() {
+        if (intervaloReloj) clearInterval(intervaloReloj);
+        
+        intervaloReloj = setInterval(() => {
+            const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+            const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+            
+            // Verifica si hoy hay una clase Online
+            const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
+            
+            // Si hay clase hoy, y el reloj marca entre las 20:30 y 20:50
+            if (claseDeHoy && ahora.getHours() === 20 && ahora.getMinutes() >= 30 && ahora.getMinutes() <= 50) {
+                
+                const entroAMeet = localStorage.getItem('ingreso_meet_' + hoy);
+                
+                // Si el sistema detecta la huella y no le ha mostrado la alerta aún...
+                if (entroAMeet === 'true' && !popupAsistenciaMostrado) {
+                    
+                    // Asegurarnos de que no tenga ya la asistencia registrada para no molestar
+                    const yaAsistio = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[claseDeHoy.id];
+                    
+                    if (!yaAsistio) {
+                        document.getElementById('modal-pin-asistencia').classList.add('activo');
+                        popupAsistenciaMostrado = true; // Apaga el gatillo para esta sesión
+                    }
+                }
+            }
+        }, 20000); // Revisa silenciosamente cada 20 segundos
+    };
+
+    // 3. Validador final contra Firebase
+    window.validarPinAsistencia = function() {
+        if (!navigator.onLine) return alert("📡 Sin conexión. Necesitas internet para validar tu asistencia.");
+        
+        const pinIngresado = document.getElementById('input-pin-asistencia').value.trim();
+        const btn = document.getElementById('btn-validar-pin');
+        const msgError = document.getElementById('msg-pin-error');
+        
+        if (pinIngresado.length !== 4) {
+            msgError.innerText = "El PIN debe tener exactamente 4 dígitos.";
+            msgError.style.display = "block";
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "⏳ Validando...";
+        msgError.style.display = "none";
+
+        const ahora = new Date(new Date().toLocaleString("en-US", {timeZone: "America/El_Salvador"}));
+        const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+
+        // Cruzar el PIN con el que generó el Admin en Firebase
+        db.ref('sistema/asistencia_virtual/' + hoy).once('value').then(snap => {
+            const pinReal = snap.val();
+            
+            if (snap.exists() && String(pinReal) === String(pinIngresado)) {
+                
+                const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
+                if (claseDeHoy) {
+                    const codigo = localStorage.getItem("elegidos_student_code");
+                    const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
+                    const registro = horaActualStr + " (Asistió Virtualmente)";
+                    
+                    db.ref(`clase/${codigo}/asistencias/${claseDeHoy.id}`).set(registro).then(() => {
+                        document.getElementById('modal-pin-asistencia').classList.remove('activo');
+                        alert("✅ ¡Asistencia virtual registrada exitosamente!");
+                        
+                        // Reflejarlo de inmediato en el historial visual
+                        if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
+                        datosEstudianteActual.asistencias[claseDeHoy.id] = registro;
+                        renderizarListaClases();
+                        btn.disabled = false;
+                        btn.innerText = "Validar PIN";
+                    }).catch(e => {
+                        msgError.innerText = "Error de red al guardar. Intenta de nuevo.";
+                        msgError.style.display = "block";
+                        btn.disabled = false;
+                        btn.innerText = "Validar PIN";
+                    });
+                }
+            } else {
+                msgError.innerText = "❌ PIN incorrecto. Revisa la pantalla de Meet.";
+                msgError.style.display = "block";
+                btn.disabled = false;
+                btn.innerText = "Validar PIN";
+            }
+        }).catch(e => {
+            msgError.innerText = "❌ Fallo de conexión con el servidor.";
+            msgError.style.display = "block";
+            btn.disabled = false;
+            btn.innerText = "Validar PIN";
+        });
+    };
 </script>
+
+<!-- POPUP ASISTENCIA VIRTUAL (PIN) -->
+<div class="noti-overlay" id="modal-pin-asistencia" style="z-index: 9999999; flex-direction: column;">
+    <div class="noti-card" style="position: relative; max-height: max-content; padding: 40px 24px; text-align: center; border-radius: 36px; border: 2px solid var(--purple-main); align-items: center; justify-content: center;">
+        <button class="noti-close" style="position: absolute; top: 20px; right: 20px;" onclick="document.getElementById('modal-pin-asistencia').classList.remove('activo')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div style="background: linear-gradient(135deg, #8b5cf6, #ec4899); width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(139,0,255,0.3);">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h2 style="font-size: 1.6rem; font-weight: 900; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px;">Registro de Asistencia</h2>
+        <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 25px; font-weight: 500; line-height: 1.4;">Ingresa el PIN de 4 dígitos que el instructor está mostrando en la pantalla de Google Meet.</p>
+        
+        <input type="number" id="input-pin-asistencia" class="input-field" placeholder="0000" style="text-align: center; font-size: 2rem; letter-spacing: 12px; font-weight: 900; max-width: 220px; margin: 0 auto 20px; padding: 15px;">
+        
+        <button class="btn-main" id="btn-validar-pin" onclick="validarPinAsistencia()" style="max-width: 220px; margin: 0 auto;">Validar PIN</button>
+        <p id="msg-pin-error" style="color: #dc2626; font-size: 0.85rem; font-weight: 700; margin-top: 15px; display: none; background: #fef2f2; padding: 10px; border-radius: 12px;">PIN incorrecto. Verifica la pantalla.</p>
+    </div>
+</div>
 </body>
 </html>
