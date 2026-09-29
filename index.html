@@ -1570,6 +1570,7 @@
     let datosEstudianteActual = null;
     let esInvitado = false;
     let fotoPerfilBase64 = null;
+    let fotoPermisoBase64 = null; // <-- Variable agregada para evitar que el botón se congele
 
     function formatearFecha(fechaString) {
         const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
@@ -2054,13 +2055,7 @@ localStorage.removeItem("elegidos_is_admin");
 
             let horaIngreso = asistenciasData ? (asistenciasData[item.id] || asistenciasData[item.fecha]) : null;
 
-           // SINCRONIZACIÓN REAL DE ASISTENCIA POR BOLETO: 
-// Solo aplica si el registro de asistencias está activo y no ha sido reseteado por el Admin.
-if (datosEstudianteActual && datosEstudianteActual.asistencias && Object.keys(datosEstudianteActual.asistencias).length > 0 && datosEstudianteActual.accesos_especiales) {
-    if (item.fecha === "2026-10-04" && (datosEstudianteActual.accesos_especiales["elegidos"] || datosEstudianteActual.accesos_especiales["mahu"])) horaIngreso = horaIngreso || "🎟️ Boleto Validado";
-    if ((item.fecha === "2026-10-25" || item.fecha === "2026-10-27") && (datosEstudianteActual.accesos_especiales["masterclass"] || datosEstudianteActual.accesos_especiales["dreamez"])) horaIngreso = horaIngreso || "🎟️ Boleto Validado";
-    if (item.fecha === "2026-11-08" && datosEstudianteActual.accesos_especiales["festival"]) horaIngreso = horaIngreso || "🎟️ Boleto Validado";
-}
+           
 
             const fechaActualSV = obtenerFechaSistema();
             const hoyStr = fechaActualSV.getFullYear() + '-' + String(fechaActualSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaActualSV.getDate()).padStart(2, '0');
@@ -2138,7 +2133,7 @@ if (datosEstudianteActual && datosEstudianteActual.asistencias && Object.keys(da
                     <h5>${htmlTitulo}</h5>
                     <p style="margin-bottom: 4px;">${timeInfo}</p>
                     <div class="meta-tags">
-                        <span class="meta-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.modalidad === 'Online' ? 'Por Zoom' : 'Presencial'}</span>
+                        <span class="meta-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${item.modalidad === 'Online' ? 'Por Meet' : 'Presencial'}</span>
                         <span class="meta-tag"><span class="tag-dot" style="background: ${item.modalidad === 'Online' ? '#2563eb' : '#ec4899'};"></span>${textoModalidad}</span>
                     </div>
                 </div>
@@ -2595,9 +2590,23 @@ const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'On
         }
     }
 
-    // ... [Mantén tus funciones cambiarPasswordDashboard y llenarSelectPermisos intactas aquí] ...
+function llenarSelectPermisos() {
+        const select = document.getElementById("permiso-fecha");
+        if (!select) return;
+        select.innerHTML = '<option value="">Selecciona la clase a faltar...</option>';
 
-    function enviarPermiso() {
+        const ahora = typeof obtenerFechaSistema === 'function' ? obtenerFechaSistema() : new Date();
+        const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+
+        FECHAS_CURSO.forEach(clase => {
+            if (clase.fecha >= hoyStr) {
+                const option = document.createElement("option");
+                option.value = clase.id;
+                option.text = `${clase.nombre || clase.titulo} - ${formatearFecha(clase.fecha)}`;
+                select.appendChild(option);
+            }
+        });
+    }    function enviarPermiso() {
         if (!navigator.onLine) return alert("📡 Estás desconectado. Necesitas internet para enviar el permiso.");
         
         const codigo = localStorage.getItem("elegidos_student_code");
@@ -2650,11 +2659,13 @@ const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'On
             btn.disabled = false;
             btn.innerText = "Enviar Solicitud";
             
-            if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
+           if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
             datosEstudianteActual.asistencias[claseId] = "Permiso: " + razon;
             
-           renderizarListaClases();
-renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
+            renderizarListaClases();
+            if (typeof renderizarCalificacionesYAsistencias === 'function') {
+                renderizarCalificacionesYAsistencias(); 
+            }
             llenarSelectPermisos(); 
         }).catch(e => {
             alert("Error al enviar permiso (Fallo de red): " + e);
@@ -2686,7 +2697,7 @@ renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
         escanerReto = new Html5Qrcode("qr-reader");
         escanerReto.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
+{ fps: 15, qrbox: { width: 250, height: 250 } },
             codigoQR => {
                 // Detiene la cámara e inmediatamente llama la función
                 if (escanerReto) {
@@ -2719,8 +2730,7 @@ renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
         escanerBoletos = new Html5Qrcode("qr-reader-boletos");
         escanerBoletos.start(
             { facingMode: "environment" },
-            { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-            (decodedText) => {
+{ fps: 15, qrbox: { width: 250, height: 250 } },            (decodedText) => {
                 if (escanerBoletos) {
                     // Detener cámara y limpiar la vista HTML
                     escanerBoletos.stop().then(() => {
@@ -2953,7 +2963,10 @@ renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
                     const itemFirebase = data[key];
                     if (!itemFirebase.fecha) return;
                     const nombreClase = itemFirebase.titulo || itemFirebase.nombre || "Nueva Clase";
-                    const datosNuevos = { id: key, fecha: itemFirebase.fecha, hora: itemFirebase.hora || "15:00", nombre: nombreClase, expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS", modalidad: itemFirebase.modalidad || "Presencial", tema: itemFirebase.tema || "" };
+                    // Forzamos la corrección de hora para las clases Online si se guardaron mal o quedaron en 15:00 por defecto
+                    let horaCorregida = itemFirebase.hora || "15:00";
+                    if (itemFirebase.modalidad === 'Online' && (!itemFirebase.hora || itemFirebase.hora === "15:00")) horaCorregida = "20:00";
+                    const datosNuevos = { id: key, fecha: itemFirebase.fecha, hora: horaCorregida, nombre: nombreClase, expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS", modalidad: itemFirebase.modalidad || "Presencial", tema: itemFirebase.tema || "" };
                     listaCombinadaMap.set(key, { ...(listaCombinadaMap.get(key) || {}), ...datosNuevos });
                 });
             }
@@ -3066,10 +3079,10 @@ renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
             // Verifica si hoy hay una clase Online
             const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
             
-            // Se activa si es hora del PIN (20:30 a 21:00 hrs)
-            const horaActual = ahora.getHours();
-            const minActual = ahora.getMinutes();
-            const esHoraPin = (horaActual === 20 && minActual >= 30);
+            // Se activa durante el horario completo de la clase Online
+            const horaApertura = new Date(`${hoy}T19:45:00`);
+            const horaCierre = new Date(`${hoy}T21:00:00`);
+            const esHoraPin = (ahora >= horaApertura && ahora <= horaCierre);
 
             if (claseDeHoy && esHoraPin) {
                 const entroAMeet = localStorage.getItem('ingreso_meet_' + hoy);
@@ -3110,12 +3123,12 @@ renderizarCalificacionesYAsistencias(); // <--- AGREGAR ESTA LÍNEA AQUÍ
         const ahora = obtenerFechaSistema();
         const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
 
-        const horaActual = ahora.getHours();
-        const minActual = ahora.getMinutes();
         const esAdminTesting = localStorage.getItem("elegidos_is_admin") === "true";
+        const horaApertura = new Date(`${hoy}T19:45:00`);
+        const horaCierre = new Date(`${hoy}T21:00:00`);
 
-        if (!esAdminTesting && (horaActual !== 20 || minActual < 30)) {
-            msgError.innerText = "⏰ El PIN solo se puede validar entre 8:30 PM y 9:00 PM durante la clase.";
+        if (!esAdminTesting && (ahora < horaApertura || ahora > horaCierre)) {
+            msgError.innerText = "⏰ El PIN solo se puede validar durante el horario de la clase en vivo.";
             msgError.style.display = "block";
             btn.disabled = false;
             btn.innerText = "Validar PIN";
@@ -3521,13 +3534,7 @@ const codigoBoleto = `${prefijo}-2026-${numEstudiante}`;
     totalClasesCuatrimestre++;
     let registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
     
-    // Sincronización oficial: Solo aplica si hay asistencias activas en el sistema
-    if (datosEstudianteActual && datosEstudianteActual.asistencias && Object.keys(datosEstudianteActual.asistencias).length > 0 && datosEstudianteActual.accesos_especiales) {
-        if (clase.fecha === "2026-10-04" && (datosEstudianteActual.accesos_especiales["elegidos"] || datosEstudianteActual.accesos_especiales["mahu"])) registro = registro || "Boleto Presentado";
-        if ((clase.fecha === "2026-10-25" || clase.fecha === "2026-10-27") && (datosEstudianteActual.accesos_especiales["masterclass"] || datosEstudianteActual.accesos_especiales["dreamez"])) registro = registro || "Boleto Presentado";
-        if (clase.fecha === "2026-11-08" && datosEstudianteActual.accesos_especiales["festival"]) registro = registro || "Boleto Presentado";
-    }
-
+    
     if (registro) {
                     if (String(registro).toLowerCase().includes("permiso")) {
                         faltasJustificadas++;
