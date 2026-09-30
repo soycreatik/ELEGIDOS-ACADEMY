@@ -39,6 +39,22 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
+/* OPTIMIZACIÓN PROFESIONAL DE FLUIDEZ (60 FPS) */
+        html { 
+            scroll-behavior: smooth; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+            text-rendering: optimizeLegibility;
+        }
+        body { overscroll-behavior-y: none; } /* Evita el rebote molesto en móviles */
+        
+        /* Aceleración por GPU para elementos interactivos */
+        .class-item, .stat-card, .btn-main, .promo-card, .noti-card, #examen-live-overlay { 
+            transform: translateZ(0); 
+            backface-visibility: hidden;
+            perspective: 1000px;
+            will-change: transform, opacity; /* Prepara el navegador para animar sin lag */
+        }
         body { background-color: var(--bg-app); display: flex; justify-content: center; min-height: 100vh; color: var(--text-dark); }
         .app-container { width: 100%; max-width: 480px; background-color: var(--bg-app); min-height: 100vh; position: relative; overflow-x: hidden; display: flex; flex-direction: column; }
 
@@ -1129,19 +1145,19 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
 
-                <!-- BANNER BOTÓN RULETA EN VIVO (CATEDRÁTICO O ADMIN ACTIVA) -->
-                <div id="banner-ruleta-live" onclick="abrirRuletaPantallaCompleta()" style="display: none; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #8b00ff 0%, #ff00c8 100%); border: 1px solid rgba(255, 255, 255, 0.5); padding: 20px 24px; border-radius: 24px; margin-top: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 0, 200, 0.35); animation: pulseRuleta 2s infinite;">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div style="width: 48px; height: 48px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(0,0,0,0.2); flex-shrink: 0; font-size: 1.5rem;">
-                            🎡
-                        </div>
-                        <div style="color: #ffffff; font-size: 1rem; font-weight: 800; line-height: 1.3;">
-                            Ruleta en Vivo<br>
-                            <span id="txt-banner-ruleta" style="color: #fbcfe8; font-size: 0.85rem; font-weight: 700;">¡Sorteo activo! Haz clic para abrir</span>
-                        </div>
-                    </div>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
+               <!-- BANNER DINÁMICO DE RULETA EN VIVO (GRUPAL O INDIVIDUAL) -->
+<div id="banner-ruleta-live" onclick="abrirRuletaPantallaCompleta()" style="display: none; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #8b00ff 0%, #ff00c8 100%); border: 1px solid rgba(255, 255, 255, 0.5); padding: 20px 24px; border-radius: 24px; margin-top: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 0, 200, 0.35); animation: pulseRuleta 2s infinite;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(0,0,0,0.2); flex-shrink: 0; font-size: 1.5rem;">
+            🎡
+        </div>
+        <div style="color: #ffffff; font-size: 1rem; font-weight: 800; line-height: 1.3;">
+            <span id="titulo-banner-ruleta">Ruleta en Vivo</span><br>
+            <span id="txt-banner-ruleta" style="color: #fbcfe8; font-size: 0.85rem; font-weight: 700;">¡Sorteo activo! Haz clic para abrir</span>
+        </div>
+    </div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
 
                 <!-- BANNER BOTÓN VALIDAR ASISTENCIA (APARECE CON LA SEÑAL DEL ADMIN) -->
                 <div id="banner-pin-live" onclick="abrirPopUpAsistencia()" style="display: none; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 1px solid rgba(255, 255, 255, 0.5); padding: 20px 24px; border-radius: 24px; margin-top: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.35); animation: pulseRuleta 2s infinite;">
@@ -1209,43 +1225,43 @@
 
                     <!-- ENLACE DE CLASE ONLINE (MIÉRCOLES) -->
 
-                    <div id="meet-banner-container" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center;">
+                   <div id="meet-banner-container" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center;">
                         <h4 style="color: var(--purple-main); font-weight: 800; font-size: 1.1rem; margin-bottom: 5px;">🎥 Clase en Vivo Activa</h4>
                         <p style="font-size: 0.85rem; color: #4338ca; margin-bottom: 15px;">La sala de Google Meet está abierta.</p>
                         <a href="#" onclick="registrarIngresoMeet('https://meet.google.com/uyh-gitm-dkr'); return false;" style="background: var(--purple-main); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);">Unirse a la Clase</a>
                     </div>
 
+                    <!-- CAJA PERMANENTE DE ASISTENCIA VIRTUAL -->
+                    <div class="calendar-card" style="padding: 20px; border: 1px solid var(--purple-main); background: rgba(139, 0, 255, 0.03); margin-bottom: 24px; border-radius: 20px; box-shadow: 0 4px 15px rgba(139,0,255,0.05);">
+                        <h4 style="color: var(--purple-main); font-weight: 800; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Validar Asistencia Virtual
+                        </h4>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px; line-height: 1.4;">Ingresa el PIN de 4 dígitos dado en clase. <strong>Nota:</strong> Solo te dejará registrarte si has entrado a la videollamada desde el portal.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="input-pin-permanente" class="input-field" placeholder="0000" style="margin-bottom: 0; padding: 12px; font-size: 1.2rem; letter-spacing: 6px; font-weight: 900; text-align: center; flex: 1;">
+                            <button class="btn-main" id="btn-validar-permanente" onclick="validarPinPermanente()" style="margin-top: 0; padding: 12px 20px; flex: 1; max-width: max-content;">Validar</button>
+                        </div>
+                        <p id="msg-pin-permanente" style="font-size: 0.85rem; font-weight: 700; margin-top: 12px; display: none; text-align: center; padding: 10px; border-radius: 8px;"></p>
+                    </div>
+
                     <script>
                         // Función para consultar grabación (Solo abre si ya pasaron 2 días completos y si hay link desde ADMIN)
                         function abrirGrabacionClase(fechaClaseISO, urlYoutubeAdmin) {
-                            if (!urlYoutubeAdmin || urlYoutubeAdmin.trim() === "" || urlYoutubeAdmin === "#") {
-                                return; // Si no hay link cargado desde ADMIN, no hace nada
-                            }
-
+                            if (!urlYoutubeAdmin || urlYoutubeAdmin.trim() === "" || urlYoutubeAdmin === "#") return;
                             const fechaClase = new Date(fechaClaseISO);
                             const ahora = new Date();
-                            
-                            // Suma 2 días (48 horas) a la fecha de la clase
                             const fechaHabilitacion = new Date(fechaClase.getTime() + (2 * 24 * 60 * 60 * 1000));
-
-                            if (ahora >= fechaHabilitacion) {
-                                window.open(urlYoutubeAdmin, "_blank");
-                            }
+                            if (ahora >= fechaHabilitacion) window.open(urlYoutubeAdmin, "_blank");
                         }
                         
                         function verGrabacion(fechaFinalizacion, urlGrabacion) {
                             const fechaFin = new Date(fechaFinalizacion);
                             const ahora = new Date();
-                            
-                            if (ahora > fechaFin) {
-                                window.open(urlGrabacion, "_blank");
-                            }
+                            if (ahora > fechaFin) window.open(urlGrabacion, "_blank");
                         }
                     </script>
 
-                                           
-
-                    <!-- TARJETA/PESTAÑA: MIS CALIFICACIONES Y ASISTENCIAS -->
                     <!-- TARJETA/PESTAÑA: MIS CALIFICACIONES Y ASISTENCIAS -->
                     <div class="promo-card" onclick="abrirMisCalificaciones()" style="display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); padding: 20px 24px; border-radius: 24px; margin-bottom: 24px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
                         <div style="display: flex; align-items: center; gap: 16px;">
@@ -1268,10 +1284,38 @@
                             </div>
                             <div style="font-size: 1.3rem; font-weight: 900;">Historial de Clases</div>
                         </div>
-                        <button style="background: #fff; border: 1px solid var(--border-light); color: var(--purple-main); font-weight: 800; font-size: 0.8rem; padding: 10px 18px; border-radius: 100px; display: flex; align-items: center; gap: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">Ver todas <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                     </div>               
 
-                    <div class="class-list" id="contenedor-clases"></div>
+                    <div class="class-list" id="contenedor-clases" style="margin-bottom: 35px;"></div>
+                    
+                    <!-- NUEVA SECCIÓN DE EXÁMENES -->
+                    <div class="section-header" style="margin-top: 40px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #ef4444, #b91c1c); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            </div>
+                            <div style="font-size: 1.3rem; font-weight: 900;">Mis Evaluaciones</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+                        <div class="stat-card" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                            <div class="num" id="stat-examenes-total" style="color: #b91c1c; font-size: 1.4rem;">0</div>
+                            <div class="label" style="color: #ef4444;">Realizados</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2);">
+                            <div class="num" id="stat-examenes-promedio" style="color: #1d4ed8; font-size: 1.4rem;">0.0</div>
+                            <div class="label" style="color: #3b82f6;">Promedio</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+                            <div class="num" id="stat-examenes-pct" style="color: #047857; font-size: 1.4rem;">0%</div>
+                            <div class="label" style="color: #10b981;">Aprobación</div>
+                        </div>
+                    </div>
+
+                    <div class="class-list" id="contenedor-examenes" style="margin-bottom: 40px;">
+                        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; border-radius: 16px; border: 1px dashed #cbd5e1; background: rgba(0,0,0,0.02);">Cargando evaluaciones...</p>
+                    </div>
                 </div>
 
 <!-- VISTA NUEVA: BOLETOS ESPECIALES -->
@@ -2039,6 +2083,7 @@ localStorage.removeItem("elegidos_is_admin");
 
         renderizarListaClases();
         renderizarBoletosVinculados();
+        if (typeof renderizarMisExamenes === 'function') renderizarMisExamenes();
 
         if (!esInvitado && (!data.perfil || !data.perfil.foto || !data.perfil.edad || !data.perfil.comunidad || !data.perfil.nivel || !data.perfil.desc)) {
             setTimeout(() => {
@@ -2105,19 +2150,27 @@ localStorage.removeItem("elegidos_is_admin");
             let statusBadge = ""; 
             let timeInfo = "";
 
+            let permisoPendiente = datosEstudianteActual && datosEstudianteActual.permisos_solicitados && datosEstudianteActual.permisos_solicitados[item.id];
+
             if (horaIngreso) {
-                if (String(horaIngreso).toLowerCase().includes("permiso")) {
+                const ingresoStr = String(horaIngreso).trim();
+                // Validamos estrictamente que la base de datos diga que es un Permiso (Solo si el admin lo aprobó en 'asistencias')
+                if (ingresoStr.toLowerCase().startsWith("permiso")) {
                     permisos++;
-                    statusBadge = `<span class="status-badge" style="background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5;">Permiso</span>`; 
-                    timeInfo = `<span style="color:#ea580c; font-weight:700;">Justificado:</span> ${horaIngreso.replace('Permiso:', '').trim()}`;
+                    statusBadge = `<span class="status-badge" style="background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5;">Permiso Aprobado</span>`; 
+                    timeInfo = `<span style="color:#ea580c; font-weight:700;">Justificado:</span> ${ingresoStr.replace(/^Permiso:/i, '').trim()}`;
                 } else {
                     asistidas++; 
                     rachaActual++;
                     if(rachaActual > rachaMaxima) rachaMaxima = rachaActual;
                     statusBadge = `<span class="status-badge status-ok">Asistió</span>`; 
-                    timeInfo = `<span style="color:#16a34a; font-weight:700;">Hora de llegada:</span> ${horaIngreso}`;
+                    timeInfo = `<span style="color:#16a34a; font-weight:700;">Hora de llegada:</span> ${ingresoStr}`;
                 }
             } 
+            else if (permisoPendiente) {
+                statusBadge = `<span class="status-badge" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1;">En Revisión</span>`;
+                timeInfo = `<span style="color:#64748b; font-weight:700;">Permiso enviado:</span> Esperando al Admin`;
+            }
             else if (esHoy) {
                 if (fechaActualSV >= horaInicioVentana && fechaActualSV <= horaFinVentana) {
                     statusBadge = `<span class="status-badge status-today">Activa</span>`; 
@@ -2204,30 +2257,88 @@ localStorage.removeItem("elegidos_is_admin");
         document.getElementById("progress-text").innerText = porcentajeProgreso + "%";
         document.getElementById("progress-fill").style.width = porcentajeProgreso + "%";
 
-        const fechaSV = obtenerFechaSistema();
-        const hoy = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
+        // Evaluamos la visibilidad del botón de clase en vivo
+        if (typeof evaluarVisibilidadMeet === "function") {
+            evaluarVisibilidadMeet();
+        }
+    }
+
+    // =========================================================
+    // SISTEMA HÍBRIDO DEL BOTÓN MEET (AUTOMÁTICO + MANUAL ADMIN)
+    // =========================================================
+    let antenaMeetActiva = false;
+    window.datosMeetAdmin = null;
+
+    function iniciarListenerMeetPortal() {
+        if (antenaMeetActiva) return;
+        antenaMeetActiva = true;
+
+        // Escucha en tiempo real si el Admin activa o desactiva manualmente
+        db.ref('sistema/meet_live').on('value', snap => {
+            window.datosMeetAdmin = snap.val();
+            evaluarVisibilidadMeet();
+        });
+
+        // Reevalúa cada 1 minuto por si entra en el horario automático
+        setInterval(evaluarVisibilidadMeet, 60000);
+    }
+
+    window.evaluarVisibilidadMeet = function() {
         const meetContainer = document.getElementById("meet-banner-container");
-        
+        const btnMeet = meetContainer ? meetContainer.querySelector('a') : null;
+        const codigoActual = localStorage.getItem("elegidos_student_code");
+
+        if (!meetContainer || !codigoActual) return;
+
         let mostrarMeet = false;
+        let urlFinal = 'https://meet.google.com/yzu-agci-fbe'; // Enlace por defecto
+
+        // 1. EVALUACIÓN AUTOMÁTICA (Horario normal de la academia)
+        const fechaSV = typeof obtenerFechaSistema === 'function' ? obtenerFechaSistema() : new Date();
+        const hoyStr = fechaSV.getFullYear() + '-' + String(fechaSV.getMonth() + 1).padStart(2, '0') + '-' + String(fechaSV.getDate()).padStart(2, '0');
+        const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoyStr && c.modalidad === 'Online');
         
-        // ¡ESTE ERA EL ERROR FATAL (hoyMeet -> hoy)! 
-const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
         if (claseDeHoy) {
-            const horaApertura = new Date(`${hoy}T19:45:00`); 
-            const horaCierre = new Date(`${hoy}T21:00:00`); 
-            
+            const horaApertura = new Date(`${hoyStr}T19:45:00`); 
+            const horaCierre = new Date(`${hoyStr}T21:00:00`); 
             if (fechaSV >= horaApertura && fechaSV <= horaCierre) {
                 mostrarMeet = true;
             }
         }
 
-        if (mostrarMeet) {
-            if (meetContainer) meetContainer.style.display = "block";
-        } else {
-            if (meetContainer) meetContainer.style.display = "none";
-        }
-    }
+        // 2. EVALUACIÓN MANUAL DEL ADMIN (Sobrescribe la automática si está activa)
+        if (window.datosMeetAdmin && window.datosMeetAdmin.activo === true) {
+            const data = window.datosMeetAdmin;
+            let soyObjetivo = false;
+            
+            if (data.target === "todos") soyObjetivo = true;
+            if (data.target === "online") soyObjetivo = true; // Si recibe señal, está online
+            if (data.target === "especifico" && data.targetCodigo === codigoActual) soyObjetivo = true;
 
+            if (soyObjetivo) {
+                mostrarMeet = true;
+                if (data.url) urlFinal = data.url; // Reemplaza con el link que envíe el Admin
+            }
+        }
+
+        // 3. APLICAR CAMBIOS VISUALES
+        if (mostrarMeet) {
+            meetContainer.style.display = "block";
+            if (btnMeet) {
+                btnMeet.onclick = function() {
+                    registrarIngresoMeet(urlFinal);
+                    return false;
+                };
+            }
+        } else {
+            meetContainer.style.display = "none";
+        }
+    };
+
+    // Aseguramos que la antena inicie cuando carga la página
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(iniciarListenerMeetPortal, 2500); 
+    });
     // =========================================================
     // SISTEMA DE BOLETOS VINCULADOS (ANIMADO Y DEFINITIVO)
     // =========================================================
@@ -2665,12 +2776,19 @@ function llenarSelectPermisos() {
                 return;
             }
         }
+
+        if (datosEstudianteActual && datosEstudianteActual.permisos_solicitados && datosEstudianteActual.permisos_solicitados[claseId]) {
+            alert("❌ SOLICITUD RECHAZADA: Ya enviaste un permiso para esta clase y actualmente está en revisión.");
+            document.getElementById("permiso-fecha").value = "";
+            llenarSelectPermisos();
+            return;
+        }
         
         btn.disabled = true;
         btn.innerText = "⏳ Enviando Solicitud...";
         
         const updates = {};
-        updates[`clase/${codigo}/asistencias/${claseId}`] = "Permiso: " + razon;
+        // Eliminamos el auto-registro en 'asistencias'. Solo lo guardamos en 'permisos_solicitados'
         updates[`clase/${codigo}/permisos_solicitados/${claseId}`] = {
             razon: razon,
             foto: fotoPermisoBase64 || "",
@@ -2679,15 +2797,15 @@ function llenarSelectPermisos() {
         };
         
         db.ref().update(updates).then(() => {
-            alert("✅ Permiso enviado correctamente.");
+            alert("✅ Permiso enviado. Tu solicitud está 'En Revisión' por el equipo ELEGIDOS.");
             document.getElementById("permiso-razon").value = "";
             document.getElementById("permiso-foto").value = "";
             fotoPermisoBase64 = null;
             btn.disabled = false;
             btn.innerText = "Enviar Solicitud";
             
-           if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
-            datosEstudianteActual.asistencias[claseId] = "Permiso: " + razon;
+            if(!datosEstudianteActual.permisos_solicitados) datosEstudianteActual.permisos_solicitados = {};
+            datosEstudianteActual.permisos_solicitados[claseId] = { razon: razon };
             
             renderizarListaClases();
             if (typeof renderizarCalificacionesYAsistencias === 'function') {
@@ -3077,8 +3195,10 @@ function llenarSelectPermisos() {
             }
         }
 
-        // --- INICIALIZAR ESCUCHA EN TIEMPO REAL DE RULETA GLOBAL ---
+      // --- INICIALIZAR ESCUCHAS EN TIEMPO REAL GLOBALES ---
         iniciarEscuchaRuletaGlobal();
+        iniciarEscuchaExamenLive(); // <-- Esta es la antena del examen
+        iniciarListenerMeetPortal(); // <-- Antena del botón Meet híbrido
     };
 
     // =========================================================
@@ -3097,52 +3217,48 @@ function llenarSelectPermisos() {
         window.open(url, "_blank");
     };
 
-    // 2. CONEXIÓN EN TIEMPO REAL CON LA CONSOLA DEL ADMIN
+   // 2. CONEXIÓN EN TIEMPO REAL CON LA CONSOLA DEL ADMIN
     window.iniciarRelojAsistenciaVirtual = function() {
         if (intervaloReloj) clearInterval(intervaloReloj);
         
-        const ahora = obtenerFechaSistema();
-        const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
-        
-        // ANTENA 1: Escucha el milisegundo exacto en que el Admin genera el código
-        db.ref('sistema/asistencia_virtual/' + hoy).on('value', snap => {
-            if (snap.exists() && !popupAsistenciaMostrado) {
-                const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
-                
-                if (claseDeHoy) {
-                    const entroAMeet = localStorage.getItem('ingreso_meet_' + hoy);
-                    const esAdminTesting = localStorage.getItem("elegidos_is_admin") === "true";
-                    const yaAsistio = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[claseDeHoy.id];
+        // NUEVA ANTENA: Escucha la señal maestra de asistencia en vivo desde el Admin
+        db.ref('sistema/asistencia_live').on('value', snap => {
+            const data = snap.val();
+            const modalPin = document.getElementById('modal-pin-asistencia');
+            
+           // Verificamos si el admin encendió el Pop-up
+                if (data && data.activo === true) {
+                    const ahora = obtenerFechaSistema();
+                    const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
                     
-                    // Si el alumno ya le dio clic a "Unirse a la clase" (o si eres tú probando), le salta la caja al instante
-                    if ((entroAMeet === 'true' || esAdminTesting) && !yaAsistio) {
-                        document.getElementById('modal-pin-asistencia').classList.add('activo');
+                    // --- VALIDACIÓN DE TARGET (A QUIÉN VA DIRIGIDO) ---
+                    const codigoActual = localStorage.getItem("elegidos_student_code");
+                    const entroAlMeet = localStorage.getItem('ingreso_meet_' + hoy) === 'true';
+                    
+                    if (data.target === 'especifico' && data.targetCodigo !== codigoActual) return;
+                    if (data.target === 'meet' && !entroAlMeet) return;
+                    // --------------------------------------------------
+
+                    const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
+                    
+                    if (claseDeHoy) {
+                        const yaAsistio = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[claseDeHoy.id];
+                    
+                    // Solo invade la pantalla si el estudiante no ha colocado el PIN correcto aún
+                    if (!yaAsistio) {
+                        modalPin.classList.add('activo');
                         popupAsistenciaMostrado = true;
                     }
                 }
+            } else {
+                // Si el Admin apaga el Pop-up (activo === false), se le oculta al estudiante en tiempo real
+                if (modalPin) {
+                    modalPin.classList.remove('activo');
+                }
+                popupAsistenciaMostrado = false;
             }
         });
-
-        // ANTENA 2: De respaldo, por si el alumno entra al Meet DESPUÉS de que ya generaste el PIN
-        intervaloReloj = setInterval(() => {
-            const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
-            
-            if (claseDeHoy && !popupAsistenciaMostrado) {
-                const entroAMeet = localStorage.getItem('ingreso_meet_' + hoy);
-                const esAdminTesting = localStorage.getItem("elegidos_is_admin") === "true";
-                const yaAsistio = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[claseDeHoy.id];
-                
-                if ((entroAMeet === 'true' || esAdminTesting) && !yaAsistio) {
-                    db.ref('sistema/asistencia_virtual/' + hoy).once('value').then(s => {
-                        if (s.exists()) {
-                            document.getElementById('modal-pin-asistencia').classList.add('activo');
-                            popupAsistenciaMostrado = true;
-                        }
-                    });
-                }
-            }
-        }, 3000); 
-    };
+    };// ANTENA PARA EXAMEN EN VIVO (POP-UP FORZADO)
 
     // 3. Validador final contra Firebase
     window.validarPinAsistencia = function() {
@@ -3410,6 +3526,158 @@ const codigoBoleto = `${prefijo}-2026-${numEstudiante}`;
             msgInfo.innerText = `❌ Ocurrió un error: ${error.message}`;
         });
     };
+// =========================================================
+    // LÓGICA DE ASISTENCIA VIRTUAL PERMANENTE (SOLO CONECTADOS)
+    // =========================================================
+    window.validarPinPermanente = function() {
+        if (!navigator.onLine) return alert("📡 Sin conexión. Necesitas internet para validar tu asistencia.");
+        
+        const pinIngresado = document.getElementById('input-pin-permanente').value.trim();
+        const btn = document.getElementById('btn-validar-permanente');
+        const msg = document.getElementById('msg-pin-permanente');
+        
+        if (pinIngresado.length !== 4) {
+            msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
+            msg.innerText = "❌ El PIN debe tener exactamente 4 dígitos.";
+            msg.style.display = "block"; return;
+        }
+
+        const ahora = obtenerFechaSistema();
+        const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+        
+        // --- LA VERIFICACIÓN REQUERIDA (SOLO SI SE CONECTÓ AL MEET) ---
+        const entroAlMeet = localStorage.getItem('ingreso_meet_' + hoy) === 'true';
+        if (!entroAlMeet) {
+            msg.style.color = "#ea580c"; msg.style.background = "#fff7ed";
+            msg.innerText = "🚫 Debes ingresar a la clase en vivo primero (botón MEET/ZOOM) para poder registrar tu asistencia.";
+            msg.style.display = "block"; return;
+        }
+
+        btn.disabled = true; btn.innerText = "⏳...";
+        msg.style.display = "none";
+
+        db.ref('sistema/asistencia_virtual/' + hoy).once('value').then(snap => {
+            const pinReal = snap.val();
+            
+            if (snap.exists() && String(pinReal) === String(pinIngresado)) {
+                const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
+                if (claseDeHoy) {
+                    const codigo = localStorage.getItem("elegidos_student_code");
+                    const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
+                    const registro = horaActualStr + " (Asistió Virtualmente)";
+                    
+                    db.ref(`clase/${codigo}/asistencias/${claseDeHoy.id}`).set(registro).then(() => {
+                        msg.style.color = "#15803d"; msg.style.background = "#dcfce7";
+                        msg.innerText = "✅ ¡Asistencia virtual registrada exitosamente!";
+                        msg.style.display = "block";
+                        
+                        if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
+                        datosEstudianteActual.asistencias[claseDeHoy.id] = registro;
+                        renderizarListaClases();
+                        if (typeof renderizarCalificacionesYAsistencias === 'function') renderizarCalificacionesYAsistencias();
+                        
+                        btn.disabled = false; btn.innerText = "Validar";
+                        document.getElementById('input-pin-permanente').value = '';
+                        setTimeout(() => { msg.style.display = "none"; }, 5000);
+                    }).catch(e => {
+                        msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
+                        msg.innerText = "❌ Error de red al guardar. Intenta de nuevo.";
+                        msg.style.display = "block";
+                        btn.disabled = false; btn.innerText = "Validar";
+                    });
+                } else {
+                    msg.style.color = "#ea580c"; msg.style.background = "#fff7ed";
+                    msg.innerText = "❌ No hay una clase online programada para hoy en el sistema.";
+                    msg.style.display = "block";
+                    btn.disabled = false; btn.innerText = "Validar";
+                }
+            } else {
+                msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
+                msg.innerText = "❌ PIN incorrecto o inactivo. Revisa la pantalla del Meet.";
+                msg.style.display = "block";
+                btn.disabled = false; btn.innerText = "Validar";
+            }
+        }).catch(e => {
+            msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
+            msg.innerText = "❌ Fallo de conexión con el servidor.";
+            msg.style.display = "block";
+            btn.disabled = false; btn.innerText = "Validar";
+        });
+    };
+
+    // =========================================================
+    // LÓGICA DE LISTADO DE EXÁMENES REALIZADOS
+    // =========================================================
+    let antenaExamenesRealizados = false;
+    window.renderizarMisExamenes = function() {
+        const codigoActual = localStorage.getItem("elegidos_student_code");
+        if (!codigoActual || esInvitado) return;
+
+        if (!antenaExamenesRealizados) {
+            antenaExamenesRealizados = true;
+            db.ref('sistema/historial_examenes').on('value', snap => {
+                const contenedor = document.getElementById("contenedor-examenes");
+                if (!contenedor) return;
+
+                let realizados = 0;
+                let sumaNotas = 0;
+                let aprobados = 0;
+                let htmlExamenes = "";
+
+                if (snap.exists()) {
+                    const historial = snap.val();
+                    // Convertimos a arreglo y ordenamos para que el más nuevo salga primero
+                    const examenesArr = Object.values(historial).sort((a, b) => b.id_historial - a.id_historial);
+
+                    examenesArr.forEach(examen => {
+                        if (examen.resultados && examen.resultados[codigoActual]) {
+                            const miResultado = examen.resultados[codigoActual];
+                            realizados++;
+                            sumaNotas += parseFloat(miResultado.nota);
+                            if (parseFloat(miResultado.nota) >= 7.0) aprobados++;
+
+                            const fecha = new Date(parseInt(examen.id_historial));
+                            const fechaFormat = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                            
+                            let colorNota = miResultado.nota >= 9 ? "#d946ef" : (miResultado.nota >= 7 ? "#22c55e" : "#ef4444");
+                            let bgNota = miResultado.nota >= 9 ? "rgba(217, 70, 239, 0.1)" : (miResultado.nota >= 7 ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)");
+                            let statusText = miResultado.nota >= 9 ? "¡Excelente!" : (miResultado.nota >= 7 ? "Aprobado" : "Reprobado");
+
+                            htmlExamenes += `
+                            <div class="class-item" style="border-left: 4px solid ${colorNota};">
+                                <div class="class-icon" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                                </div>
+                                <div class="class-info" style="flex: 1;">
+                                    <h5 style="font-size: 0.95rem; margin-bottom: 2px;">${examen.titulo}</h5>
+                                    <p style="margin-bottom: 0; font-size: 0.75rem;"><span style="color: #64748b;">${fechaFormat}</span> • <strong style="color: ${colorNota};">${statusText}</strong></p>
+                                    <p style="margin-bottom: 0; font-size: 0.7rem; color: #94a3b8;">${miResultado.correctas} de ${miResultado.total} correctas</p>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
+                                    <div style="background: ${bgNota}; color: ${colorNota}; padding: 8px 14px; border-radius: 12px; font-weight: 900; font-size: 1.2rem; border: 1px solid ${colorNota};">
+                                        ${parseFloat(miResultado.nota).toFixed(1)}
+                                    </div>
+                                </div>
+                            </div>`;
+                        }
+                    });
+                }
+
+                if (realizados > 0) {
+                    contenedor.innerHTML = htmlExamenes;
+                    document.getElementById("stat-examenes-total").innerText = realizados;
+                    document.getElementById("stat-examenes-promedio").innerText = (sumaNotas / realizados).toFixed(1);
+                    document.getElementById("stat-examenes-pct").innerText = Math.round((aprobados / realizados) * 100) + "%";
+                } else {
+                    contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no has realizado ninguna evaluación.</p>`;
+                    document.getElementById("stat-examenes-total").innerText = "0";
+                    document.getElementById("stat-examenes-promedio").innerText = "0.0";
+                    document.getElementById("stat-examenes-pct").innerText = "0%";
+                }
+            });
+        }
+    }
+
 </script>
 
 <!-- POPUP ASISTENCIA VIRTUAL (PIN) -->
@@ -3540,102 +3808,132 @@ const codigoBoleto = `${prefijo}-2026-${numEstudiante}`;
             { id: 12, nombre: "Diciembre", desc: "Examen Final y Cierre", targetKey: "dic" }
         ];
 
-        const califsBD = (datosEstudianteActual && datosEstudianteActual.calificaciones) ? datosEstudianteActual.calificaciones : {};
         const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
+        const codigoEstudiante = localStorage.getItem("elegidos_student_code");
 
-        let sumaNotas = 0;
-        let mesesConNota = 0;
-        let totalClasesCuatrimestre = 0;
-        let asistenciasCuatrimestre = 0;
-        let faltasTotales = 0;
+        // Realizamos una consulta a Firebase para obtener las notas de los exámenes
+        db.ref('sistema/historial_examenes').once('value').then(snapHistorial => {
+            let notasExamenes = [];
+            
+            if (snapHistorial.exists()) {
+                const historial = snapHistorial.val();
+                Object.values(historial).forEach(examen => {
+                    if (examen.resultados && examen.resultados[codigoEstudiante]) {
+                        // Guardamos la nota y a qué mes pertenece basándonos en la fecha del examen (timestamp)
+                        const fechaExamen = new Date(parseInt(examen.id_historial));
+                        notasExamenes.push({
+                            mes: fechaExamen.getMonth() + 1, // +1 porque getMonth es 0-indexado
+                            nota: parseFloat(examen.resultados[codigoEstudiante].nota)
+                        });
+                    }
+                });
+            }
 
-        let htmlFilas = "";
+            let sumaNotasGlobal = 0;
+            let totalExamenesGlobal = 0;
+            let totalClasesCuatrimestre = 0;
+            let asistenciasCuatrimestre = 0;
+            let faltasTotales = 0;
 
-        MESES.forEach(mes => {
-            const clasesMes = FECHAS_CURSO.filter(c => {
-                if (!c.fecha) return false;
-                const m = parseInt(c.fecha.split("-")[1], 10);
-                return m === mes.id;
-            });
+            let htmlFilas = "";
 
-            let asistenciasMes = 0;
-            let faltasJustificadas = 0;
-            let faltasInjustificadas = 0;
+            MESES.forEach(mes => {
+                const clasesMes = FECHAS_CURSO.filter(c => {
+                    if (!c.fecha) return false;
+                    const m = parseInt(c.fecha.split("-")[1], 10);
+                    return m === mes.id;
+                });
 
-            clasesMes.forEach(clase => {
-    totalClasesCuatrimestre++;
-    let registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
-    
-    
-    if (registro) {
-                    if (String(registro).toLowerCase().includes("permiso")) {
-                        faltasJustificadas++;
+                let asistenciasMes = 0;
+                let faltasJustificadas = 0;
+                let faltasInjustificadas = 0;
+
+                clasesMes.forEach(clase => {
+                    totalClasesCuatrimestre++;
+                    let registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
+                    
+                    if (registro) {
+                        if (String(registro).toLowerCase().includes("permiso")) {
+                            faltasJustificadas++;
+                        } else {
+                            asistenciasMes++;
+                            asistenciasCuatrimestre++;
+                        }
                     } else {
-                        asistenciasMes++;
-                        asistenciasCuatrimestre++;
+                        const fechaClase = new Date(clase.fecha + "T23:59:59");
+                        const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+                        if (ahora > fechaClase) {
+                            faltasInjustificadas++;
+                            faltasTotales++;
+                        }
                     }
-                } else {
-                    const fechaClase = new Date(clase.fecha + "T23:59:59");
-                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
-                    if (ahora > fechaClase) {
-                        faltasInjustificadas++;
-                        faltasTotales++;
-                    }
+                });
+
+                const totalEnMes = clasesMes.length || 1;
+                const pctAsistenciaMes = Math.round((asistenciasMes / totalEnMes) * 100);
+
+                // Calculamos el promedio del mes basándonos en los exámenes realizados en ese mes
+                const examenesDelMes = notasExamenes.filter(n => n.mes === mes.id);
+                let notaMes = null;
+                
+                if (examenesDelMes.length > 0) {
+                    const sumaMes = examenesDelMes.reduce((acc, curr) => acc + curr.nota, 0);
+                    notaMes = sumaMes / examenesDelMes.length;
+                    
+                    sumaNotasGlobal += sumaMes;
+                    totalExamenesGlobal += examenesDelMes.length;
                 }
+
+                let notaBadgeHTML = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">Por calificar</span>`;
+                if (notaMes !== null) {
+                    let clasePill = notaMes >= 9.0 ? "nota-excelente" : (notaMes >= 8.0 ? "nota-buena" : (notaMes >= 7.0 ? "nota-regular" : "nota-baja"));
+                    notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}" title="${examenesDelMes.length} Examen(es)">${notaMes.toFixed(1)}</span>`;
+                }
+
+                htmlFilas += `
+                    <tr>
+                        <td>
+                            <strong style="color: #fff; font-size: 0.95rem; display: block;">${mes.nombre}</strong>
+                            <span style="font-size: 0.7rem; color: #94a3b8;">${mes.desc}</span>
+                        </td>
+                        <td style="font-size: 0.8rem; color: #cbd5e1;">
+                            Evaluaciones Dinámicas & Exámenes en Vivo
+                        </td>
+                        <td style="text-align: center; cursor: pointer;" onclick="abrirDetalleFaltasMes('${mes.nombre}', ${asistenciasMes}, ${totalEnMes}, ${faltasJustificadas}, ${faltasInjustificadas})">
+                            <span style="font-weight: 800; color: ${pctAsistenciaMes >= 80 ? '#4ade80' : '#f87171'};">${pctAsistenciaMes}%</span><br>
+                            <small style="font-size: 0.65rem; color: #94a3b8; text-decoration: underline;">${asistenciasMes}/${totalEnMes} ses. (ver)</small>
+                        </td>
+                        <td style="text-align: center;">
+                            ${notaBadgeHTML}
+                        </td>
+                    </tr>
+                `;
             });
 
-            const totalEnMes = clasesMes.length || 1;
-            const pctAsistenciaMes = Math.round((asistenciasMes / totalEnMes) * 100);
-            const notaMes = califsBD[mes.targetKey] !== undefined ? parseFloat(califsBD[mes.targetKey]) : null;
+            tbody.innerHTML = htmlFilas;
 
-            let notaBadgeHTML = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">Por calificar</span>`;
-            if (notaMes !== null) {
-                sumaNotas += notaMes;
-                mesesConNota++;
-                let clasePill = notaMes >= 9.0 ? "nota-excelente" : (notaMes >= 8.0 ? "nota-buena" : (notaMes >= 7.0 ? "nota-regular" : "nota-baja"));
-                notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}">${notaMes.toFixed(1)}</span>`;
+            // Promedio Global de todas las evaluaciones realizadas
+            const promedioProyectado = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0; 
+            const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
+
+            document.getElementById("calif-promedio-global").innerText = totalExamenesGlobal > 0 ? promedioProyectado.toFixed(1) : "N/A";
+            document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobal + "%";
+            document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
+            document.getElementById("calif-faltas-total").innerText = faltasTotales;
+
+            const containerBadge = document.getElementById("calif-status-badge-container");
+            if (containerBadge) {
+                if (totalExamenesGlobal === 0) {
+                    containerBadge.innerHTML = `<span class="calif-status-badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">⚪ Sin Evaluaciones</span>`;
+                } else if (promedioProyectado >= 8.0 && pctAsistenciaGlobal >= 80) {
+                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-seguro">🟢 Cierre Seguro</span>`;
+                } else if (promedioProyectado >= 7.0 && pctAsistenciaGlobal >= 70) {
+                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
+                } else {
+                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo de Recuperatorio</span>`;
+                }
             }
-
-            htmlFilas += `
-                <tr>
-                    <td>
-                        <strong style="color: #fff; font-size: 0.95rem; display: block;">${mes.nombre}</strong>
-                        <span style="font-size: 0.7rem; color: #94a3b8;">${mes.desc}</span>
-                    </td>
-                    <td style="font-size: 0.8rem; color: #cbd5e1;">
-                        Evaluación continua, Tareas & Prácticas
-                    </td>
-                    <td style="text-align: center; cursor: pointer;" onclick="abrirDetalleFaltasMes('${mes.nombre}', ${asistenciasMes}, ${totalEnMes}, ${faltasJustificadas}, ${faltasInjustificadas})">
-                        <span style="font-weight: 800; color: ${pctAsistenciaMes >= 80 ? '#4ade80' : '#f87171'};">${pctAsistenciaMes}%</span><br>
-                        <small style="font-size: 0.65rem; color: #94a3b8; text-decoration: underline;">${asistenciasMes}/${totalEnMes} ses. (ver)</small>
-                    </td>
-                    <td style="text-align: center;">
-                        ${notaBadgeHTML}
-                    </td>
-                </tr>
-            `;
         });
-
-        tbody.innerHTML = htmlFilas;
-
-        const promedioProyectado = mesesConNota > 0 ? (sumaNotas / mesesConNota) : 8.5; 
-        const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
-
-        document.getElementById("calif-promedio-global").innerText = promedioProyectado.toFixed(1);
-        document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobal + "%";
-        document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
-        document.getElementById("calif-faltas-total").innerText = faltasTotales;
-
-        const containerBadge = document.getElementById("calif-status-badge-container");
-        if (containerBadge) {
-            if (promedioProyectado >= 8.0 && pctAsistenciaGlobal >= 80) {
-                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-seguro">🟢 Cierre Seguro</span>`;
-            } else if (promedioProyectado >= 7.0 && pctAsistenciaGlobal >= 70) {
-                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
-            } else {
-                containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo de Recuperatorio</span>`;
-            }
-        }
     }
 
     function abrirDetalleFaltasMes(nombreMes, asistidas, total, justificadas, injustificadas) {
@@ -3650,6 +3948,174 @@ const codigoBoleto = `${prefijo}-2026-${numEstudiante}`;
         `;
         document.getElementById("modal-detalle-faltas").classList.add("activo");
     }
+// =========================================================
+    // ANTENA PARA EXAMEN EN VIVO (NATIVO ELEGIDOS)
+    // =========================================================
+    let antenaExamenActiva = false;
+    let examenDataActual = null;
+    let temporizadorExamenInterval = null;
+
+    function iniciarEscuchaExamenLive() {
+        if (antenaExamenActiva) return;
+        antenaExamenActiva = true;
+
+        db.ref('sistema/examen_live').on('value', snap => {
+            const data = snap.val();
+            const overlayExamen = document.getElementById("examen-live-overlay");
+            const codigoActual = localStorage.getItem("elegidos_student_code");
+
+            if (!overlayExamen || !codigoActual) return;
+
+            if (data && data.activo === true && data.preguntas) {
+                
+                // --- VALIDACIÓN DE TARGET (A QUIÉN VA DIRIGIDO) ---
+                const ahora = typeof obtenerFechaSistema === 'function' ? obtenerFechaSistema() : new Date();
+                const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+                const entroAlMeet = localStorage.getItem('ingreso_meet_' + hoyStr) === 'true';
+
+                if (data.target === 'especifico' && data.targetCodigo !== codigoActual) return;
+                if (data.target === 'meet' && !entroAlMeet) return;
+                // --------------------------------------------------
+                
+                // Verificar si YA envié mis respuestas a este examen
+                db.ref(`sistema/examen_resultados_live/${codigoActual}`).once('value').then(resSnap => {
+                    if (resSnap.exists() && resSnap.val().examen_id === data.id_historial) {
+                        // Ya hice el examen, no me lo muestres de nuevo
+                        overlayExamen.style.display = 'none';
+                        return;
+                    }
+
+                    // Preparar y Mostrar el Examen
+                    examenDataActual = data;
+                    document.getElementById("examen-live-titulo").innerText = data.titulo.toUpperCase();
+                    construirPreguntasExamen(data.preguntas);
+                    
+                    // Iniciar Temporizador Visual
+                    iniciarTemporizadorExamen(data.duracion || 15);
+                    
+                    overlayExamen.style.display = 'flex';
+                });
+            } else {
+                // El Admin apagó el examen
+                overlayExamen.style.display = 'none';
+                if (temporizadorExamenInterval) clearInterval(temporizadorExamenInterval);
+            }
+        });
+    }
+
+    function construirPreguntasExamen(preguntas) {
+        const contenedor = document.getElementById("examen-preguntas-container");
+        contenedor.innerHTML = "";
+
+        preguntas.forEach((p, idx) => {
+            let htmlOpciones = "";
+            p.opciones.forEach((op, opIdx) => {
+                htmlOpciones += `
+                <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    <input type="radio" name="pregunta_${idx}" value="${opIdx}" style="width: 18px; height: 18px; accent-color: #ef4444;">
+                    <span style="font-size: 0.95rem; color: #f8fafc;">${op}</span>
+                </label>`;
+            });
+
+            contenedor.innerHTML += `
+            <div class="pregunta-card" style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.2); text-align: left;">
+                <h3 style="color: #fca5a5; font-size: 1.1rem; margin-bottom: 15px; font-weight: 800;">${idx + 1}. ${p.pregunta}</h3>
+                <div class="opciones-container">
+                    ${htmlOpciones}
+                </div>
+            </div>`;
+        });
+    }
+
+    function iniciarTemporizadorExamen(minutosTotales) {
+        if (temporizadorExamenInterval) clearInterval(temporizadorExamenInterval);
+        
+        let tiempoRestanteSecs = minutosTotales * 60;
+        const display = document.getElementById("examen-temporizador");
+
+        temporizadorExamenInterval = setInterval(() => {
+            tiempoRestanteSecs--;
+            
+            let min = Math.floor(tiempoRestanteSecs / 60);
+            let sec = tiempoRestanteSecs % 60;
+            display.innerText = `⏳ TIEMPO RESTANTE: ${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+            
+            if (tiempoRestanteSecs <= 60) {
+                display.style.color = "#f87171"; // Rojo cuando queda poco tiempo
+                display.style.animation = "pulseRuleta 1s infinite";
+            }
+
+            if (tiempoRestanteSecs <= 0) {
+                clearInterval(temporizadorExamenInterval);
+                enviarRespuestasExamen(true); // Forzar envío por tiempo agotado
+            }
+        }, 1000);
+    }
+
+    function enviarRespuestasExamen(porTiempo = false) {
+        if (!examenDataActual) return;
+        const codigoActual = localStorage.getItem("elegidos_student_code");
+        const nombreActual = document.getElementById("display-name").innerText || "Estudiante";
+
+        if (!porTiempo && !confirm("¿Estás seguro de enviar tus respuestas? No podrás modificarlas después.")) return;
+
+        const btn = document.getElementById("btn-enviar-examen");
+        if (btn) { btn.disabled = true; btn.innerText = "Enviando..."; }
+
+        let correctas = 0;
+        const totalPreguntas = examenDataActual.preguntas.length;
+
+        // Evaluar respuestas
+        examenDataActual.preguntas.forEach((p, idx) => {
+            const seleccionada = document.querySelector(`input[name="pregunta_${idx}"]:checked`);
+            if (seleccionada && parseInt(seleccionada.value) === p.correcta) {
+                correctas++;
+            }
+        });
+
+        // Calcular Nota base 10
+        const notaFinal = (correctas / totalPreguntas) * 10;
+
+        const dataResultado = {
+            examen_id: examenDataActual.id_historial,
+            nombre: nombreActual,
+            nota: notaFinal,
+            correctas: correctas,
+            total: totalPreguntas,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        // Enviar a la base de datos "Live" para el panel del admin y al Historial General
+        const updates = {};
+        updates[`sistema/examen_resultados_live/${codigoActual}`] = dataResultado;
+        updates[`sistema/historial_examenes/${examenDataActual.id_historial}/resultados/${codigoActual}`] = dataResultado;
+
+        db.ref().update(updates).then(() => {
+            if (temporizadorExamenInterval) clearInterval(temporizadorExamenInterval);
+            document.getElementById("examen-live-overlay").style.display = 'none';
+            alert(`✅ Examen enviado con éxito.\nTu calificación fue: ${notaFinal.toFixed(1)}/10`);
+        }).catch(err => {
+            alert("Error de conexión al enviar el examen. " + err);
+            if (btn) { btn.disabled = false; btn.innerText = "Enviar Respuestas"; }
+        });
+    }
+
+    
 </script>
+<!-- OVERLAY DE EXAMEN EN VIVO NATIVO (FORZADO) -->
+<div id="examen-live-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(9, 9, 11, 0.98); z-index:999999999; flex-direction:column; align-items:center; text-align:center; color:white; overflow-y: auto; padding: 40px 20px; animation: ruletaAparece 0.3s forwards;">
+    
+    <div style="width: 100%; max-width: 600px; margin-bottom: 20px;">
+        <div style="background: linear-gradient(135deg, #ef4444, #991b1b); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); font-size: 2rem;">📝</div>
+        <h2 id="examen-live-titulo" style="color: #ffffff; font-size:1.8rem; margin-bottom: 5px; font-weight: 900; letter-spacing: 1px;">EVALUACIÓN EN VIVO</h2>
+        <div id="examen-temporizador" style="background: #450a0a; border: 1px solid #7f1d1d; color: #fca5a5; font-family: monospace; font-size: 1.2rem; font-weight: bold; padding: 8px 16px; border-radius: 100px; display: inline-block; margin-bottom: 20px;">⏳ CALCULANDO TIEMPO...</div>
+    </div>
+
+    <div id="examen-preguntas-container" style="width: 100%; max-width: 600px; padding-bottom: 20px;"></div>
+
+    <button id="btn-enviar-examen" class="btn-main" style="background: #ef4444 !important; color: #fff !important; width: 100%; max-width: 600px; padding: 20px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);" onclick="enviarRespuestasExamen()">
+        🚀 ENVIAR RESPUESTAS Y FINALIZAR
+    </button>
+</div>
 </body>
 </html>
