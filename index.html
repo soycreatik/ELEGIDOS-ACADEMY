@@ -791,49 +791,61 @@
                 renderizarNotificaciones(); // Inyectar al HTML
             }
 
-            // 📡 ANTENA 1: Escucha Anuncios Globales (Para toda la academia)
-            db.ref('sistema/notificaciones_globales').on('value', snap => {
+            // 📡if (snap.exists()) { ANTENA 1: Escucha Anuncios Globales (Para toda la academia)
+           db.ref('sistema/notificaciones_globales').on('value', snap => {
                 globales = [];
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        const data = child.val();
-                        globales.push({
-                            id: child.key,
-                            tipo: data.tipo || 'promociones', // Pestaña Promociones
-                            titulo: data.titulo || 'Anuncio Oficial',
-                            cuerpo: data.cuerpo || '',
-                            fechaStr: data.fechaStr || 'Reciente',
-                            tiempoRelativo: data.tiempoRelativo || 'Hace un momento',
-                            color: data.color || 'purple',
-                            iconoSVG: data.iconoSVG || `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>`
+               
+                    const historial = snap.val();
+                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+
+                    Object.values(historial).forEach(examen => {
+                        // Asegurar que sea un objeto válido
+                        if (!examen || typeof examen !== 'object') return;
+                        
+                        // Parseo de fecha a prueba de fallos (Si no lee la fecha, usará la actual para no ocultarlo)
+                        let ts = examen.timestamp || examen.id_historial;
+                        let fechaExamen = ahora; 
+                        
+                        if (ts) {
+                            if (!isNaN(ts)) fechaExamen = new Date(parseInt(ts));
+                            else if (typeof ts === 'string') fechaExamen = new Date(ts);
+                        }
+                        if (isNaN(fechaExamen.getTime())) fechaExamen = ahora;
+
+                        const yaRealizado = examen.resultados && examen.resultados[codigoActual];
+                        
+                        // REGLA CLAVE: Ignorar exámenes futuros que no se han respondido aún
+                        if (ahora < fechaExamen && !yaRealizado) return;
+
+                        totalExamenesBD++;
+                        
+                        let mesExamen = fechaExamen.getMonth() + 1;
+                        if (mesExamen < 9) mesExamen = 9;
+                        if (mesExamen > 12) mesExamen = 12;
+                        
+                        let miResultado = null;
+                        let notaParaPromedio = 0;
+
+                        if (yaRealizado) {
+                            miResultado = examen.resultados[codigoActual];
+                            notaParaPromedio = parseFloat(miResultado.nota);
+                            realizados++;
+                            if (notaParaPromedio >= 6.0) aprobados++; 
+                        } else {
+                            miResultado = { nota: 0, correctas: 0, total: (examen.preguntas ? examen.preguntas.length : 10), missed: true };
+                            notaParaPromedio = 0;
+                        }
+
+                        sumaNotasGlobal += notaParaPromedio;
+
+                        examenesPorMes[mesExamen].push({
+                            ...examen,
+                            titulo: examen.titulo || examen.nombre || "Evaluación " + mesExamen,
+                            miResultado: miResultado,
+                            fechaObj: fechaExamen
                         });
                     });
                 }
-                sincronizarBandeja();
-            });
-
-            // 📡 ANTENA 2: Escucha Mensajes Personales (Admin -> Estudiante específico)
-            db.ref(`clase/${codigoActual}/notificaciones`).on('value', snap => {
-                personales = [];
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        const data = child.val();
-                        personales.push({
-                            id: child.key,
-                            tipo: data.tipo || 'mensajes', // Pestaña Mensajes
-                            titulo: data.titulo || 'Soporte ELEGIDOS',
-                            cuerpo: data.cuerpo || '',
-                            fechaStr: data.fechaStr || 'Reciente',
-                            tiempoRelativo: data.tiempoRelativo || 'Hace un momento',
-                            color: data.color || 'blue',
-                            iconoSVG: data.iconoSVG || `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`
-                        });
-                    });
-                }
-                sincronizarBandeja();
-            });
-        }
-
         </script>
 
     <script>
@@ -3773,31 +3785,38 @@ window.validarPinPermanente = function() {
 
                 if (snap.exists()) {
                     const historial = snap.val();
-                    Object.values(historial).forEach(examen => {
-                        // NUEVO: Ignorar registros fantasma o pruebas sin título en la base de datos
-                        if (!examen || typeof examen !== 'object' || !examen.titulo) return;
+                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+
+                    Object.keys(historial).forEach(keyId => {
+                        const examen = historial[keyId];
+                        if (!examen || typeof examen !== 'object') return;
+                        
+                        // Parseo usando la clave principal que el admin guarda como Date.now()
+                        let ts = parseInt(keyId);
+                        if (isNaN(ts)) ts = examen.timestamp || Date.now();
+                        
+                        const fechaExamen = new Date(ts);
+                        const yaRealizado = examen.resultados && examen.resultados[codigoActual];
+                        
+                        // REGLA CLAVE: Ignorar exámenes futuros que no se han respondido aún
+                        if (ahora < fechaExamen && !yaRealizado) return;
 
                         totalExamenesBD++;
                         
-                        let ts = examen.timestamp || parseInt(examen.id_historial);
-                        if (!ts || isNaN(ts)) ts = Date.now();
-                        const fechaExamen = new Date(ts);
                         let mesExamen = fechaExamen.getMonth() + 1;
-                        
                         if (mesExamen < 9) mesExamen = 9;
                         if (mesExamen > 12) mesExamen = 12;
                         
                         let miResultado = null;
                         let notaParaPromedio = 0;
 
-                        if (examen.resultados && examen.resultados[codigoActual]) {
+                        if (yaRealizado) {
                             miResultado = examen.resultados[codigoActual];
                             notaParaPromedio = parseFloat(miResultado.nota);
                             realizados++;
                             if (notaParaPromedio >= 6.0) aprobados++; 
                         } else {
-                            // Penalización con 0 por inasistencia al examen
-                            miResultado = { nota: 0, correctas: 0, total: (examen.preguntas ? examen.preguntas.length : 0), missed: true };
+                            miResultado = { nota: 0, correctas: 0, total: 10, missed: true };
                             notaParaPromedio = 0;
                         }
 
@@ -3805,6 +3824,7 @@ window.validarPinPermanente = function() {
 
                         examenesPorMes[mesExamen].push({
                             ...examen,
+                            titulo: examen.titulo || "Evaluación Oficial", // Corrige el 'Undefined'
                             miResultado: miResultado,
                             fechaObj: fechaExamen
                         });
@@ -3943,7 +3963,7 @@ window.validarPinPermanente = function() {
                 if (htmlExamenes !== "") {
                     contenedor.innerHTML = htmlExamenes;
                     // Cambio: Ahora indica entregados / total de exámenes
-                    document.getElementById("stat-examenes-total").innerText = `${realizados}/${totalExamenesBD}`;
+                    document.getElementById("stat-examenes-total").innerText = realizados.toString();
                     document.getElementById("stat-examenes-promedio").innerText = promedioExamenesGlobal.toFixed(1);
                     document.getElementById("stat-examenes-pct").innerText = totalExamenesBD > 0 ? Math.round((aprobados / totalExamenesBD) * 100) + "%" : "0%";
                     
@@ -3952,9 +3972,9 @@ window.validarPinPermanente = function() {
                         elNotaGlobal.innerText = notaGlobalCombinada.toFixed(1);
                         elNotaGlobal.style.color = notaGlobalCombinada >= 6.0 ? "#7c3aed" : "#ef4444";
                     }
-                } else {
+               } else {
                     contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no hay evaluaciones asignadas ni clases pasadas.</p>`;
-                    document.getElementById("stat-examenes-total").innerText = "0/0";
+                    document.getElementById("stat-examenes-total").innerText = "0"; // Formato exacto del diseño sin "0/0"
                     document.getElementById("stat-examenes-promedio").innerText = "0.0";
                     document.getElementById("stat-examenes-pct").innerText = "0%";
                     
@@ -4098,28 +4118,37 @@ window.validarPinPermanente = function() {
         const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
         const codigoEstudiante = localStorage.getItem("elegidos_student_code");
 
-        // Realizamos una consulta a Firebase para obtener las notas de los exámenes
+       // Realizamos una consulta a Firebase para obtener las notas de los exámenes
         db.ref('sistema/historial_examenes').once('value').then(snapHistorial => {
             let notasExamenes = [];
             
-            if (snapHistorial.exists()) {
+         if (snapHistorial.exists()) {
                 const historial = snapHistorial.val();
-                Object.values(historial).forEach(examen => {
-                    let ts = examen.timestamp || parseInt(examen.id_historial);
-                    if (!ts || isNaN(ts)) ts = Date.now();
-                    const fechaExamen = new Date(ts);
-                    let mesExamen = fechaExamen.getMonth() + 1;
+                const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+
+                Object.keys(historial).forEach(keyId => {
+                    const examen = historial[keyId];
+                    if (!examen || typeof examen !== 'object') return;
                     
-                    // Ajuste de cuatrimestre
+                    // Parseo usando la clave generada por el panel del administrador
+                    let ts = parseInt(keyId);
+                    if (isNaN(ts)) ts = examen.timestamp || Date.now();
+                    
+                    const fechaExamen = new Date(ts);
+                    const yaRealizado = examen.resultados && examen.resultados[codigoEstudiante];
+                    
+                    // REGLA CLAVE: Ignorar exámenes futuros que no se han respondido aún
+                    if (ahora < fechaExamen && !yaRealizado) return;
+
+                    let mesExamen = fechaExamen.getMonth() + 1;
                     if (mesExamen < 9) mesExamen = 9;
                     if (mesExamen > 12) mesExamen = 12;
 
                     let notaFinal = 0.0;
-                    if (examen.resultados && examen.resultados[codigoEstudiante]) {
+                    if (yaRealizado) {
                         notaFinal = parseFloat(examen.resultados[codigoEstudiante].nota);
                     }
                     
-                    // Se inserta la nota (sea la que sacó o un 0 si no lo hizo)
                     notasExamenes.push({
                         mes: mesExamen,
                         nota: notaFinal
