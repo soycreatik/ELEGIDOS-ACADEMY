@@ -1331,21 +1331,28 @@
                         </div>
                     </div>
                     
-                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+                  <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px;">
                         <div class="stat-card" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
                             <div class="num" id="stat-examenes-total" style="color: #b91c1c; font-size: 1.4rem;">0</div>
-                            <div class="label" style="color: #ef4444;">Realizados</div>
+                            <div class="label" style="color: #ef4444;">Exámenes Realizados</div>
                         </div>
                         <div class="stat-card" style="background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2);">
                             <div class="num" id="stat-examenes-promedio" style="color: #1d4ed8; font-size: 1.4rem;">0.0</div>
-                            <div class="label" style="color: #3b82f6;">Promedio</div>
-                        </div>
-                        <div class="stat-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
-                            <div class="num" id="stat-examenes-pct" style="color: #047857; font-size: 1.4rem;">0%</div>
-                            <div class="label" style="color: #10b981;">Aprobación</div>
+                            <div class="label" style="color: #3b82f6;">Promedio de Exámenes</div>
                         </div>
                     </div>
-
+                    
+                    <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px;">
+                        <div class="stat-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+                            <div class="num" id="stat-examenes-pct" style="color: #047857; font-size: 1.4rem;">0%</div>
+                            <div class="label" style="color: #10b981;">Tasa de Aprobación</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.2);">
+                            <div class="num" id="stat-nota-global-proyectada" style="color: #7c3aed; font-size: 1.4rem; font-weight: 900;">0.0</div>
+                            <div class="label" style="color: #8b5cf6;">Nota Global Proyectada</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-bottom: 15px; font-style: italic;">* La Nota Global Proyectada promedia tus evaluaciones y asistencia. Recuerda que el Proyecto Final tendrá un peso importante en tu nota final.</p>
                     <div class="class-list" id="contenedor-examenes" style="margin-bottom: 40px;">
                         <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; border-radius: 16px; border: 1px dashed #cbd5e1; background: rgba(0,0,0,0.02);">Cargando evaluaciones...</p>
                     </div>
@@ -3771,16 +3778,51 @@ window.validarPinPermanente = function() {
                     });
                 }
 
+               // --- CÁLCULO DE ASISTENCIA GLOBAL PARA LA NOTA PROYECTADA ---
+                let totalClasesParaAsistencia = 0;
+                let clasesAsistidasParaAsistencia = 0;
+                const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
+                
+                FECHAS_CURSO.forEach(clase => {
+                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+                    const fechaClaseObj = new Date(clase.fecha + "T23:59:59");
+                    
+                    // Solo contamos las clases que ya pasaron
+                    if (ahora > fechaClaseObj) {
+                        totalClasesParaAsistencia++;
+                        if (asistenciasBD[clase.id] || asistenciasBD[clase.fecha]) {
+                             clasesAsistidasParaAsistencia++;
+                        }
+                    }
+                });
+
+                const pctAsistencia = totalClasesParaAsistencia > 0 ? (clasesAsistidasParaAsistencia / totalClasesParaAsistencia) : 1;
+                // Convertimos el porcentaje de asistencia a una nota base 10 (ej: 80% asistencia = 8.0)
+                const notaAsistencia = pctAsistencia * 10;
+                // -------------------------------------------------------------
+
                 if (realizados > 0) {
                     contenedor.innerHTML = htmlExamenes;
+                    const promedioExamenes = (sumaNotas / realizados);
+                    
                     document.getElementById("stat-examenes-total").innerText = realizados;
-                    document.getElementById("stat-examenes-promedio").innerText = (sumaNotas / realizados).toFixed(1);
+                    document.getElementById("stat-examenes-promedio").innerText = promedioExamenes.toFixed(1);
                     document.getElementById("stat-examenes-pct").innerText = Math.round((aprobados / realizados) * 100) + "%";
+                    
+                    // Cálculo de la Nota Global Proyectada (Promedio entre Exámenes y Asistencia)
+                    const notaGlobal = (promedioExamenes + notaAsistencia) / 2;
+                    const elNotaGlobal = document.getElementById("stat-nota-global-proyectada");
+                    if(elNotaGlobal) elNotaGlobal.innerText = notaGlobal.toFixed(1);
+                    
                 } else {
                     contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no has realizado ninguna evaluación.</p>`;
                     document.getElementById("stat-examenes-total").innerText = "0";
                     document.getElementById("stat-examenes-promedio").innerText = "0.0";
                     document.getElementById("stat-examenes-pct").innerText = "0%";
+                    
+                    const elNotaGlobal = document.getElementById("stat-nota-global-proyectada");
+                    // Si no hay exámenes, la nota proyectada se basa solo en asistencia
+                    if(elNotaGlobal) elNotaGlobal.innerText = totalClasesParaAsistencia > 0 ? notaAsistencia.toFixed(1) : "0.0";
                 }
             });
         }
@@ -4021,25 +4063,47 @@ window.validarPinPermanente = function() {
             tbody.innerHTML = htmlFilas;
 
             // Promedio Global de todas las evaluaciones realizadas
-            const promedioProyectado = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0; 
+            const promedioExamenes = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0; 
             const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
+            
+            // Calculamos la nota global combinada
+            const notaAsistenciaGlobal = (pctAsistenciaGlobal / 100) * 10;
+            let notaGlobalCombinada = 0.0;
 
-            document.getElementById("calif-promedio-global").innerText = totalExamenesGlobal > 0 ? promedioProyectado.toFixed(1) : "N/A";
+            if (totalExamenesGlobal > 0) {
+                notaGlobalCombinada = (promedioExamenes + notaAsistenciaGlobal) / 2;
+            } else if (totalClasesCuatrimestre > 0) {
+                // Si no hay exámenes aún, basamos la proyección en la asistencia
+                notaGlobalCombinada = notaAsistenciaGlobal;
+            }
+            
+            document.getElementById("calif-promedio-global").innerText = (totalExamenesGlobal > 0 || totalClasesCuatrimestre > 0) ? notaGlobalCombinada.toFixed(1) : "N/A";
             document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobal + "%";
             document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
             document.getElementById("calif-faltas-total").innerText = faltasTotales;
 
             const containerBadge = document.getElementById("calif-status-badge-container");
             if (containerBadge) {
-                if (totalExamenesGlobal === 0) {
-                    containerBadge.innerHTML = `<span class="calif-status-badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">⚪ Sin Evaluaciones</span>`;
-                } else if (promedioProyectado >= 8.0 && pctAsistenciaGlobal >= 80) {
+                // Si la nota global es menor a 6.0, se considera riesgo
+                if (totalExamenesGlobal === 0 && totalClasesCuatrimestre === 0) {
+                    containerBadge.innerHTML = `<span class="calif-status-badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">⚪ Sin Datos</span>`;
+                } else if (notaGlobalCombinada >= 8.0) {
                     containerBadge.innerHTML = `<span class="calif-status-badge calif-status-seguro">🟢 Cierre Seguro</span>`;
-                } else if (promedioProyectado >= 7.0 && pctAsistenciaGlobal >= 70) {
+                } else if (notaGlobalCombinada >= 6.0) {
                     containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
                 } else {
-                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo de Recuperatorio</span>`;
+                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo (Nota < 6.0)</span>`;
                 }
+            }
+            
+            // Añadimos el recordatorio del trabajo final al final del modal si no existe
+            const modalBody = document.querySelector("#modal-mis-calificaciones .calif-table-wrapper");
+            if(modalBody && !document.getElementById("nota-trabajo-final-reminder")) {
+                const reminderDiv = document.createElement("div");
+                reminderDiv.id = "nota-trabajo-final-reminder";
+                reminderDiv.style.cssText = "margin-top: 15px; padding: 15px; border-radius: 16px; background: rgba(139, 92, 246, 0.1); border: 1px dashed rgba(139, 92, 246, 0.4); text-align: center;";
+                reminderDiv.innerHTML = `<p style="color: #c4b5fd; font-size: 0.8rem; margin: 0; font-weight: 500;">📌 <strong>Nota Mínima Requerida: 6.0</strong><br>La Nota Global Proyectada es un promedio entre tus evaluaciones y asistencia. Recuerda que el <strong>Trabajo Final</strong> también contará en su momento para tu nota de graduación.</p>`;
+                modalBody.parentNode.insertBefore(reminderDiv, modalBody.nextSibling);
             }
         });
     }
