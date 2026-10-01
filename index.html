@@ -3725,7 +3725,7 @@ window.validarPinPermanente = function() {
     let antenaExamenesRealizados = false;
     window.renderizarMisExamenes = function() {
         const codigoActual = localStorage.getItem("elegidos_student_code");
-        if (!codigoActual || esInvitado) return;
+        if (!codigoActual || (typeof esInvitado !== 'undefined' && esInvitado)) return;
 
         if (!antenaExamenesRealizados) {
             antenaExamenesRealizados = true;
@@ -3734,99 +3734,211 @@ window.validarPinPermanente = function() {
                 if (!contenedor) return;
 
                 let realizados = 0;
-                let sumaNotas = 0;
+                let sumaNotasGlobal = 0;
                 let aprobados = 0;
-                let htmlExamenes = "";
+
+                const MESES = [
+                    { id: 9, nombre: "Septiembre" },
+                    { id: 10, nombre: "Octubre" },
+                    { id: 11, nombre: "Noviembre" },
+                    { id: 12, nombre: "Diciembre" }
+                ];
+
+                const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
+                const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+
+                let examenesPorMes = { 9: [], 10: [], 11: [], 12: [] };
 
                 if (snap.exists()) {
                     const historial = snap.val();
-                    // Convertimos a arreglo y ordenamos para que el más nuevo salga primero
-                    const examenesArr = Object.values(historial).sort((a, b) => b.id_historial - a.id_historial);
-
-                    examenesArr.forEach(examen => {
+                    Object.values(historial).forEach(examen => {
                         if (examen.resultados && examen.resultados[codigoActual]) {
                             const miResultado = examen.resultados[codigoActual];
-                            realizados++;
-                            sumaNotas += parseFloat(miResultado.nota);
-                            if (parseFloat(miResultado.nota) >= 7.0) aprobados++;
-
-                            const fecha = new Date(parseInt(examen.id_historial));
-                            const fechaFormat = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
                             
-                            let colorNota = miResultado.nota >= 9 ? "#d946ef" : (miResultado.nota >= 7 ? "#22c55e" : "#ef4444");
-                            let bgNota = miResultado.nota >= 9 ? "rgba(217, 70, 239, 0.1)" : (miResultado.nota >= 7 ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)");
-                            let statusText = miResultado.nota >= 9 ? "¡Excelente!" : (miResultado.nota >= 7 ? "Aprobado" : "Reprobado");
+                            // Extraer fecha fiable del examen
+                            let ts = miResultado.timestamp || examen.timestamp || parseInt(examen.id_historial);
+                            if (!ts || isNaN(ts)) ts = Date.now();
+                            
+                            const fechaExamen = new Date(ts);
+                            let mesExamen = fechaExamen.getMonth() + 1;
+                            
+                            // Asegurar que si hay exámenes adelantados o atrasados encajen en el cuatrimestre
+                            if (mesExamen < 9) mesExamen = 9;
+                            if (mesExamen > 12) mesExamen = 12;
+                            
+                            realizados++;
+                            sumaNotasGlobal += parseFloat(miResultado.nota);
+                            // La nota mínima de aprobación ahora es 6.0
+                            if (parseFloat(miResultado.nota) >= 6.0) aprobados++; 
 
-                            // HTML Adaptado al estilo de la imagen (Diseño Limpio sin borde lateral)
-                            htmlExamenes += `
-                            <div class="class-item" style="background: #ffffff; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.05);">
-                                <div class="class-icon" style="background: ${colorNota}; color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px ${bgNota};">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                                </div>
-                                <div class="class-info" style="flex: 1;">
-                                    <h5 style="font-size: 0.95rem; margin-bottom: 2px;">${examen.titulo}</h5>
-                                    <p style="margin-bottom: 0; font-size: 0.75rem;"><span style="color: #64748b;">${fechaFormat}</span> • <strong style="color: ${colorNota};">${statusText}</strong></p>
-                                    <p style="margin-bottom: 0; font-size: 0.7rem; color: #94a3b8;">${miResultado.correctas} de ${miResultado.total} correctas</p>
-                                </div>
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
-                                    <div style="background: ${bgNota}; color: ${colorNota}; padding: 8px 14px; border-radius: 12px; font-weight: 900; font-size: 1.2rem; border: 1px solid ${colorNota};">
-                                        ${parseFloat(miResultado.nota).toFixed(1)}
-                                    </div>
-                                </div>
-                            </div>`;
+                            examenesPorMes[mesExamen].push({
+                                ...examen,
+                                miResultado: miResultado,
+                                fechaObj: fechaExamen
+                            });
                         }
                     });
                 }
 
-               // --- CÁLCULO DE ASISTENCIA GLOBAL PARA LA NOTA PROYECTADA ---
-                let totalClasesParaAsistencia = 0;
-                let clasesAsistidasParaAsistencia = 0;
-                const asistenciasBD = (datosEstudianteActual && datosEstudianteActual.asistencias) ? datosEstudianteActual.asistencias : {};
-                
-                FECHAS_CURSO.forEach(clase => {
-                    const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
-                    const fechaClaseObj = new Date(clase.fecha + "T23:59:59");
-                    
-                    // Solo contamos las clases que ya pasaron
-                    if (ahora > fechaClaseObj) {
-                        totalClasesParaAsistencia++;
-                        if (asistenciasBD[clase.id] || asistenciasBD[clase.fecha]) {
-                             clasesAsistidasParaAsistencia++;
+                let htmlExamenes = "";
+                let totalExamenesGlobal = realizados;
+                let totalClasesCuatrimestre = 0;
+                let asistenciasCuatrimestreValidas = 0;
+
+                // Ordenar los exámenes de cada mes del más nuevo al más viejo
+                Object.keys(examenesPorMes).forEach(m => {
+                    examenesPorMes[m].sort((a, b) => b.fechaObj - a.fechaObj);
+                });
+
+                MESES.forEach(mes => {
+                    const clasesMes = FECHAS_CURSO.filter(c => {
+                        if (!c.fecha) return false;
+                        return parseInt(c.fecha.split("-")[1], 10) === mes.id;
+                    });
+
+                    let asistenciasMes = 0;
+                    let faltasJustificadas = 0;
+                    let clasesPasadasMes = 0;
+
+                    clasesMes.forEach(clase => {
+                        const fechaClaseObj = new Date(clase.fecha + "T23:59:59");
+                        if (ahora > fechaClaseObj) {
+                            clasesPasadasMes++;
+                            totalClasesCuatrimestre++;
+                            let registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
+                            if (registro) {
+                                if (String(registro).toLowerCase().includes("permiso")) {
+                                    faltasJustificadas++;
+                                } else {
+                                    asistenciasMes++;
+                                }
+                            }
+                        }
+                    });
+
+                    // Lógica estricta de Permisos (Anula si > 40%)
+                    let asistenciasValidasMes = asistenciasMes;
+                    if (clasesPasadasMes > 0) {
+                        const pctPermisos = (faltasJustificadas / clasesPasadasMes) * 100;
+                        if (pctPermisos <= 40) {
+                            asistenciasValidasMes += faltasJustificadas;
+                        }
+                    }
+                    asistenciasCuatrimestreValidas += asistenciasValidasMes;
+
+                    // Convertimos la asistencia válida a escala de 10
+                    let notaAsistenciaMes = 10;
+                    if (clasesPasadasMes > 0) {
+                        notaAsistenciaMes = (asistenciasValidasMes / clasesPasadasMes) * 10;
+                    }
+
+                    // Calculamos promedio de exámenes del mes
+                    const examenesDelMes = examenesPorMes[mes.id] || [];
+                    let notaExamenesMes = 0;
+                    if (examenesDelMes.length > 0) {
+                        const sumaMes = examenesDelMes.reduce((acc, curr) => acc + parseFloat(curr.miResultado.nota), 0);
+                        notaExamenesMes = sumaMes / examenesDelMes.length;
+                    }
+
+                    // Nota Mensual Combinada (Promedio Asistencia + Exámenes)
+                    let notaMesCombinada = null;
+                    if (clasesPasadasMes > 0 || examenesDelMes.length > 0) {
+                        if (examenesDelMes.length > 0 && clasesPasadasMes > 0) {
+                            notaMesCombinada = (notaExamenesMes + notaAsistenciaMes) / 2;
+                        } else if (examenesDelMes.length > 0) {
+                            notaMesCombinada = notaExamenesMes;
+                        } else {
+                            notaMesCombinada = notaAsistenciaMes;
+                        }
+                    }
+
+                    // Renderizar la sección del mes (solo si ya hay clases pasadas o exámenes)
+                    if (clasesPasadasMes > 0 || examenesDelMes.length > 0) {
+                        let colorMensual = notaMesCombinada >= 8.0 ? "#10b981" : (notaMesCombinada >= 6.0 ? "#f59e0b" : "#ef4444");
+                        let textoMensual = notaMesCombinada >= 6.0 ? "Mes Aprobado" : "Mes Reprobado (< 6.0)";
+
+                        htmlExamenes += `
+                        <div style="margin-top: 30px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div>
+                                <h4 style="font-size: 1.15rem; font-weight: 900; color: var(--text-dark); margin: 0; text-transform: uppercase;">${mes.nombre}</h4>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Asistencia válida: ${asistenciasValidasMes}/${clasesPasadasMes}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 1.3rem; font-weight: 900; color: ${colorMensual};">${notaMesCombinada.toFixed(1)}</span>
+                                <br><span style="font-size: 0.65rem; font-weight: 800; color: ${colorMensual}; text-transform: uppercase;">${textoMensual}</span>
+                            </div>
+                        </div>`;
+
+                        if (examenesDelMes.length === 0) {
+                             htmlExamenes += `<p style="font-size: 0.8rem; color: #94a3b8; font-style: italic; text-align: center; padding: 10px; background: rgba(0,0,0,0.02); border-radius: 12px;">No hubo evaluaciones este mes. Nota basada 100% en asistencia.</p>`;
+                        } else {
+                            examenesDelMes.forEach(examen => {
+                                const miResultado = examen.miResultado;
+                                const fechaFormat = examen.fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                                
+                                // Color individual del examen (aprobado con 6.0)
+                                let colorNota = miResultado.nota >= 9 ? "#d946ef" : (miResultado.nota >= 6 ? "#22c55e" : "#ef4444");
+                                let bgNota = miResultado.nota >= 9 ? "rgba(217, 70, 239, 0.1)" : (miResultado.nota >= 6 ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)");
+                                let statusText = miResultado.nota >= 9 ? "¡Excelente!" : (miResultado.nota >= 6 ? "Aprobado" : "Reprobado");
+
+                                htmlExamenes += `
+                                <div class="class-item" style="background: #ffffff; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                                    <div class="class-icon" style="background: ${colorNota}; color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px ${bgNota};">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                                    </div>
+                                    <div class="class-info" style="flex: 1;">
+                                        <h5 style="font-size: 0.95rem; margin-bottom: 2px;">${examen.titulo}</h5>
+                                        <p style="margin-bottom: 0; font-size: 0.75rem;"><span style="color: #64748b;">${fechaFormat}</span> • <strong style="color: ${colorNota};">${statusText}</strong></p>
+                                        <p style="margin-bottom: 0; font-size: 0.7rem; color: #94a3b8;">${miResultado.correctas} de ${miResultado.total} correctas</p>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
+                                        <div style="background: ${bgNota}; color: ${colorNota}; padding: 8px 14px; border-radius: 12px; font-weight: 900; font-size: 1.2rem; border: 1px solid ${colorNota};">
+                                            ${parseFloat(miResultado.nota).toFixed(1)}
+                                        </div>
+                                    </div>
+                                </div>`;
+                            });
                         }
                     }
                 });
 
-                const pctAsistencia = totalClasesParaAsistencia > 0 ? (clasesAsistidasParaAsistencia / totalClasesParaAsistencia) : 1;
-                // Convertimos el porcentaje de asistencia a una nota base 10 (ej: 80% asistencia = 8.0)
-                const notaAsistencia = pctAsistencia * 10;
-                // -------------------------------------------------------------
+                // CÁLCULO PROYECTADO GLOBAL
+                const promedioExamenesGlobal = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0;
+                const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? (asistenciasCuatrimestreValidas / totalClasesCuatrimestre) : 1;
+                const notaAsistenciaGlobal = pctAsistenciaGlobal * 10;
+                
+                let notaGlobalCombinada = 0.0;
+                if (totalExamenesGlobal > 0 && totalClasesCuatrimestre > 0) {
+                    notaGlobalCombinada = (promedioExamenesGlobal + notaAsistenciaGlobal) / 2;
+                } else if (totalExamenesGlobal > 0) {
+                    notaGlobalCombinada = promedioExamenesGlobal;
+                } else if (totalClasesCuatrimestre > 0) {
+                    notaGlobalCombinada = notaAsistenciaGlobal;
+                }
 
-                if (realizados > 0) {
+                if (htmlExamenes !== "") {
                     contenedor.innerHTML = htmlExamenes;
-                    const promedioExamenes = (sumaNotas / realizados);
-                    
                     document.getElementById("stat-examenes-total").innerText = realizados;
-                    document.getElementById("stat-examenes-promedio").innerText = promedioExamenes.toFixed(1);
-                    document.getElementById("stat-examenes-pct").innerText = Math.round((aprobados / realizados) * 100) + "%";
+                    document.getElementById("stat-examenes-promedio").innerText = promedioExamenesGlobal.toFixed(1);
+                    document.getElementById("stat-examenes-pct").innerText = totalExamenesGlobal > 0 ? Math.round((aprobados / totalExamenesGlobal) * 100) + "%" : "0%";
                     
-                    // Cálculo de la Nota Global Proyectada (Promedio entre Exámenes y Asistencia)
-                    const notaGlobal = (promedioExamenes + notaAsistencia) / 2;
                     const elNotaGlobal = document.getElementById("stat-nota-global-proyectada");
-                    if(elNotaGlobal) elNotaGlobal.innerText = notaGlobal.toFixed(1);
-                    
+                    if(elNotaGlobal) {
+                        elNotaGlobal.innerText = notaGlobalCombinada.toFixed(1);
+                        elNotaGlobal.style.color = notaGlobalCombinada >= 6.0 ? "#7c3aed" : "#ef4444";
+                    }
                 } else {
-                    contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no has realizado ninguna evaluación.</p>`;
+                    contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no hay evaluaciones ni clases pasadas.</p>`;
                     document.getElementById("stat-examenes-total").innerText = "0";
                     document.getElementById("stat-examenes-promedio").innerText = "0.0";
                     document.getElementById("stat-examenes-pct").innerText = "0%";
                     
                     const elNotaGlobal = document.getElementById("stat-nota-global-proyectada");
-                    // Si no hay exámenes, la nota proyectada se basa solo en asistencia
-                    if(elNotaGlobal) elNotaGlobal.innerText = totalClasesParaAsistencia > 0 ? notaAsistencia.toFixed(1) : "0.0";
+                    if(elNotaGlobal) elNotaGlobal.innerText = "0.0";
                 }
             });
         }
-    }
+    };
 
 </script>
 
@@ -3998,46 +4110,85 @@ window.validarPinPermanente = function() {
                 let faltasJustificadas = 0;
                 let faltasInjustificadas = 0;
 
+                const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
+
+                // 1. Contar clases, asistencias y permisos del mes (solo clases pasadas)
+                let clasesPasadasMes = 0;
                 clasesMes.forEach(clase => {
-                    totalClasesCuatrimestre++;
-                    let registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
-                    
-                    if (registro) {
-                        if (String(registro).toLowerCase().includes("permiso")) {
-                            faltasJustificadas++;
+                    const fechaClaseObj = new Date(clase.fecha + "T23:59:59");
+                    if (ahora > fechaClaseObj) {
+                        clasesPasadasMes++;
+                        totalClasesCuatrimestre++;
+                        
+                        let registro = asistenciasBD[clase.id] || asistenciasBD[clase.fecha];
+                        if (registro) {
+                            if (String(registro).toLowerCase().includes("permiso")) {
+                                faltasJustificadas++;
+                            } else {
+                                asistenciasMes++;
+                            }
                         } else {
-                            asistenciasMes++;
-                            asistenciasCuatrimestre++;
-                        }
-                    } else {
-                        const fechaClase = new Date(clase.fecha + "T23:59:59");
-                        const ahora = (typeof obtenerFechaSistema === "function") ? obtenerFechaSistema() : new Date();
-                        if (ahora > fechaClase) {
                             faltasInjustificadas++;
                             faltasTotales++;
                         }
                     }
                 });
 
-                const totalEnMes = clasesMes.length || 1;
-                const pctAsistenciaMes = Math.round((asistenciasMes / totalEnMes) * 100);
+                // 2. Lógica de Penalización por Permisos (> 40% anula todos los permisos)
+                let asistenciasValidasMes = asistenciasMes;
+                if (clasesPasadasMes > 0) {
+                    const porcentajePermisos = (faltasJustificadas / clasesPasadasMes) * 100;
+                    if (porcentajePermisos <= 40) {
+                        // Si los permisos son válidos (<= 40%), cuentan como asistencia para la nota
+                        asistenciasValidasMes += faltasJustificadas;
+                    } else {
+                        // Si superan el 40%, se anulan (ya no se suman a asistenciasValidasMes)
+                        // Para el global, sumamos como faltas injustificadas para penalizar
+                        faltasTotales += faltasJustificadas; 
+                    }
+                }
+                
+                asistenciasCuatrimestre += asistenciasValidasMes;
 
-                // Calculamos el promedio del mes basándonos en los exámenes realizados en ese mes
+                const totalEnMesVisual = clasesMes.length || 1;
+                // El porcentaje visual sigue mostrando la realidad de asistencias puras + permisos,
+                // pero la nota se calcula con asistenciasValidasMes
+                const pctAsistenciaVisual = Math.round(((asistenciasMes + faltasJustificadas) / totalEnMesVisual) * 100);
+                
+                // Calculamos la nota de asistencia del mes en base 10 (solo con clases pasadas)
+                let notaAsistenciaMes = 10;
+                if (clasesPasadasMes > 0) {
+                     notaAsistenciaMes = (asistenciasValidasMes / clasesPasadasMes) * 10;
+                }
+
+                // 3. Calculamos el promedio de exámenes del mes
                 const examenesDelMes = notasExamenes.filter(n => n.mes === mes.id);
-                let notaMes = null;
+                let notaExamenesMes = 0;
                 
                 if (examenesDelMes.length > 0) {
                     const sumaMes = examenesDelMes.reduce((acc, curr) => acc + curr.nota, 0);
-                    notaMes = sumaMes / examenesDelMes.length;
+                    notaExamenesMes = sumaMes / examenesDelMes.length;
                     
                     sumaNotasGlobal += sumaMes;
                     totalExamenesGlobal += examenesDelMes.length;
                 }
 
+                // 4. Nota Mensual Combinada (Promedio de Exámenes y Asistencia del Mes)
+                let notaMesCombinada = null;
+                if (clasesPasadasMes > 0 || examenesDelMes.length > 0) {
+                    if (examenesDelMes.length > 0 && clasesPasadasMes > 0) {
+                        notaMesCombinada = (notaExamenesMes + notaAsistenciaMes) / 2;
+                    } else if (examenesDelMes.length > 0) {
+                        notaMesCombinada = notaExamenesMes;
+                    } else {
+                        notaMesCombinada = notaAsistenciaMes;
+                    }
+                }
+
                 let notaBadgeHTML = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">Por calificar</span>`;
-                if (notaMes !== null) {
-                    let clasePill = notaMes >= 9.0 ? "nota-excelente" : (notaMes >= 8.0 ? "nota-buena" : (notaMes >= 7.0 ? "nota-regular" : "nota-baja"));
-                    notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}" title="${examenesDelMes.length} Examen(es)">${notaMes.toFixed(1)}</span>`;
+                if (notaMesCombinada !== null) {
+                    let clasePill = notaMesCombinada >= 9.0 ? "nota-excelente" : (notaMesCombinada >= 8.0 ? "nota-buena" : (notaMesCombinada >= 6.0 ? "nota-regular" : "nota-baja"));
+                    notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}" title="${examenesDelMes.length} Exám. | Asis: ${notaAsistenciaMes.toFixed(1)}">${notaMesCombinada.toFixed(1)}</span>`;
                 }
 
                 htmlFilas += `
@@ -4047,11 +4198,11 @@ window.validarPinPermanente = function() {
                             <span style="font-size: 0.7rem; color: #94a3b8;">${mes.desc}</span>
                         </td>
                         <td style="font-size: 0.8rem; color: #cbd5e1;">
-                            Evaluaciones Dinámicas & Exámenes en Vivo
+                            Evaluaciones & Tareas
                         </td>
-                        <td style="text-align: center; cursor: pointer;" onclick="abrirDetalleFaltasMes('${mes.nombre}', ${asistenciasMes}, ${totalEnMes}, ${faltasJustificadas}, ${faltasInjustificadas})">
-                            <span style="font-weight: 800; color: ${pctAsistenciaMes >= 80 ? '#4ade80' : '#f87171'};">${pctAsistenciaMes}%</span><br>
-                            <small style="font-size: 0.65rem; color: #94a3b8; text-decoration: underline;">${asistenciasMes}/${totalEnMes} ses. (ver)</small>
+                        <td style="text-align: center; cursor: pointer;" onclick="abrirDetalleFaltasMes('${mes.nombre}', ${asistenciasMes}, ${totalEnMesVisual}, ${faltasJustificadas}, ${faltasInjustificadas})">
+                            <span style="font-weight: 800; color: ${pctAsistenciaVisual >= 80 ? '#4ade80' : '#f87171'};">${pctAsistenciaVisual}%</span><br>
+                            <small style="font-size: 0.65rem; color: #94a3b8; text-decoration: underline;">${asistenciasMes}/${totalEnMesVisual} ses. (ver)</small>
                         </td>
                         <td style="text-align: center;">
                             ${notaBadgeHTML}
@@ -4062,29 +4213,30 @@ window.validarPinPermanente = function() {
 
             tbody.innerHTML = htmlFilas;
 
-            // Promedio Global de todas las evaluaciones realizadas
-            const promedioExamenes = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0; 
-            const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
+            // --- CÁLCULO DE LA NOTA GLOBAL PROYECTADA ---
+            const promedioExamenesGlobal = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0; 
+            const pctAsistenciaGlobalPuro = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
             
-            // Calculamos la nota global combinada
-            const notaAsistenciaGlobal = (pctAsistenciaGlobal / 100) * 10;
+            // Calculamos la nota global combinada (Asistencia penalizada convertida a base 10)
+            const notaAsistenciaGlobal = (pctAsistenciaGlobalPuro / 100) * 10;
             let notaGlobalCombinada = 0.0;
 
-            if (totalExamenesGlobal > 0) {
-                notaGlobalCombinada = (promedioExamenes + notaAsistenciaGlobal) / 2;
+            if (totalExamenesGlobal > 0 && totalClasesCuatrimestre > 0) {
+                notaGlobalCombinada = (promedioExamenesGlobal + notaAsistenciaGlobal) / 2;
+            } else if (totalExamenesGlobal > 0) {
+                notaGlobalCombinada = promedioExamenesGlobal;
             } else if (totalClasesCuatrimestre > 0) {
-                // Si no hay exámenes aún, basamos la proyección en la asistencia
                 notaGlobalCombinada = notaAsistenciaGlobal;
             }
             
             document.getElementById("calif-promedio-global").innerText = (totalExamenesGlobal > 0 || totalClasesCuatrimestre > 0) ? notaGlobalCombinada.toFixed(1) : "N/A";
-            document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobal + "%";
+            document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobalPuro + "%";
             document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
             document.getElementById("calif-faltas-total").innerText = faltasTotales;
 
+            // --- ACTUALIZACIÓN DE BADGES DE ESTADO (MÍNIMO 6.0) ---
             const containerBadge = document.getElementById("calif-status-badge-container");
             if (containerBadge) {
-                // Si la nota global es menor a 6.0, se considera riesgo
                 if (totalExamenesGlobal === 0 && totalClasesCuatrimestre === 0) {
                     containerBadge.innerHTML = `<span class="calif-status-badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">⚪ Sin Datos</span>`;
                 } else if (notaGlobalCombinada >= 8.0) {
@@ -4092,7 +4244,7 @@ window.validarPinPermanente = function() {
                 } else if (notaGlobalCombinada >= 6.0) {
                     containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
                 } else {
-                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo">🔴 Riesgo (Nota < 6.0)</span>`;
+                    containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 Riesgo (Nota < 6.0)</span>`;
                 }
             }
             
@@ -4102,21 +4254,31 @@ window.validarPinPermanente = function() {
                 const reminderDiv = document.createElement("div");
                 reminderDiv.id = "nota-trabajo-final-reminder";
                 reminderDiv.style.cssText = "margin-top: 15px; padding: 15px; border-radius: 16px; background: rgba(139, 92, 246, 0.1); border: 1px dashed rgba(139, 92, 246, 0.4); text-align: center;";
-                reminderDiv.innerHTML = `<p style="color: #c4b5fd; font-size: 0.8rem; margin: 0; font-weight: 500;">📌 <strong>Nota Mínima Requerida: 6.0</strong><br>La Nota Global Proyectada es un promedio entre tus evaluaciones y asistencia. Recuerda que el <strong>Trabajo Final</strong> también contará en su momento para tu nota de graduación.</p>`;
+                reminderDiv.innerHTML = `<p style="color: #c4b5fd; font-size: 0.8rem; margin: 0; font-weight: 500;">📌 <strong>Nota Mínima Requerida: 6.0</strong><br>La Nota Mensual y Global es un promedio entre evaluaciones y asistencia válida (Máx. 40% permisos). El <strong>Trabajo Final</strong> será crucial para tu graduación.</p>`;
                 modalBody.parentNode.insertBefore(reminderDiv, modalBody.nextSibling);
             }
         });
     }
-
-    function abrirDetalleFaltasMes(nombreMes, asistidas, total, justificadas, injustificadas) {
+   function abrirDetalleFaltasMes(nombreMes, asistidas, total, justificadas, injustificadas) {
         document.getElementById("modal-faltas-titulo").innerText = `Asistencia de ${nombreMes}`;
+        
+        let notaExplicacion = "";
+        let pctPermisos = total > 0 ? (justificadas / total) * 100 : 0;
+        
+        if (pctPermisos > 40) {
+             notaExplicacion = `<p style="color: #ef4444; font-weight: bold; margin-top: 8px;">⚠️ Límite de permisos excedido (>40%). Los permisos de este mes han sido anulados para el cálculo de tu nota.</p>`;
+        } else if (justificadas > 0) {
+             notaExplicacion = `<p style="color: #4ade80; font-weight: bold; margin-top: 8px;">✅ Permisos dentro del límite (≤40%). Cuentan como asistencia para tu nota.</p>`;
+        }
+
         document.getElementById("modal-faltas-body").innerHTML = `
             <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px;">
-                <p>🟢 <strong>Clases Asistidas:</strong> ${asistidas} de ${total}</p>
-                <p style="margin-top: 6px;">🟠 <strong>Faltas Justificadas (Permisos):</strong> ${justificadas}</p>
-                <p style="margin-top: 6px;">🔴 <strong>Inasistencias Injustificadas:</strong> ${injustificadas}</p>
+                <p>🟢 <strong>Clases Asistidas (Físicas/Meet):</strong> ${asistidas} de ${total}</p>
+                <p style="margin-top: 6px;">🟠 <strong>Permisos Aprobados:</strong> ${justificadas}</p>
+                <p style="margin-top: 6px;">🔴 <strong>Inasistencias (Faltas):</strong> ${injustificadas}</p>
+                ${notaExplicacion}
             </div>
-            <p style="font-size: 0.75rem; color: #94a3b8; text-align: center;">Recuerda mantener mínimo un 80% de asistencia para tu diploma oficial.</p>
+            <p style="font-size: 0.75rem; color: #94a3b8; text-align: center;">Para aprobar el mes requieres nota mínima de 6.0 (promedio entre asistencia y evaluaciones).</p>
         `;
         document.getElementById("modal-detalle-faltas").classList.add("activo");
     }
