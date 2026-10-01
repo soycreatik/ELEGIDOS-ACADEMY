@@ -3226,39 +3226,44 @@ function llenarSelectPermisos() {
             const data = snap.val();
             const modalPin = document.getElementById('modal-pin-asistencia');
             
-           // Verificamos si el admin encendió el Pop-up
-                if (data && data.activo === true) {
-                    const ahora = obtenerFechaSistema();
-                    const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
-                    
-                    // --- VALIDACIÓN DE TARGET (A QUIÉN VA DIRIGIDO) ---
-                    const codigoActual = localStorage.getItem("elegidos_student_code");
-                    const entroAlMeet = localStorage.getItem('ingreso_meet_' + hoy) === 'true';
-                    
-                    if (data.target === 'especifico' && data.targetCodigo !== codigoActual) return;
-                    if (data.target === 'meet' && !entroAlMeet) return;
-                    // --------------------------------------------------
+            // Verificamos si el admin encendió el Pop-up
+            if (data && data.activo === true) {
+                const ahora = typeof obtenerFechaSistema === 'function' ? obtenerFechaSistema() : new Date();
+                const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+                
+                // --- VALIDACIÓN DE TARGET (A QUIÉN VA DIRIGIDO) ---
+                const codigoActual = localStorage.getItem("elegidos_student_code");
+                
+                let soyObjetivo = false;
+                if (data.target === "todos") soyObjetivo = true;
+                if (data.target === "online") soyObjetivo = true; // Si está leyendo esto, está online
+                if (data.target === "especifico" && data.targetCodigo === codigoActual) soyObjetivo = true;
+                
+                if (!soyObjetivo) return; // Si no soy el objetivo, no me muestro
+                // --------------------------------------------------
 
-                    const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
-                    
-                    if (claseDeHoy) {
-                        const yaAsistio = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[claseDeHoy.id];
+                const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoyStr && c.modalidad === 'Online');
+                
+                if (claseDeHoy) {
+                    const yaAsistio = datosEstudianteActual && datosEstudianteActual.asistencias && datosEstudianteActual.asistencias[claseDeHoy.id];
                     
                     // Solo invade la pantalla si el estudiante no ha colocado el PIN correcto aún
                     if (!yaAsistio) {
-                        modalPin.classList.add('activo');
+                        if (modalPin) modalPin.classList.add('activo');
                         popupAsistenciaMostrado = true;
                     }
+                } else {
+                     // Si no hay clase asignada, igual mostramos el pop-up por si el admin está forzándolo
+                     if (modalPin) modalPin.classList.add('activo');
+                     popupAsistenciaMostrado = true;
                 }
             } else {
-                // Si el Admin apaga el Pop-up (activo === false), se le oculta al estudiante en tiempo real
-                if (modalPin) {
-                    modalPin.classList.remove('activo');
-                }
+                // Si el Admin apaga el Pop-up (activo === false), se le oculta al estudiante
+                if (modalPin) modalPin.classList.remove('activo');
                 popupAsistenciaMostrado = false;
             }
         });
-    };// ANTENA PARA EXAMEN EN VIVO (POP-UP FORZADO)
+    };
 
     // 3. Validador final contra Firebase
     window.validarPinAsistencia = function() {
@@ -3278,38 +3283,39 @@ function llenarSelectPermisos() {
         btn.innerText = "⏳ Validando...";
         msgError.style.display = "none";
 
-        const ahora = obtenerFechaSistema();
+        const ahora = typeof obtenerFechaSistema === 'function' ? obtenerFechaSistema() : new Date();
         const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
-
-        
 
         db.ref('sistema/asistencia_virtual/' + hoy).once('value').then(snap => {
             const pinReal = snap.val();
             
             if (snap.exists() && String(pinReal) === String(pinIngresado)) {
-                const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
-                if (claseDeHoy) {
-                    const codigo = localStorage.getItem("elegidos_student_code");
-                    const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
-                    const registro = horaActualStr + " (Asistió Virtualmente)";
+                
+                // BUSCAMOS CUALQUIER CLASE HOY (FLEXIBLE)
+                let claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy);
+                const claseId = claseDeHoy ? claseDeHoy.id : hoy;
+                
+                const codigo = localStorage.getItem("elegidos_student_code");
+                const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
+                const registro = horaActualStr + " (Asistió Virtualmente)";
+                
+                db.ref(`clase/${codigo}/asistencias/${claseId}`).set(registro).then(() => {
+                    document.getElementById('modal-pin-asistencia').classList.remove('activo');
+                    alert("✅ ¡Asistencia virtual registrada exitosamente!");
                     
-                    db.ref(`clase/${codigo}/asistencias/${claseDeHoy.id}`).set(registro).then(() => {
-                        document.getElementById('modal-pin-asistencia').classList.remove('activo');
-                        alert("✅ ¡Asistencia virtual registrada exitosamente!");
-                        
-                        if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
-                        datosEstudianteActual.asistencias[claseDeHoy.id] = registro;
-                        renderizarListaClases();
-                        if (typeof renderizarCalificacionesYAsistencias === 'function') renderizarCalificacionesYAsistencias();
-                        btn.disabled = false;
-                        btn.innerText = "Validar PIN";
-                    }).catch(e => {
-                        msgError.innerText = "Error de red al guardar. Intenta de nuevo.";
-                        msgError.style.display = "block";
-                        btn.disabled = false;
-                        btn.innerText = "Validar PIN";
-                    });
-                }
+                    if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
+                    datosEstudianteActual.asistencias[claseId] = registro;
+                    if (typeof renderizarListaClases === 'function') renderizarListaClases();
+                    if (typeof renderizarCalificacionesYAsistencias === 'function') renderizarCalificacionesYAsistencias();
+                    btn.disabled = false;
+                    btn.innerText = "Validar PIN";
+                }).catch(e => {
+                    msgError.innerText = "Error de red al guardar. Intenta de nuevo.";
+                    msgError.style.display = "block";
+                    btn.disabled = false;
+                    btn.innerText = "Validar PIN";
+                });
+                
             } else {
                 msgError.innerText = "❌ PIN incorrecto. Revisa la pantalla de Meet.";
                 msgError.style.display = "block";
@@ -3527,85 +3533,78 @@ const codigoBoleto = `${prefijo}-2026-${numEstudiante}`;
         });
     };
 // =========================================================
-    // LÓGICA DE ASISTENCIA VIRTUAL PERMANENTE (SOLO CONECTADOS)
-    // =========================================================
-    window.validarPinPermanente = function() {
-        if (!navigator.onLine) return alert("📡 Sin conexión. Necesitas internet para validar tu asistencia.");
-        
-        const pinIngresado = document.getElementById('input-pin-permanente').value.trim();
-        const btn = document.getElementById('btn-validar-permanente');
-        const msg = document.getElementById('msg-pin-permanente');
-        
-        if (pinIngresado.length !== 4) {
-            msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
-            msg.innerText = "❌ El PIN debe tener exactamente 4 dígitos.";
-            msg.style.display = "block"; return;
-        }
+// LÓGICA DE ASISTENCIA VIRTUAL PERMANENTE (MODIFICADA)
+// =========================================================
+// =========================================================
+// LÓGICA DE ASISTENCIA VIRTUAL PERMANENTE (MODIFICADA)
+// =========================================================
+window.validarPinPermanente = function() {
+    if (!navigator.onLine) return alert("📡 Sin conexión. Necesitas internet para validar tu asistencia.");
+    
+    const pinIngresado = document.getElementById('input-pin-permanente').value.trim();
+    const btn = document.getElementById('btn-validar-permanente');
+    const msg = document.getElementById('msg-pin-permanente');
+    
+    if (pinIngresado.length !== 4) {
+        msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
+        msg.innerText = "❌ El PIN debe tener exactamente 4 dígitos.";
+        msg.style.display = "block"; return;
+    }
 
-        const ahora = obtenerFechaSistema();
-        const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+    const ahora = typeof obtenerFechaSistema === 'function' ? obtenerFechaSistema() : new Date();
+    const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+    
+    btn.disabled = true; btn.innerText = "⏳...";
+    msg.style.display = "none";
+
+    db.ref('sistema/asistencia_virtual/' + hoy).once('value').then(snap => {
+        const pinReal = snap.val();
         
-        // --- LA VERIFICACIÓN REQUERIDA (SOLO SI SE CONECTÓ AL MEET) ---
-        const entroAlMeet = localStorage.getItem('ingreso_meet_' + hoy) === 'true';
-        if (!entroAlMeet) {
-            msg.style.color = "#ea580c"; msg.style.background = "#fff7ed";
-            msg.innerText = "🚫 Debes ingresar a la clase en vivo primero (botón MEET/ZOOM) para poder registrar tu asistencia.";
-            msg.style.display = "block"; return;
-        }
-
-        btn.disabled = true; btn.innerText = "⏳...";
-        msg.style.display = "none";
-
-        db.ref('sistema/asistencia_virtual/' + hoy).once('value').then(snap => {
-            const pinReal = snap.val();
+        if (snap.exists() && String(pinReal) === String(pinIngresado)) {
             
-            if (snap.exists() && String(pinReal) === String(pinIngresado)) {
-                const claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy && c.modalidad === 'Online');
-                if (claseDeHoy) {
-                    const codigo = localStorage.getItem("elegidos_student_code");
-                    const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
-                    const registro = horaActualStr + " (Asistió Virtualmente)";
-                    
-                    db.ref(`clase/${codigo}/asistencias/${claseDeHoy.id}`).set(registro).then(() => {
-                        msg.style.color = "#15803d"; msg.style.background = "#dcfce7";
-                        msg.innerText = "✅ ¡Asistencia virtual registrada exitosamente!";
-                        msg.style.display = "block";
-                        
-                        if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
-                        datosEstudianteActual.asistencias[claseDeHoy.id] = registro;
-                        renderizarListaClases();
-                        if (typeof renderizarCalificacionesYAsistencias === 'function') renderizarCalificacionesYAsistencias();
-                        
-                        btn.disabled = false; btn.innerText = "Validar";
-                        document.getElementById('input-pin-permanente').value = '';
-                        setTimeout(() => { msg.style.display = "none"; }, 5000);
-                    }).catch(e => {
-                        msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
-                        msg.innerText = "❌ Error de red al guardar. Intenta de nuevo.";
-                        msg.style.display = "block";
-                        btn.disabled = false; btn.innerText = "Validar";
-                    });
-                } else {
-                    msg.style.color = "#ea580c"; msg.style.background = "#fff7ed";
-                    msg.innerText = "❌ No hay una clase online programada para hoy en el sistema.";
-                    msg.style.display = "block";
-                    btn.disabled = false; btn.innerText = "Validar";
-                }
-            } else {
+            // BUSCAMOS CUALQUIER CLASE HOY (SIN IMPORTAR SI ES ONLINE O PRESENCIAL)
+            let claseDeHoy = FECHAS_CURSO.find(c => c.fecha === hoy);
+            
+            // SI NO HAY NINGUNA CLASE HOY (EJ: ESTÁS HACIENDO PRUEBAS), USA LA FECHA COMO ID
+            const claseId = claseDeHoy ? claseDeHoy.id : hoy;
+
+            const codigo = localStorage.getItem("elegidos_student_code");
+            const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
+            const registro = horaActualStr + " (Asistió Virtualmente)";
+            
+            db.ref(`clase/${codigo}/asistencias/${claseId}`).set(registro).then(() => {
+                msg.style.color = "#15803d"; msg.style.background = "#dcfce7";
+                msg.innerText = "✅ ¡Asistencia virtual registrada exitosamente!";
+                msg.style.display = "block";
+                
+                if(!datosEstudianteActual.asistencias) datosEstudianteActual.asistencias = {};
+                datosEstudianteActual.asistencias[claseId] = registro;
+                if (typeof renderizarListaClases === 'function') renderizarListaClases();
+                if (typeof renderizarCalificacionesYAsistencias === 'function') renderizarCalificacionesYAsistencias();
+                
+                btn.disabled = false; btn.innerText = "Validar";
+                document.getElementById('input-pin-permanente').value = '';
+                setTimeout(() => { msg.style.display = "none"; }, 5000);
+            }).catch(e => {
                 msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
-                msg.innerText = "❌ PIN incorrecto o inactivo. Revisa la pantalla del Meet.";
+                msg.innerText = "❌ Error de red al guardar. Intenta de nuevo.";
                 msg.style.display = "block";
                 btn.disabled = false; btn.innerText = "Validar";
-            }
-        }).catch(e => {
+            });
+            
+        } else {
             msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
-            msg.innerText = "❌ Fallo de conexión con el servidor.";
+            msg.innerText = "❌ PIN incorrecto o inactivo.";
             msg.style.display = "block";
             btn.disabled = false; btn.innerText = "Validar";
-        });
-    };
-
-    // =========================================================
+        }
+    }).catch(e => {
+        msg.style.color = "#dc2626"; msg.style.background = "#fef2f2";
+        msg.innerText = "❌ Fallo de conexión con el servidor.";
+        msg.style.display = "block";
+        btn.disabled = false; btn.innerText = "Validar";
+    });
+};    // =========================================================
     // LÓGICA DE LISTADO DE EXÁMENES REALIZADOS
     // =========================================================
     let antenaExamenesRealizados = false;
