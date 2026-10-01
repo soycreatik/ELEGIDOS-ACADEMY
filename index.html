@@ -3774,6 +3774,9 @@ window.validarPinPermanente = function() {
                 if (snap.exists()) {
                     const historial = snap.val();
                     Object.values(historial).forEach(examen => {
+                        // NUEVO: Ignorar registros fantasma o pruebas sin título en la base de datos
+                        if (!examen || typeof examen !== 'object' || !examen.titulo) return;
+
                         totalExamenesBD++;
                         
                         let ts = examen.timestamp || parseInt(examen.id_historial);
