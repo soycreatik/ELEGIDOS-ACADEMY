@@ -216,8 +216,29 @@
         .cal-highlight ul li { position: relative; padding-left: 20px; margin-bottom: 10px; }
         .cal-highlight ul li::before { content: "•"; position: absolute; left: 0; color: #8b00ff; font-weight: 900; font-size: 1.2rem; line-height: 1;}
 
-        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-radius: 100px; border: 1px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; z-index: 9999; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #94a3b8; background: transparent; border: none; font-size: 0.75rem; font-weight: 700; cursor: pointer; flex: 1; transition: 0.3s; padding: 10px 0; border-radius: 100px; box-shadow: none; min-width: 70px; }
+        /* Ajuste responsivo para la barra de navegación inferior */
+        .bottom-nav { 
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); 
+            width: calc(100% - 20px); max-width: 450px; /* Un poco más ancha para que quepan */
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); 
+            border-radius: 100px; border: 1px solid rgba(255, 255, 255, 0.8); 
+            display: flex; align-items: center; justify-content: flex-start; /* flex-start para permitir scroll si rebasa */
+            padding: 6px 10px; z-index: 9999; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); 
+            overflow-x: auto; /* Permite deslizar si no caben */
+            scrollbar-width: none; /* Oculta la barra de scroll en Firefox */
+        }
+        .bottom-nav::-webkit-scrollbar { display: none; } /* Oculta la barra de scroll en Chrome/Safari */
+        
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; 
+            color: #94a3b8; background: transparent; border: none; 
+            font-size: 0.65rem; /* Texto más pequeño */
+            font-weight: 700; cursor: pointer; flex: 1; transition: 0.3s; 
+            padding: 8px 4px; border-radius: 100px; box-shadow: none; 
+            min-width: 55px; /* Menor ancho mínimo para que quepan más botones */
+            white-space: nowrap; /* Evita que el texto se parta en dos líneas */
+        }
+        .nav-item svg { width: 20px; height: 20px; } /* Íconos ligeramente más pequeños */
         .nav-item.active { 
             background: #000000; /* Fondo negro como en tu foto */
             color: #ffffff; 
@@ -3733,7 +3754,8 @@ window.validarPinPermanente = function() {
                 const contenedor = document.getElementById("contenedor-examenes");
                 if (!contenedor) return;
 
-                let realizados = 0;
+                let realizados = 0; // Exámenes que SÍ entregó
+                let totalExamenesBD = 0; // Exámenes asignados en el mes
                 let sumaNotasGlobal = 0;
                 let aprobados = 0;
 
@@ -3752,40 +3774,44 @@ window.validarPinPermanente = function() {
                 if (snap.exists()) {
                     const historial = snap.val();
                     Object.values(historial).forEach(examen => {
-                        if (examen.resultados && examen.resultados[codigoActual]) {
-                            const miResultado = examen.resultados[codigoActual];
-                            
-                            // Extraer fecha fiable del examen
-                            let ts = miResultado.timestamp || examen.timestamp || parseInt(examen.id_historial);
-                            if (!ts || isNaN(ts)) ts = Date.now();
-                            
-                            const fechaExamen = new Date(ts);
-                            let mesExamen = fechaExamen.getMonth() + 1;
-                            
-                            // Asegurar que si hay exámenes adelantados o atrasados encajen en el cuatrimestre
-                            if (mesExamen < 9) mesExamen = 9;
-                            if (mesExamen > 12) mesExamen = 12;
-                            
-                            realizados++;
-                            sumaNotasGlobal += parseFloat(miResultado.nota);
-                            // La nota mínima de aprobación ahora es 6.0
-                            if (parseFloat(miResultado.nota) >= 6.0) aprobados++; 
+                        totalExamenesBD++;
+                        
+                        let ts = examen.timestamp || parseInt(examen.id_historial);
+                        if (!ts || isNaN(ts)) ts = Date.now();
+                        const fechaExamen = new Date(ts);
+                        let mesExamen = fechaExamen.getMonth() + 1;
+                        
+                        if (mesExamen < 9) mesExamen = 9;
+                        if (mesExamen > 12) mesExamen = 12;
+                        
+                        let miResultado = null;
+                        let notaParaPromedio = 0;
 
-                            examenesPorMes[mesExamen].push({
-                                ...examen,
-                                miResultado: miResultado,
-                                fechaObj: fechaExamen
-                            });
+                        if (examen.resultados && examen.resultados[codigoActual]) {
+                            miResultado = examen.resultados[codigoActual];
+                            notaParaPromedio = parseFloat(miResultado.nota);
+                            realizados++;
+                            if (notaParaPromedio >= 6.0) aprobados++; 
+                        } else {
+                            // Penalización con 0 por inasistencia al examen
+                            miResultado = { nota: 0, correctas: 0, total: (examen.preguntas ? examen.preguntas.length : 0), missed: true };
+                            notaParaPromedio = 0;
                         }
+
+                        sumaNotasGlobal += notaParaPromedio;
+
+                        examenesPorMes[mesExamen].push({
+                            ...examen,
+                            miResultado: miResultado,
+                            fechaObj: fechaExamen
+                        });
                     });
                 }
 
                 let htmlExamenes = "";
-                let totalExamenesGlobal = realizados;
                 let totalClasesCuatrimestre = 0;
                 let asistenciasCuatrimestreValidas = 0;
 
-                // Ordenar los exámenes de cada mes del más nuevo al más viejo
                 Object.keys(examenesPorMes).forEach(m => {
                     examenesPorMes[m].sort((a, b) => b.fechaObj - a.fechaObj);
                 });
@@ -3816,7 +3842,6 @@ window.validarPinPermanente = function() {
                         }
                     });
 
-                    // Lógica estricta de Permisos (Anula si > 40%)
                     let asistenciasValidasMes = asistenciasMes;
                     if (clasesPasadasMes > 0) {
                         const pctPermisos = (faltasJustificadas / clasesPasadasMes) * 100;
@@ -3826,13 +3851,11 @@ window.validarPinPermanente = function() {
                     }
                     asistenciasCuatrimestreValidas += asistenciasValidasMes;
 
-                    // Convertimos la asistencia válida a escala de 10
                     let notaAsistenciaMes = 10;
                     if (clasesPasadasMes > 0) {
                         notaAsistenciaMes = (asistenciasValidasMes / clasesPasadasMes) * 10;
                     }
 
-                    // Calculamos promedio de exámenes del mes
                     const examenesDelMes = examenesPorMes[mes.id] || [];
                     let notaExamenesMes = 0;
                     if (examenesDelMes.length > 0) {
@@ -3840,7 +3863,6 @@ window.validarPinPermanente = function() {
                         notaExamenesMes = sumaMes / examenesDelMes.length;
                     }
 
-                    // Nota Mensual Combinada (Promedio Asistencia + Exámenes)
                     let notaMesCombinada = null;
                     if (clasesPasadasMes > 0 || examenesDelMes.length > 0) {
                         if (examenesDelMes.length > 0 && clasesPasadasMes > 0) {
@@ -3852,7 +3874,6 @@ window.validarPinPermanente = function() {
                         }
                     }
 
-                    // Renderizar la sección del mes (solo si ya hay clases pasadas o exámenes)
                     if (clasesPasadasMes > 0 || examenesDelMes.length > 0) {
                         let colorMensual = notaMesCombinada >= 8.0 ? "#10b981" : (notaMesCombinada >= 6.0 ? "#f59e0b" : "#ef4444");
                         let textoMensual = notaMesCombinada >= 6.0 ? "Mes Aprobado" : "Mes Reprobado (< 6.0)";
@@ -3876,10 +3897,11 @@ window.validarPinPermanente = function() {
                                 const miResultado = examen.miResultado;
                                 const fechaFormat = examen.fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
                                 
-                                // Color individual del examen (aprobado con 6.0)
-                                let colorNota = miResultado.nota >= 9 ? "#d946ef" : (miResultado.nota >= 6 ? "#22c55e" : "#ef4444");
-                                let bgNota = miResultado.nota >= 9 ? "rgba(217, 70, 239, 0.1)" : (miResultado.nota >= 6 ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)");
-                                let statusText = miResultado.nota >= 9 ? "¡Excelente!" : (miResultado.nota >= 6 ? "Aprobado" : "Reprobado");
+                                let colorNota = miResultado.missed ? "#ef4444" : (miResultado.nota >= 9 ? "#d946ef" : (miResultado.nota >= 6 ? "#22c55e" : "#ef4444"));
+                                let bgNota = miResultado.missed ? "rgba(239, 68, 68, 0.1)" : (miResultado.nota >= 9 ? "rgba(217, 70, 239, 0.1)" : (miResultado.nota >= 6 ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)"));
+                                let statusText = miResultado.missed ? "No Realizado (0.0)" : (miResultado.nota >= 9 ? "¡Excelente!" : (miResultado.nota >= 6 ? "Aprobado" : "Reprobado"));
+
+                                let correctasText = miResultado.missed ? "No te presentaste a este examen" : `${miResultado.correctas} de ${miResultado.total} correctas`;
 
                                 htmlExamenes += `
                                 <div class="class-item" style="background: #ffffff; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05);">
@@ -3889,7 +3911,7 @@ window.validarPinPermanente = function() {
                                     <div class="class-info" style="flex: 1;">
                                         <h5 style="font-size: 0.95rem; margin-bottom: 2px;">${examen.titulo}</h5>
                                         <p style="margin-bottom: 0; font-size: 0.75rem;"><span style="color: #64748b;">${fechaFormat}</span> • <strong style="color: ${colorNota};">${statusText}</strong></p>
-                                        <p style="margin-bottom: 0; font-size: 0.7rem; color: #94a3b8;">${miResultado.correctas} de ${miResultado.total} correctas</p>
+                                        <p style="margin-bottom: 0; font-size: 0.7rem; color: #94a3b8;">${correctasText}</p>
                                     </div>
                                     <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
                                         <div style="background: ${bgNota}; color: ${colorNota}; padding: 8px 14px; border-radius: 12px; font-weight: 900; font-size: 1.2rem; border: 1px solid ${colorNota};">
@@ -3902,15 +3924,14 @@ window.validarPinPermanente = function() {
                     }
                 });
 
-                // CÁLCULO PROYECTADO GLOBAL
-                const promedioExamenesGlobal = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0;
+                const promedioExamenesGlobal = totalExamenesBD > 0 ? (sumaNotasGlobal / totalExamenesBD) : 0.0;
                 const pctAsistenciaGlobal = totalClasesCuatrimestre > 0 ? (asistenciasCuatrimestreValidas / totalClasesCuatrimestre) : 1;
                 const notaAsistenciaGlobal = pctAsistenciaGlobal * 10;
                 
                 let notaGlobalCombinada = 0.0;
-                if (totalExamenesGlobal > 0 && totalClasesCuatrimestre > 0) {
+                if (totalExamenesBD > 0 && totalClasesCuatrimestre > 0) {
                     notaGlobalCombinada = (promedioExamenesGlobal + notaAsistenciaGlobal) / 2;
-                } else if (totalExamenesGlobal > 0) {
+                } else if (totalExamenesBD > 0) {
                     notaGlobalCombinada = promedioExamenesGlobal;
                 } else if (totalClasesCuatrimestre > 0) {
                     notaGlobalCombinada = notaAsistenciaGlobal;
@@ -3918,9 +3939,10 @@ window.validarPinPermanente = function() {
 
                 if (htmlExamenes !== "") {
                     contenedor.innerHTML = htmlExamenes;
-                    document.getElementById("stat-examenes-total").innerText = realizados;
+                    // Cambio: Ahora indica entregados / total de exámenes
+                    document.getElementById("stat-examenes-total").innerText = `${realizados}/${totalExamenesBD}`;
                     document.getElementById("stat-examenes-promedio").innerText = promedioExamenesGlobal.toFixed(1);
-                    document.getElementById("stat-examenes-pct").innerText = totalExamenesGlobal > 0 ? Math.round((aprobados / totalExamenesGlobal) * 100) + "%" : "0%";
+                    document.getElementById("stat-examenes-pct").innerText = totalExamenesBD > 0 ? Math.round((aprobados / totalExamenesBD) * 100) + "%" : "0%";
                     
                     const elNotaGlobal = document.getElementById("stat-nota-global-proyectada");
                     if(elNotaGlobal) {
@@ -3928,8 +3950,8 @@ window.validarPinPermanente = function() {
                         elNotaGlobal.style.color = notaGlobalCombinada >= 6.0 ? "#7c3aed" : "#ef4444";
                     }
                 } else {
-                    contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no hay evaluaciones ni clases pasadas.</p>`;
-                    document.getElementById("stat-examenes-total").innerText = "0";
+                    contenedor.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed #cbd5e1;">Aún no hay evaluaciones asignadas ni clases pasadas.</p>`;
+                    document.getElementById("stat-examenes-total").innerText = "0/0";
                     document.getElementById("stat-examenes-promedio").innerText = "0.0";
                     document.getElementById("stat-examenes-pct").innerText = "0%";
                     
@@ -4080,14 +4102,25 @@ window.validarPinPermanente = function() {
             if (snapHistorial.exists()) {
                 const historial = snapHistorial.val();
                 Object.values(historial).forEach(examen => {
+                    let ts = examen.timestamp || parseInt(examen.id_historial);
+                    if (!ts || isNaN(ts)) ts = Date.now();
+                    const fechaExamen = new Date(ts);
+                    let mesExamen = fechaExamen.getMonth() + 1;
+                    
+                    // Ajuste de cuatrimestre
+                    if (mesExamen < 9) mesExamen = 9;
+                    if (mesExamen > 12) mesExamen = 12;
+
+                    let notaFinal = 0.0;
                     if (examen.resultados && examen.resultados[codigoEstudiante]) {
-                        // Guardamos la nota y a qué mes pertenece basándonos en la fecha del examen (timestamp)
-                        const fechaExamen = new Date(parseInt(examen.id_historial));
-                        notasExamenes.push({
-                            mes: fechaExamen.getMonth() + 1, // +1 porque getMonth es 0-indexado
-                            nota: parseFloat(examen.resultados[codigoEstudiante].nota)
-                        });
+                        notaFinal = parseFloat(examen.resultados[codigoEstudiante].nota);
                     }
+                    
+                    // Se inserta la nota (sea la que sacó o un 0 si no lo hizo)
+                    notasExamenes.push({
+                        mes: mesExamen,
+                        nota: notaFinal
+                    });
                 });
             }
 
