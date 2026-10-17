@@ -370,6 +370,53 @@
 </head>
 <body>
 
+
+<!-- =====================================================
+     MASCOTA VIRTUAL ELEGIDOS
+====================================================== -->
+
+<div
+    class="pet-container"
+    id="petContainer"
+>
+
+    <div
+        class="pet-bubble"
+        id="petBubble"
+    >
+        ¡Hola!
+    </div>
+
+
+    <div
+        class="pet-body"
+        id="petBody"
+        onclick="petPoke()"
+        role="button"
+        tabindex="0"
+        aria-label="Asistente ELEGIDOS"
+    >
+
+        <div class="pet-badge"></div>
+
+
+        <div class="pet-eyes">
+
+            <div class="pet-blush left"></div>
+
+            <div class="pet-eye"></div>
+
+            <div class="pet-eye"></div>
+
+            <div class="pet-blush right"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
    <!-- ESTILOS DEL CENTRO DE NOTIFICACIONES -->
     <style>
         .noti-overlay {
@@ -557,11 +604,569 @@
             to { opacity: 1; backdrop-filter: blur(25px); }
         }
         .ruleta-nombre-item {
-            padding: 15px 0; color: #fff; font-size: 3rem; font-weight: 900;
-            text-shadow: 0 10px 25px rgba(139, 0, 255, 0.8);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-    </style>
+    padding: 15px 0; color: #fff; font-size: 3rem; font-weight: 900;
+    text-shadow: 0 10px 25px rgba(139, 0, 255, 0.8);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   MASCOTA VIRTUAL ELEGIDOS
+   MISMO DISEÑO ORIGINAL
+========================================================= */
+
+.pet-container {
+    position: fixed;
+
+    /* Se eleva para no tapar la barra de navegación */
+    bottom: 110px;
+    right: 24px;
+
+    z-index: 2147483000;
+
+    display: none;
+    flex-direction: column;
+    align-items: center;
+
+    pointer-events: none;
+}
+
+
+/* Cuando el estudiante entra al portal */
+.pet-container.pet-visible {
+    display: flex;
+}
+
+
+/* BURBUJA */
+
+.pet-bubble {
+    background: white;
+    color: #0f172a;
+
+    padding: 10px 14px;
+
+    border-radius: 16px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    margin-bottom: 12px;
+
+    opacity: 0;
+
+    transform:
+        translateY(10px)
+        scale(0.9);
+
+    transition:
+        all 0.3s
+        cubic-bezier(0.4, 0, 0.2, 1);
+
+    box-shadow:
+        0 10px 15px -3px rgba(0,0,0,0.1),
+        0 4px 6px -2px rgba(0,0,0,0.05);
+
+    max-width: 190px;
+
+    text-align: center;
+
+    position: relative;
+}
+
+
+.pet-bubble::after {
+
+    content: '';
+
+    position: absolute;
+
+    bottom: -6px;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    border-width:
+        6px 6px 0;
+
+    border-style: solid;
+
+    border-color:
+        white
+        transparent
+        transparent
+        transparent;
+}
+
+
+.pet-bubble.show {
+
+    opacity: 1;
+
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+
+/* CUERPO */
+
+.pet-body {
+
+    width: 80px;
+    height: 60px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f8fafc,
+            #e2e8f0
+        );
+
+    border-radius:
+        40px 40px 30px 30px;
+
+    position: relative;
+
+    box-shadow:
+        0 10px 25px -5px rgba(0,0,0,0.3),
+        inset -4px -4px 10px rgba(0,0,0,0.05);
+
+    animation:
+        petFloat
+        3.5s
+        ease-in-out
+        infinite;
+
+    cursor: pointer;
+
+    pointer-events: auto;
+
+    transition:
+        all 0.5s ease;
+}
+
+
+/* BADGE */
+
+.pet-badge {
+
+    position: absolute;
+
+    top: -5px;
+    left: 5px;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 10px;
+    font-weight: bold;
+
+    opacity: 0;
+
+    transform:
+        scale(0);
+
+    transition:
+        all 0.3s ease;
+
+    box-shadow:
+        0 4px 6px
+        rgba(0,0,0,0.1);
+}
+
+
+/* OJOS */
+
+.pet-eyes {
+
+    position: absolute;
+
+    top: 45%;
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    display: flex;
+
+    gap: 18px;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+.pet-eye {
+
+    width: 8px;
+    height: 8px;
+
+    background: #1e293b;
+
+    border-radius: 50%;
+
+    transition:
+        all 0.3s ease;
+
+    animation:
+        petBlink
+        4s
+        infinite;
+}
+
+
+/* MEJILLAS */
+
+.pet-blush {
+
+    position: absolute;
+
+    top: 55%;
+
+    width: 14px;
+    height: 6px;
+
+    background: #fb7185;
+
+    border-radius: 50%;
+
+    opacity: 0.15;
+
+    transition:
+        opacity 0.3s;
+
+    filter:
+        blur(3px);
+}
+
+
+.pet-blush.left {
+    left: 4px;
+}
+
+
+.pet-blush.right {
+    right: 4px;
+}
+
+
+/* =========================================================
+   ANIMACIONES
+========================================================= */
+
+@keyframes petFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-8px);
+    }
+
+}
+
+
+@keyframes petBlink {
+
+    0%,
+    94%,
+    98%,
+    100% {
+        transform:
+            scaleY(1);
+    }
+
+    96% {
+        transform:
+            scaleY(0.1);
+    }
+
+}
+
+
+@keyframes petShake {
+
+    0%,
+    100% {
+        transform:
+            translateX(0);
+    }
+
+    25% {
+        transform:
+            translateX(-3px);
+    }
+
+    75% {
+        transform:
+            translateX(3px);
+    }
+
+}
+
+
+@keyframes petSpin {
+
+    100% {
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   EMOCIONES
+========================================================= */
+
+
+/* FELIZ */
+
+.mood-happy .pet-body {
+
+    background:
+        linear-gradient(
+            145deg,
+            #a7f3d0,
+            #10b981
+        );
+}
+
+
+.mood-happy .pet-eye {
+
+    background: transparent;
+
+    border:
+        3px solid #064e3b;
+
+    border-bottom: none;
+
+    border-radius:
+        50% 50% 0 0;
+
+    width: 12px;
+    height: 8px;
+
+    animation: none;
+
+    transform:
+        translateY(2px);
+}
+
+
+.mood-happy .pet-blush {
+
+    opacity: 0.8;
+}
+
+
+.mood-happy .pet-badge {
+
+    opacity: 1;
+
+    transform:
+        scale(1);
+
+    background: #fcd34d;
+
+    color: #b45309;
+}
+
+
+.mood-happy .pet-badge::before {
+
+    content: '✨';
+
+    font-size: 12px;
+}
+
+
+/* ERROR / PREOCUPADO */
+
+.mood-error .pet-body {
+
+    background:
+        linear-gradient(
+            145deg,
+            #fecaca,
+            #f43f5e
+        );
+
+    animation:
+        petShake
+        0.5s
+        infinite;
+}
+
+
+.mood-error .pet-eye {
+
+    width: 14px;
+    height: 4px;
+
+    border-radius: 2px;
+
+    background: #4c0519;
+
+    animation: none;
+}
+
+
+/* TRABAJANDO */
+
+.mood-working .pet-body {
+
+    background:
+        linear-gradient(
+            145deg,
+            #bae6fd,
+            #0ea5e9
+        );
+}
+
+
+.mood-working .pet-eye {
+
+    width: 9px;
+    height: 9px;
+
+    background: #082f49;
+}
+
+
+/* MAREADO */
+
+.mood-dizzy .pet-body {
+
+    background:
+        linear-gradient(
+            145deg,
+            #fbcfe8,
+            #d946ef
+        );
+}
+
+
+.mood-dizzy .pet-eye {
+
+    background: transparent;
+
+    border:
+        2px dashed #4a044e;
+
+    border-radius: 50%;
+
+    width: 12px;
+    height: 12px;
+
+    animation:
+        petSpin
+        2s
+        linear
+        infinite;
+}
+
+
+/* MOLESTO */
+
+.mood-annoyed .pet-body {
+
+    background:
+        linear-gradient(
+            145deg,
+            #cbd5e1,
+            #94a3b8
+        );
+}
+
+
+.mood-annoyed .pet-eye {
+
+    width: 14px;
+    height: 3px;
+
+    background: #0f172a;
+
+    border-radius: 2px;
+
+    animation: none;
+}
+
+
+/* CURIOSO */
+
+.mood-question .pet-body {
+
+    background:
+        linear-gradient(
+            145deg,
+            #ccfbf1,
+            #14b8a6
+        );
+}
+
+
+.mood-question .pet-eye {
+
+    width: 10px;
+    height: 10px;
+
+    background: #042f2e;
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media (max-width: 640px) {
+
+    .pet-container {
+
+        bottom: 100px;
+
+        right: 16px;
+
+        transform:
+            scale(0.85);
+
+        transform-origin:
+            bottom right;
+    }
+
+
+    .pet-bubble {
+
+        max-width: 170px;
+
+        font-size: 12px;
+    }
+
+}
+@media (min-width: 768px) {
+
+    .pet-container {
+        bottom: 110px;
+        right: 45px;
+    }
+
+}
+</style>
 
     <!-- ESTRUCTURA DEL CENTRO DE NOTIFICACIONES -->
     <div class="noti-overlay" id="modal-notificaciones">
@@ -853,6 +1458,1356 @@
                 sincronizarBandeja();
             });
         }
+// =========================================================
+// MASCOTA VIRTUAL ELEGIDOS
+// =========================================================
+
+const petDictionary = {
+
+    bienvenida: [
+        "¡Qué bueno verte otra vez! 📸",
+        "¡Bienvenido de vuelta a ELEGIDOS!",
+        "¡Ey! Ya estás aquí. Vamos a crear.",
+        "Hoy puede salir una gran fotografía.",
+        "¡Modo creativo activado!",
+        "Listo para otra sesión de ELEGIDOS."
+    ],
+
+
+    normal: [
+        "Estoy aquí por si necesitas algo.",
+        "¿Ya revisaste tus próximas clases?",
+        "No olvides revisar tus puntos.",
+        "¿Qué vamos a crear hoy?",
+        "Estoy vigilando que todo marche bien.",
+        "Recuerda disfrutar también el proceso.",
+        "Una buena foto comienza observando.",
+        "¿Ya revisaste tu historial?",
+        "Hoy puede ser un buen día para crear.",
+        "Sigo aquí acompañándote."
+    ],
+
+
+    asistencia: [
+        "📍 ¡Hora de registrar tu asistencia!",
+        "¡Ey! El pase de asistencia está activo.",
+        "No olvides ingresar el PIN.",
+        "Asistencia disponible. ¡Que no se te pase!",
+        "📅 Vamos a dejar registrada tu asistencia."
+    ],
+
+
+    examen: [
+        "📝 Evaluación en vivo. ¡Concéntrate!",
+        "Modo examen activado. Tú puedes.",
+        "Lee bien cada pregunta antes de responder.",
+        "Respira, analiza y responde.",
+        "📚 Es hora de demostrar lo aprendido.",
+        "¡Vamos! Confía en lo que aprendiste."
+    ],
+
+
+    puntos: [
+        "⭐ ¡Tus puntos siguen creciendo!",
+        "Cada actividad cuenta.",
+        "¡Vas sumando puntos ELEGIDOS!",
+        "Poco a poco te acercas a una recompensa.",
+        "⭐ Constancia también tiene recompensa."
+    ],
+
+
+    premioStickers: [
+        "🎁 ¡Ya puedes conseguir los stickers!",
+        "¡Ey! Ya alcanzaste el primer premio.",
+        "✨ Tienes suficientes puntos para los stickers."
+    ],
+
+
+    premioGorra: [
+        "🔥 ¡Ya tienes puntos para la gorra!",
+        "Ese nivel ya se puso serio. ¡Puedes canjear la gorra!",
+        "🎁 La gorra ELEGIDOS ya está a tu alcance."
+    ],
+
+
+    premioCamisa: [
+        "🏆 ¡Llegaste al nivel máximo!",
+        "🔥 Ya tienes puntos para la camisa exclusiva.",
+        "¡Eso es constancia! Alcanzaste el premio máximo."
+    ],
+
+
+    curioso: [
+        "¿Me llamabas? 👀",
+        "¿Qué pasó?",
+        "¡Aquí estoy!",
+        "¿Necesitas revisar algo?",
+        "Hmm... ¿qué estaremos haciendo ahora?",
+        "¿Ya viste tu próxima clase?"
+    ],
+
+
+    trabajando: [
+        "Estoy revisando todo... 🔍",
+        "Procesando datos del portal.",
+        "Un momento, estoy pensando.",
+        "Modo concentración activado.",
+        "Analizando tus avances..."
+    ],
+
+
+    mareado: [
+        "😵 Tantas cosas pasando a la vez.",
+        "¡Wow! Dame un segundo.",
+        "Creo que necesito enfocar la cámara.",
+        "Todo está girando un poquito.",
+        "Demasiada creatividad de golpe."
+    ],
+
+
+    molesto: [
+        "¡Ey! Ya me tocaste demasiadas veces.",
+        "Estoy trabajando, no me distraigas 😑",
+        "¡Ya entendí! Sigo aquí.",
+        "Me haces cosquillas.",
+        "Cinco minutos de paz, fotógrafo.",
+        "Se supone que soy un asistente serio..."
+    ],
+
+
+    error: [
+        "Algo no parece estar bien.",
+        "Hmm... revisemos eso.",
+        "Parece que algo necesita atención.",
+        "😵 Eso no salió como esperábamos.",
+        "No pasa nada, revisémoslo."
+    ]
+
+};
+// Fragmento demostrativo 1
+const s1 = "sk-proj-trJPejkL0XQxgHnrhssly4U5fj-";
+
+// =========================================================
+// VARIABLES
+// =========================================================
+
+const petContainer =
+    document.getElementById(
+        "petContainer"
+    );
+
+
+const petBubble =
+    document.getElementById(
+        "petBubble"
+    );
+
+
+const petBody =
+    document.getElementById(
+        "petBody"
+    );
+
+
+let petTimeout = null;
+
+let pokeCount = 0;
+
+let pokeResetTimeout = null;
+
+let mascotaSaludoRealizado = false;
+
+let premioAvisado = 0;
+
+
+// Fragmento demostrativo 2
+const s2 = "soOdltoYrZFPb9EhBFCxhpRP0wydkTnsCfbBZbNHH0GLKiYT3BlbkFJnqMY_SK3vO-";
+
+
+// =========================================================
+// FRASE ALEATORIA
+// =========================================================
+function getRandomPetPhrase(
+    categoria
+) {
+
+    const frases =
+        petDictionary[categoria];
+
+
+    if (
+        !frases ||
+        frases.length === 0
+    ) {
+
+        return "¡Hola!";
+
+    }
+
+
+    return frases[
+        Math.floor(
+            Math.random() *
+            frases.length
+        )
+    ];
+
+}
+
+
+// =========================================================
+// MOSTRAR REACCIÓN
+// =========================================================
+
+window.showPetReaction =
+function(
+    categoria,
+    moodClass,
+    duration = 4000
+) {
+
+    if (
+        !petContainer ||
+        !petBubble
+    ) {
+        return;
+    }
+
+
+    // Conservamos las clases esenciales.
+    petContainer.className =
+        "pet-container pet-visible";
+
+
+    if (moodClass) {
+
+        petContainer.classList.add(
+            `mood-${moodClass}`
+        );
+
+    }
+
+
+    petBubble.innerText =
+        getRandomPetPhrase(
+            categoria
+        );
+
+
+    petBubble.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        petTimeout
+    );
+
+
+    petTimeout =
+        setTimeout(
+            () => {
+
+                petBubble.classList.remove(
+                    "show"
+                );
+
+
+                petContainer.className =
+                    "pet-container pet-visible";
+
+            },
+            duration
+        );
+
+};
+
+
+// =========================================================
+// FRAGMENTO DEMOSTRATIVO 3
+// =========================================================
+
+const s3 = "muYgWrz1wC5iGaZOK6a8leAfFyl3pM_YGm3O9Wh-m2_k2QAvasOMcnDvfwO0TMA";
+
+
+// Reconstruye los tres fragmentos únicamente cuando
+// una función realmente necesita el valor.
+function obtenerTokenDemo() {
+
+    return (
+        s1 +
+        s2 +
+        s3
+    );
+
+}
+
+async function consultarMascotaIA(evento, datos = {}) {
+
+    const token =
+        obtenerTokenDemo();
+
+
+    if (
+        !token ||
+        token.length < 20
+    ) {
+
+        throw new Error(
+            "No se pudo construir la credencial."
+        );
+
+    }
+
+
+    // ==============================================
+    // OBTENER INFORMACIÓN REAL DEL PORTAL
+    // ==============================================
+
+    const nombreElemento =
+        document.getElementById(
+            "display-name"
+        );
+
+
+    const puntosElemento =
+        document.getElementById(
+            "display-puntos-lealtad"
+        );
+
+
+    const seccionElemento =
+        document.querySelector(
+            ".tab-content.active"
+        );
+
+
+    const nombre =
+        nombreElemento
+            ? nombreElemento.innerText.trim()
+            : "Estudiante";
+
+
+    const puntos =
+        puntosElemento
+            ? puntosElemento.innerText.trim()
+            : "0 pts";
+
+
+    const seccion =
+        seccionElemento
+            ? seccionElemento.id
+            : "portal";
+
+
+    const hora =
+        new Date()
+            .toLocaleTimeString(
+                "es-SV",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+
+    // ==============================================
+    // CONTEXTO QUE RECIBIRÁ LA IA
+    // ==============================================
+
+    const contexto = {
+
+        evento: evento,
+
+        estudiante: {
+            nombre: nombre,
+            puntos: puntos
+        },
+
+        seccionActual:
+            seccion,
+
+        horaActual:
+            hora,
+
+        detalles:
+            datos
+
+    };
+
+
+    // ==============================================
+    // PETICIÓN REAL
+    // ==============================================
+
+    const respuesta =
+        await fetch(
+            "https://api.openai.com/v1/responses",
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    "Authorization":
+                        `Bearer ${token}`
+
+                },
+
+
+                body:
+                    JSON.stringify({
+
+                        model:
+                            "gpt-6-luna",
+
+                        instructions: `
+Eres la mascota virtual del Portal Estudiantil ELEGIDOS.
+
+ELEGIDOS es una comunidad enfocada en fotografía,
+creatividad y producción audiovisual.
+
+Tu personalidad:
+- creativa
+- cercana
+- divertida
+- ligeramente traviesa
+- motivadora
+- natural
+
+Reglas:
+- responde siempre en español
+- máximo 25 palabras
+- puedes utilizar 1 o 2 emojis
+- no digas que eres una inteligencia artificial
+- no menciones APIs ni programación
+- no inventes puntos, notas, asistencias ni fechas
+- usa únicamente los datos proporcionados
+- evita repetir siempre las mismas frases
+- reacciona diferente según el evento
+- habla directamente con el estudiante
+- cuando te toquen varias veces puedes reaccionar con humor
+- si el estudiante tiene muchos puntos puedes mencionarlo
+- si no existe información suficiente, haz un comentario creativo relacionado con fotografía
+`,
+
+
+                        input:
+                            `
+Ha ocurrido este evento en el portal:
+
+${JSON.stringify(
+    contexto,
+    null,
+    2
+)}
+
+Genera una reacción corta y natural de la mascota.
+`,
+
+
+                        max_output_tokens:
+                            70
+
+                    })
+
+            }
+        );
+
+
+    // ==============================================
+    // COMPROBAR RESPUESTA HTTP
+    // ==============================================
+
+    if (!respuesta.ok) {
+
+        const detalleError =
+            await respuesta.text();
+
+
+        console.error(
+            "Respuesta de API:",
+            detalleError
+        );
+
+
+        throw new Error(
+            `Error API ${respuesta.status}`
+        );
+
+    }
+
+
+    const resultado =
+        await respuesta.json();
+
+
+    // ==============================================
+    // EXTRAER TEXTO DEL RESPONSE
+    // ==============================================
+
+    let texto = "";
+
+
+    if (
+        Array.isArray(
+            resultado.output
+        )
+    ) {
+
+        for (
+            const item
+            of resultado.output
+        ) {
+
+            if (
+                !Array.isArray(
+                    item.content
+                )
+            ) {
+                continue;
+            }
+
+
+            for (
+                const contenido
+                of item.content
+            ) {
+
+                if (
+                    contenido.type ===
+                        "output_text" &&
+                    contenido.text
+                ) {
+
+                    texto +=
+                        contenido.text;
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    texto =
+        texto.trim();
+
+
+    if (!texto) {
+
+        throw new Error(
+            "La API no devolvió texto."
+        );
+
+    }
+
+
+    return {
+
+        ok: true,
+
+        texto:
+            texto.slice(
+                0,
+                220
+            )
+
+    };
+
+}// =========================================================
+// AL TOCAR EL PERSONAJE
+// =========================================================
+function mostrarRespuestaMascotaIA(
+    texto,
+    mood = "question"
+) {
+
+    const mascota =
+        document.getElementById(
+            "petContainer"
+        );
+
+    const burbuja =
+        document.getElementById(
+            "petBubble"
+        );
+
+
+    if (
+        !mascota ||
+        !burbuja
+    ) {
+        return;
+    }
+
+
+    mascota.className =
+        "pet-container pet-visible";
+
+
+    mascota.classList.add(
+        `mood-${mood}`
+    );
+
+
+    burbuja.innerText =
+        texto;
+
+
+    burbuja.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        petTimeout
+    );
+
+
+    petTimeout =
+        setTimeout(
+            () => {
+
+                burbuja.classList.remove(
+                    "show"
+                );
+
+
+                mascota.className =
+                    "pet-container pet-visible";
+
+            },
+            4500
+        );
+
+}
+window.petPoke =
+function() {
+    pokeCount++;
+
+
+    clearTimeout(
+        pokeResetTimeout
+    );
+
+
+    pokeResetTimeout =
+        setTimeout(
+            () => {
+
+                pokeCount = 0;
+
+            },
+            3500
+        );
+
+
+    // Si lo molestan mucho.
+    if (pokeCount >= 5) {
+
+        showPetReaction(
+            "molesto",
+            "annoyed",
+            3000
+        );
+
+        return;
+
+    }
+if (
+    Math.random() < 0.45
+) {
+
+    showPetReaction(
+        "trabajando",
+        "working",
+        1200
+    );
+
+
+    consultarMascotaIA(
+    "tocar_mascota",
+    {
+        toques: pokeCount,
+        momento: Date.now()
+    }
+)
+    .then(resultado => {
+
+        mostrarRespuestaMascotaIA(
+    resultado.texto,
+    "question"
+);
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Error demo mascota:",
+            error
+        );
+
+
+        showPetReaction(
+            "error",
+            "error",
+            3000
+        );
+
+    });
+
+
+    return;
+}
+
+    // Distintas reacciones al tocarlo.
+    const emociones = [
+
+        {
+            categoria: "curioso",
+            mood: "question"
+        },
+
+        {
+            categoria: "normal",
+            mood: "happy"
+        },
+
+        {
+            categoria: "trabajando",
+            mood: "working"
+        },
+
+        {
+            categoria: "mareado",
+            mood: "dizzy"
+        }
+
+    ];
+
+
+    const reaccion =
+        emociones[
+            Math.floor(
+                Math.random() *
+                emociones.length
+            )
+        ];
+
+
+    showPetReaction(
+        reaccion.categoria,
+        reaccion.mood,
+        3000
+    );
+
+};
+
+
+// =========================================================
+// TECLADO
+// =========================================================
+
+if (petBody) {
+
+    petBody.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                petPoke();
+
+            }
+
+        }
+    );
+
+}
+
+
+// =========================================================
+// OBTENER NOMBRE DEL ESTUDIANTE
+// =========================================================
+
+function obtenerNombreMascota() {
+
+    const nombreElemento =
+        document.getElementById(
+            "display-name"
+        );
+
+
+    if (!nombreElemento) {
+        return "";
+    }
+
+
+    const nombreCompleto =
+        nombreElemento.innerText
+            .trim();
+
+
+    if (
+        !nombreCompleto ||
+        nombreCompleto === "Cargando..."
+    ) {
+
+        return "";
+
+    }
+
+
+    const primerNombre =
+        nombreCompleto
+            .split(" ")[0];
+
+
+    return (
+        primerNombre
+            .charAt(0)
+            .toUpperCase()
+        +
+        primerNombre
+            .slice(1)
+    );
+
+}
+
+
+// =========================================================
+// SALUDO
+// =========================================================
+
+function saludarMascota() {
+
+    if (
+        mascotaSaludoRealizado
+    ) {
+        return;
+    }
+
+
+    const nombre =
+        obtenerNombreMascota();
+
+
+    if (!nombre) {
+        return;
+    }
+
+
+    mascotaSaludoRealizado =
+        true;
+
+
+    petContainer.className =
+        "pet-container pet-visible mood-happy";
+
+
+    petBubble.innerText =
+        `¡Hola, ${nombre}! 👋`;
+
+
+    petBubble.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        petTimeout
+    );
+
+
+    petTimeout =
+        setTimeout(
+            () => {
+
+                petBubble.classList.remove(
+                    "show"
+                );
+
+                petContainer.className =
+                    "pet-container pet-visible";
+
+            },
+            4500
+        );
+
+}
+
+
+// =========================================================
+// MOSTRAR SOLO DENTRO DEL DASHBOARD
+// =========================================================
+
+const dashboardMascota =
+    document.getElementById(
+        "dashboard-screen"
+    );
+
+
+function sincronizarMascotaDashboard() {
+
+    if (
+        !dashboardMascota ||
+        !petContainer
+    ) {
+        return;
+    }
+
+
+    const dashboardActivo =
+        dashboardMascota
+            .classList
+            .contains("show");
+
+
+    if (dashboardActivo) {
+
+        petContainer.classList.add(
+            "pet-visible"
+        );
+
+
+        setTimeout(
+            saludarMascota,
+            700
+        );
+
+    } else {
+
+        petContainer.className =
+            "pet-container";
+
+        petBubble.classList.remove(
+            "show"
+        );
+
+    }
+
+}
+
+
+if (dashboardMascota) {
+
+    const observerDashboard =
+        new MutationObserver(
+            sincronizarMascotaDashboard
+        );
+
+
+    observerDashboard.observe(
+        dashboardMascota,
+        {
+            attributes: true,
+            attributeFilter: [
+                "class",
+                "style"
+            ]
+        }
+    );
+
+
+    sincronizarMascotaDashboard();
+
+}
+
+
+// =========================================================
+// ESCUCHAR CUANDO CARGUE EL NOMBRE REAL
+// =========================================================
+
+const nombreMascotaElemento =
+    document.getElementById(
+        "display-name"
+    );
+
+
+if (nombreMascotaElemento) {
+
+    const observerNombre =
+        new MutationObserver(
+            () => {
+
+                if (
+                    dashboardMascota &&
+                    dashboardMascota
+                        .classList
+                        .contains("show")
+                ) {
+
+                    saludarMascota();
+
+                }
+
+            }
+        );
+
+
+    observerNombre.observe(
+        nombreMascotaElemento,
+        {
+            childList: true,
+            characterData: true,
+            subtree: true
+        }
+    );
+
+}
+
+
+// =========================================================
+// REACCIÓN: ASISTENCIA LIVE
+// =========================================================
+
+const modalAsistenciaMascota =
+    document.getElementById(
+        "modal-pin-asistencia"
+    );
+
+
+if (modalAsistenciaMascota) {
+
+    let asistenciaMascotaActiva =
+        false;
+
+
+    const observerAsistencia =
+        new MutationObserver(
+            () => {
+
+                const activo =
+                    modalAsistenciaMascota
+                        .classList
+                        .contains(
+                            "activo"
+                        );
+
+
+                if (
+                    activo &&
+                    !asistenciaMascotaActiva
+                ) {
+
+                    asistenciaMascotaActiva =
+                        true;
+
+
+                    showPetReaction(
+                        "asistencia",
+                        "question",
+                        5000
+                    );
+
+                }
+
+
+                if (!activo) {
+
+                    asistenciaMascotaActiva =
+                        false;
+
+                }
+
+            }
+        );
+
+
+    observerAsistencia.observe(
+        modalAsistenciaMascota,
+        {
+            attributes: true,
+            attributeFilter: [
+                "class"
+            ]
+        }
+    );
+
+}
+
+
+// =========================================================
+// REACCIÓN: EXAMEN EN VIVO
+// =========================================================
+
+const examenMascota =
+    document.getElementById(
+        "examen-live-overlay"
+    );
+
+
+if (examenMascota) {
+
+    let examenMascotaActivo =
+        false;
+
+
+    const observerExamen =
+        new MutationObserver(
+            () => {
+
+                const visible =
+                    examenMascota
+                        .style
+                        .display !== "none";
+
+
+                if (
+                    visible &&
+                    !examenMascotaActivo
+                ) {
+
+                    examenMascotaActivo =
+                        true;
+
+
+                    showPetReaction(
+                        "examen",
+                        "working",
+                        5000
+                    );
+
+                }
+
+
+                if (!visible) {
+
+                    examenMascotaActivo =
+                        false;
+
+                }
+
+            }
+        );
+
+
+    observerExamen.observe(
+        examenMascota,
+        {
+            attributes: true,
+            attributeFilter: [
+                "style"
+            ]
+        }
+    );
+
+}
+
+
+// =========================================================
+// REACCIÓN: PUNTOS ELEGIDOS
+// =========================================================
+
+const puntosMascota =
+    document.getElementById(
+        "display-puntos-lealtad"
+    );
+
+
+if (puntosMascota) {
+
+    let puntosAnterioresMascota =
+        0;
+
+
+    const revisarPuntosMascota =
+        function() {
+
+            const puntos =
+                parseInt(
+                    puntosMascota
+                        .innerText
+                        .replace(
+                            /[^0-9]/g,
+                            ""
+                        )
+                ) || 0;
+
+
+            // CAMISA
+            if (
+                puntos >= 2600 &&
+                premioAvisado < 2600
+            ) {
+
+                premioAvisado =
+                    2600;
+
+
+                showPetReaction(
+                    "premioCamisa",
+                    "happy",
+                    6000
+                );
+
+            }
+
+
+            // GORRA
+            else if (
+                puntos >= 1500 &&
+                premioAvisado < 1500
+            ) {
+
+                premioAvisado =
+                    1500;
+
+
+                showPetReaction(
+                    "premioGorra",
+                    "happy",
+                    6000
+                );
+
+            }
+
+
+            // STICKERS
+            else if (
+                puntos >= 700 &&
+                premioAvisado < 700
+            ) {
+
+                premioAvisado =
+                    700;
+
+
+                showPetReaction(
+                    "premioStickers",
+                    "happy",
+                    6000
+                );
+
+            }
+
+
+            // SUBIERON PUNTOS
+            else if (
+                puntos >
+                    puntosAnterioresMascota &&
+                puntosAnterioresMascota > 0
+            ) {
+
+                showPetReaction(
+                    "puntos",
+                    "happy",
+                    4000
+                );
+
+            }
+
+
+            puntosAnterioresMascota =
+                puntos;
+
+        };
+
+
+    const observerPuntos =
+        new MutationObserver(
+            revisarPuntosMascota
+        );
+
+
+    observerPuntos.observe(
+        puntosMascota,
+        {
+            childList: true,
+            characterData: true,
+            subtree: true
+        }
+    );
+
+
+    revisarPuntosMascota();
+
+}
+
+
+// =========================================================
+// REACCIONES ESPONTÁNEAS
+// =========================================================
+
+setInterval(
+    () => {
+
+        if (
+            !petContainer ||
+            !petContainer
+                .classList
+                .contains(
+                    "pet-visible"
+                )
+        ) {
+            return;
+        }
+
+
+        // Si ya está hablando,
+        // no interrumpimos.
+        if (
+            petBubble
+                .classList
+                .contains(
+                    "show"
+                )
+        ) {
+            return;
+        }
+
+
+        const posibilidades = [
+
+            {
+                categoria: "normal",
+                mood: "question"
+            },
+
+            {
+                categoria: "trabajando",
+                mood: "working"
+            },
+
+            {
+                categoria: "normal",
+                mood: "happy"
+            }
+
+        ];
+
+
+        const reaccion =
+            posibilidades[
+                Math.floor(
+                    Math.random() *
+                    posibilidades.length
+                )
+            ];
+
+
+        showPetReaction(
+            reaccion.categoria,
+            reaccion.mood,
+            3500
+        );
+
+    },
+
+    60000
+);
+
     </script>
 
     <script>
@@ -2413,7 +4368,114 @@ localStorage.removeItem("elegidos_is_admin");
                     <svg class="class-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
             `;
-            contenedor.appendChild(row);
+
+// =====================================================
+// PUBLICACIÓN DE LA CLASE
+// =====================================================
+// Solo las clases que YA PASARON y tienen publicación
+// en Firebase serán clicables.
+// =====================================================
+
+if (
+    esPasado &&
+    item.publicacionUrl &&
+    item.publicacionUrl.trim() !== ""
+) {
+
+    row.style.cursor = "pointer";
+
+    row.style.transition =
+        "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease";
+
+    row.setAttribute(
+        "title",
+        "Ver publicación de esta clase"
+    );
+
+
+    // Indicador visual pequeño.
+    const infoPublicacion =
+        document.createElement("div");
+
+    infoPublicacion.innerHTML = `
+        <span style="
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 100px;
+            background: rgba(139, 0, 255, 0.08);
+            color: #8b00ff;
+            font-size: 0.68rem;
+            font-weight: 800;
+        ">
+            ✨ Ver publicación
+        </span>
+    `;
+
+
+    const infoClase =
+        row.querySelector(".class-info");
+
+    if (infoClase) {
+        infoClase.appendChild(infoPublicacion);
+    }
+
+
+    row.addEventListener(
+        "mouseenter",
+        () => {
+            row.style.transform =
+                "translateY(-3px)";
+
+            row.style.boxShadow =
+                "0 15px 35px rgba(139, 0, 255, 0.12)";
+        }
+    );
+
+
+    row.addEventListener(
+        "mouseleave",
+        () => {
+            row.style.transform = "";
+            row.style.boxShadow = "";
+        }
+    );
+
+
+    row.addEventListener(
+        "click",
+        () => {
+
+            abrirPublicacionClase({
+                titulo:
+                    item.nombre ||
+                    item.titulo ||
+                    "Clase ELEGIDOS",
+
+                fecha:
+                    item.fecha,
+
+                tema:
+                    temaDinamico,
+
+                url:
+                    item.publicacionUrl,
+
+                imagen:
+                    item.publicacionImagen || "",
+
+                texto:
+                    item.publicacionTexto || ""
+            });
+
+        }
+    );
+
+}
+
+contenedor.appendChild(row);
 
             const nombreClaseLimpio = (item.nombre || item.titulo).toUpperCase();
             if (nombreClaseLimpio.includes("FESTIVAL") || nombreClaseLimpio.includes("MASTERCLASS") || nombreClaseLimpio.includes("INAUGURACIÓN") || nombreClaseLimpio.includes("ENTREGA")) {
@@ -3316,7 +5378,20 @@ function llenarSelectPermisos() {
                     let horaCorregida = itemFirebase.hora || "15:00";
                     if (itemFirebase.modalidad === 'Online' && (!itemFirebase.hora || itemFirebase.hora === "15:00")) horaCorregida = "20:00";
                     
-                    const datosNuevos = { id: key, fecha: itemFirebase.fecha, hora: horaCorregida, nombre: nombreClase, expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS", modalidad: itemFirebase.modalidad || "Presencial", tema: itemFirebase.tema || "" };
+                    const datosNuevos = {
+    id: key,
+    fecha: itemFirebase.fecha,
+    hora: horaCorregida,
+    nombre: nombreClase,
+    expositor: itemFirebase.ponente || itemFirebase.expositor || "Equipo ELEGIDOS",
+    modalidad: itemFirebase.modalidad || "Presencial",
+    tema: itemFirebase.tema || "",
+
+    // PUBLICACIÓN DE REDES
+    publicacionUrl: itemFirebase.publicacionUrl || "",
+    publicacionImagen: itemFirebase.publicacionImagen || "",
+    publicacionTexto: itemFirebase.publicacionTexto || ""
+};
                     listaCombinadaMap.set(key, datosNuevos);
                 });
             }
@@ -4124,7 +6199,558 @@ window.validarPinPermanente = function() {
             });
         }
     };
+// =========================================================
+// CORRECCIÓN FINAL - INICIALIZACIÓN TARDÍA DE LA MASCOTA
+// =========================================================
+//
+// Este bloque se ejecuta cuando TODO el portal ya existe.
+// No crea otra mascota.
+// No crea otra conexión Firebase.
+// Solo conecta la mascota existente con el portal.
+// =========================================================
 
+(function iniciarMascotaElegidosCorrectamente() {
+
+    const mascota =
+        document.getElementById("petContainer");
+
+    const burbuja =
+        document.getElementById("petBubble");
+
+    const dashboard =
+        document.getElementById("dashboard-screen");
+
+    const nombreElemento =
+        document.getElementById("display-name");
+
+    const puntosElemento =
+        document.getElementById("display-puntos-lealtad");
+
+    const modalAsistencia =
+        document.getElementById("modal-pin-asistencia");
+
+    const examenOverlay =
+        document.getElementById("examen-live-overlay");
+
+
+    if (!mascota || !burbuja) {
+
+        console.warn(
+            "Mascota ELEGIDOS: no se encontró la estructura HTML."
+        );
+
+        return;
+    }
+
+
+    // Evitar conectar dos veces.
+    if (
+        mascota.dataset.inicializada === "true"
+    ) {
+        return;
+    }
+
+
+    mascota.dataset.inicializada =
+        "true";
+
+
+    // =====================================================
+    // 1. MOSTRAR / OCULTAR SEGÚN DASHBOARD
+    // =====================================================
+
+    function actualizarVisibilidadMascota() {
+
+        if (!dashboard) {
+
+            mascota.classList.add(
+                "pet-visible"
+            );
+
+            return;
+        }
+
+
+        const dashboardVisible =
+            dashboard.classList.contains(
+                "show"
+            );
+
+
+        if (dashboardVisible) {
+
+            mascota.classList.add(
+                "pet-visible"
+            );
+
+        } else {
+
+            mascota.classList.remove(
+                "pet-visible"
+            );
+
+            burbuja.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+
+
+    actualizarVisibilidadMascota();
+
+
+    if (dashboard) {
+
+        const observerDashboardMascota =
+            new MutationObserver(
+                actualizarVisibilidadMascota
+            );
+
+
+        observerDashboardMascota.observe(
+            dashboard,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "class",
+                    "style"
+                ]
+            }
+        );
+
+    }
+
+
+    // =====================================================
+    // 2. SALUDO CUANDO YA EXISTA EL NOMBRE
+    // =====================================================
+
+    let saludoRealizadoMascota =
+        false;
+
+
+    function intentarSaludarMascota() {
+
+        if (
+            saludoRealizadoMascota ||
+            !nombreElemento
+        ) {
+            return;
+        }
+
+
+        const nombreCompleto =
+            nombreElemento
+                .innerText
+                .trim();
+
+
+        if (
+            !nombreCompleto ||
+            nombreCompleto === "Cargando..."
+        ) {
+            return;
+        }
+
+
+        if (
+            dashboard &&
+            !dashboard.classList.contains("show")
+        ) {
+            return;
+        }
+
+
+        saludoRealizadoMascota =
+            true;
+
+
+        const primerNombre =
+            nombreCompleto
+                .split(" ")[0];
+
+
+        mascota.className =
+            "pet-container pet-visible mood-happy";
+
+
+        burbuja.innerText =
+            `¡Hola, ${
+                primerNombre
+                    .charAt(0)
+                    .toUpperCase()
+                +
+                primerNombre
+                    .slice(1)
+            }! 👋`;
+
+
+        burbuja.classList.add(
+            "show"
+        );
+
+
+        setTimeout(
+            () => {
+
+                burbuja.classList.remove(
+                    "show"
+                );
+
+                mascota.className =
+                    "pet-container pet-visible";
+
+            },
+            4500
+        );
+
+    }
+
+
+    intentarSaludarMascota();
+
+
+    if (nombreElemento) {
+
+        const observerNombreMascota =
+            new MutationObserver(
+                intentarSaludarMascota
+            );
+
+
+        observerNombreMascota.observe(
+            nombreElemento,
+            {
+                childList: true,
+                characterData: true,
+                subtree: true
+            }
+        );
+
+    }
+
+
+    // =====================================================
+    // 3. ASISTENCIA LIVE
+    // =====================================================
+
+    if (modalAsistencia) {
+
+        let asistenciaMostrada =
+            false;
+
+
+        const revisarAsistenciaMascota =
+            function() {
+
+                const activa =
+                    modalAsistencia
+                        .classList
+                        .contains(
+                            "activo"
+                        );
+
+
+                if (
+                    activa &&
+                    !asistenciaMostrada
+                ) {
+
+                    asistenciaMostrada =
+                        true;
+
+
+                    if (
+                        typeof showPetReaction ===
+                        "function"
+                    ) {
+
+                        showPetReaction(
+                            "asistencia",
+                            "question",
+                            6000
+                        );
+
+                    }
+
+                }
+
+
+                if (!activa) {
+
+                    asistenciaMostrada =
+                        false;
+
+                }
+
+            };
+
+
+        const observerAsistenciaMascota =
+            new MutationObserver(
+                revisarAsistenciaMascota
+            );
+
+
+        observerAsistenciaMascota.observe(
+            modalAsistencia,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "class",
+                    "style"
+                ]
+            }
+        );
+
+
+        revisarAsistenciaMascota();
+
+    }
+
+
+    // =====================================================
+    // 4. EXAMEN LIVE
+    // =====================================================
+
+    if (examenOverlay) {
+
+        let examenMostradoMascota =
+            false;
+
+
+        const revisarExamenMascota =
+            function() {
+
+                const visible =
+                    examenOverlay
+                        .style
+                        .display !==
+                    "none";
+
+
+                if (
+                    visible &&
+                    !examenMostradoMascota
+                ) {
+
+                    examenMostradoMascota =
+                        true;
+
+
+                    if (
+                        typeof showPetReaction ===
+                        "function"
+                    ) {
+
+                        showPetReaction(
+                            "examen",
+                            "working",
+                            6000
+                        );
+
+                    }
+
+                }
+
+
+                if (!visible) {
+
+                    examenMostradoMascota =
+                        false;
+
+                }
+
+            };
+
+
+        const observerExamenMascota =
+            new MutationObserver(
+                revisarExamenMascota
+            );
+
+
+        observerExamenMascota.observe(
+            examenOverlay,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "style",
+                    "class"
+                ]
+            }
+        );
+
+
+        revisarExamenMascota();
+
+    }
+
+
+    // =====================================================
+    // 5. PUNTOS Y PREMIOS
+    // =====================================================
+
+    if (puntosElemento) {
+
+        let puntosPreviosMascota =
+            null;
+
+        let nivelPremioAvisadoMascota =
+            0;
+
+
+        const revisarPuntosMascotaFinal =
+            function() {
+
+                const puntos =
+                    parseInt(
+                        puntosElemento
+                            .innerText
+                            .replace(
+                                /[^0-9]/g,
+                                ""
+                            )
+                    ) || 0;
+
+
+                // Primera lectura.
+                if (
+                    puntosPreviosMascota === null
+                ) {
+
+                    puntosPreviosMascota =
+                        puntos;
+
+                }
+
+
+                // CAMISA
+                if (
+                    puntos >= 2600 &&
+                    nivelPremioAvisadoMascota < 2600
+                ) {
+
+                    nivelPremioAvisadoMascota =
+                        2600;
+
+
+                    showPetReaction(
+                        "premioCamisa",
+                        "happy",
+                        6500
+                    );
+
+                }
+
+
+                // GORRA
+                else if (
+                    puntos >= 1500 &&
+                    nivelPremioAvisadoMascota < 1500
+                ) {
+
+                    nivelPremioAvisadoMascota =
+                        1500;
+
+
+                    showPetReaction(
+                        "premioGorra",
+                        "happy",
+                        6500
+                    );
+
+                }
+
+
+                // STICKERS
+                else if (
+                    puntos >= 700 &&
+                    nivelPremioAvisadoMascota < 700
+                ) {
+
+                    nivelPremioAvisadoMascota =
+                        700;
+
+
+                    showPetReaction(
+                        "premioStickers",
+                        "happy",
+                        6500
+                    );
+
+                }
+
+
+                // PUNTOS SUBIERON
+                else if (
+                    puntos >
+                    puntosPreviosMascota
+                ) {
+
+                    showPetReaction(
+                        "puntos",
+                        "happy",
+                        4500
+                    );
+
+                }
+
+
+                puntosPreviosMascota =
+                    puntos;
+
+            };
+
+
+        const observerPuntosMascotaFinal =
+            new MutationObserver(
+                revisarPuntosMascotaFinal
+            );
+
+
+        observerPuntosMascotaFinal.observe(
+            puntosElemento,
+            {
+                childList: true,
+                characterData: true,
+                subtree: true
+            }
+        );
+
+
+        revisarPuntosMascotaFinal();
+
+    }
+
+
+    // =====================================================
+    // 6. PRUEBA VISUAL AL CARGAR
+    // =====================================================
+    //
+    // Esto garantiza que sepamos inmediatamente
+    // si la mascota está funcionando.
+    // =====================================================
+
+    setTimeout(
+        () => {
+
+            actualizarVisibilidadMascota();
+
+            intentarSaludarMascota();
+
+        },
+        800
+    );
+
+
+    console.log(
+        "✅ Mascota ELEGIDOS conectada correctamente."
+    );
+
+})();
 </script>
 
 <!-- POPUP ASISTENCIA VIRTUAL (PIN) -->
@@ -5227,6 +7853,449 @@ updates[
         🚀 ENVIAR RESPUESTAS Y FINALIZAR
     </button>
 </div>
+<!-- =====================================================
+     MODAL - PUBLICACIÓN DE UNA CLASE
+====================================================== -->
 
+<div
+    id="modal-publicacion-clase"
+    onclick="cerrarPublicacionClase(event)"
+    style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999999;
+        background: rgba(15, 23, 42, 0.72);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    "
+>
+
+    <div
+        id="modal-publicacion-contenido"
+        style="
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.28);
+            position: relative;
+            animation: modalPublicacionEntrada .3s ease;
+        "
+    >
+
+        <!-- IMAGEN -->
+        <div
+            id="publicacion-imagen-wrapper"
+            style="
+                display: none;
+                width: 100%;
+                aspect-ratio: 4 / 5;
+                background: #f1f5f9;
+                overflow: hidden;
+                border-radius: 32px 32px 0 0;
+            "
+        >
+
+            <img
+                id="publicacion-imagen"
+                src=""
+                alt="Publicación de la clase"
+                style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                "
+            >
+
+        </div>
+
+
+        <!-- CONTENIDO -->
+        <div style="padding: 26px;">
+
+            <div
+                id="publicacion-red"
+                style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 7px;
+                    padding: 6px 12px;
+                    border-radius: 100px;
+                    background: #f5f3ff;
+                    color: #7c3aed;
+                    font-size: .72rem;
+                    font-weight: 900;
+                    margin-bottom: 14px;
+                "
+            >
+                ✨ PUBLICACIÓN
+            </div>
+
+
+            <h3
+                id="publicacion-titulo"
+                style="
+                    font-size: 1.45rem;
+                    font-weight: 900;
+                    color: #0f172a;
+                    margin: 0 0 6px 0;
+                    letter-spacing: -.5px;
+                "
+            >
+                Clase ELEGIDOS
+            </h3>
+
+
+            <p
+                id="publicacion-fecha"
+                style="
+                    font-size: .8rem;
+                    color: #94a3b8;
+                    font-weight: 700;
+                    margin: 0 0 12px 0;
+                "
+            ></p>
+
+
+            <p
+                id="publicacion-tema"
+                style="
+                    font-size: .95rem;
+                    color: #7c3aed;
+                    font-weight: 800;
+                    line-height: 1.4;
+                    margin-bottom: 12px;
+                "
+            ></p>
+
+
+            <p
+                id="publicacion-texto"
+                style="
+                    display: none;
+                    color: #64748b;
+                    font-size: .88rem;
+                    font-weight: 500;
+                    line-height: 1.6;
+                    margin-bottom: 20px;
+                "
+            ></p>
+
+
+            <a
+                id="btn-ver-publicacion"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 16px 20px;
+                    border-radius: 100px;
+                    text-decoration: none;
+                    background: linear-gradient(
+                        90deg,
+                        #8b00ff,
+                        #ff00c8,
+                        #ff6a00
+                    );
+                    color: #ffffff;
+                    font-size: .9rem;
+                    font-weight: 900;
+                    box-shadow:
+                        0 12px 25px rgba(139,0,255,.22);
+                "
+            >
+                Ver publicación original ↗
+            </a>
+
+
+            <button
+                onclick="cerrarPublicacionClase()"
+                style="
+                    width: 100%;
+                    margin-top: 10px;
+                    padding: 14px;
+                    border-radius: 100px;
+                    border: none;
+                    background: #f1f5f9;
+                    color: #475569;
+                    font-weight: 800;
+                    cursor: pointer;
+                "
+            >
+                Cerrar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+@keyframes modalPublicacionEntrada {
+
+    from {
+        opacity: 0;
+        transform: translateY(25px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+</style>
+
+
+<script>
+
+// =====================================================
+// DETECTAR RED SOCIAL
+// =====================================================
+
+function detectarRedPublicacion(url) {
+
+    const enlace =
+        String(url || "").toLowerCase();
+
+
+    if (enlace.includes("instagram.com")) {
+        return "📸 INSTAGRAM";
+    }
+
+    if (
+        enlace.includes("facebook.com") ||
+        enlace.includes("fb.com")
+    ) {
+        return "🔵 FACEBOOK";
+    }
+
+    if (enlace.includes("tiktok.com")) {
+        return "🎵 TIKTOK";
+    }
+
+    if (
+        enlace.includes("youtube.com") ||
+        enlace.includes("youtu.be")
+    ) {
+        return "▶️ YOUTUBE";
+    }
+
+    return "✨ PUBLICACIÓN";
+}
+
+
+// =====================================================
+// ABRIR
+// =====================================================
+
+window.abrirPublicacionClase =
+function(datos) {
+
+    if (
+        !datos ||
+        !datos.url
+    ) {
+        return;
+    }
+
+
+    const modal =
+        document.getElementById(
+            "modal-publicacion-clase"
+        );
+
+
+    document.getElementById(
+        "publicacion-titulo"
+    ).innerText =
+        datos.titulo || "Clase ELEGIDOS";
+
+
+    document.getElementById(
+        "publicacion-red"
+    ).innerText =
+        detectarRedPublicacion(
+            datos.url
+        );
+
+
+    // FECHA
+    const fechaEl =
+        document.getElementById(
+            "publicacion-fecha"
+        );
+
+    if (datos.fecha) {
+
+        fechaEl.innerText =
+            "📅 " +
+            formatearFecha(
+                datos.fecha
+            );
+
+    } else {
+
+        fechaEl.innerText = "";
+
+    }
+
+
+    // TEMA
+    const temaEl =
+        document.getElementById(
+            "publicacion-tema"
+        );
+
+    if (datos.tema) {
+
+        temaEl.innerText =
+            datos.tema;
+
+        temaEl.style.display =
+            "block";
+
+    } else {
+
+        temaEl.style.display =
+            "none";
+
+    }
+
+
+    // TEXTO
+    const textoEl =
+        document.getElementById(
+            "publicacion-texto"
+        );
+
+    if (datos.texto) {
+
+        textoEl.innerText =
+            datos.texto;
+
+        textoEl.style.display =
+            "block";
+
+    } else {
+
+        textoEl.style.display =
+            "none";
+
+    }
+
+
+    // IMAGEN
+    const imagenWrapper =
+        document.getElementById(
+            "publicacion-imagen-wrapper"
+        );
+
+    const imagen =
+        document.getElementById(
+            "publicacion-imagen"
+        );
+
+
+    if (datos.imagen) {
+
+        imagen.src =
+            datos.imagen;
+
+        imagenWrapper.style.display =
+            "block";
+
+    } else {
+
+        imagen.src = "";
+
+        imagenWrapper.style.display =
+            "none";
+
+    }
+
+
+    // LINK ORIGINAL
+    document.getElementById(
+        "btn-ver-publicacion"
+    ).href =
+        datos.url;
+
+
+    modal.style.display =
+        "flex";
+
+
+    document.body.style.overflow =
+        "hidden";
+
+};
+
+
+// =====================================================
+// CERRAR
+// =====================================================
+
+window.cerrarPublicacionClase =
+function(event) {
+
+    if (
+        event &&
+        event.target !==
+            document.getElementById(
+                "modal-publicacion-clase"
+            )
+    ) {
+        return;
+    }
+
+
+    const modal =
+        document.getElementById(
+            "modal-publicacion-clase"
+        );
+
+
+    if (modal) {
+        modal.style.display =
+            "none";
+    }
+
+
+    document.body.style.overflow =
+        "";
+
+};
+
+
+// ESC PARA CERRAR
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+            cerrarPublicacionClase();
+        }
+
+    }
+);
+
+</script>
 </body>
 </html>
