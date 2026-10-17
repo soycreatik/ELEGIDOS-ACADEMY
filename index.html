@@ -4729,55 +4729,349 @@ if (
     // =========================================================
     // LÓGICA DEL PROGRAMA DE LEALTAD Y RECOMPENSAS
     // =========================================================
-    window.calcularPuntosLealtad = function() {
-        const codigoActual = localStorage.getItem("elegidos_student_code");
-        if (!codigoActual || !datosEstudianteActual) return 0;
+   window.calcularPuntosLealtad = async function() {
 
-        let totalPuntos = 0;
+    const codigoActual =
+        localStorage.getItem("elegidos_student_code");
 
-     // 1. PUNTOS BALANCEADOS: ASISTENCIA Y PUNTUALIDAD
-        if (datosEstudianteActual.asistencias) {
-            Object.keys(datosEstudianteActual.asistencias).forEach(claseKey => {
-                const reg = String(datosEstudianteActual.asistencias[claseKey]);
-                if (!reg.toLowerCase().startsWith("permiso")) {
-                    totalPuntos += 50; // Subido a 50 pts por asistir a la clase
-                    if (reg.toLowerCase().includes("virtualmente") || reg.includes("Puntual")) {
-                        totalPuntos += 25; // Bono de 25 pts extras por puntualidad
-                    }
-                }
-            });
+    const displayPuntos =
+        document.getElementById("display-puntos-lealtad");
+
+
+    if (!codigoActual) {
+
+        if (displayPuntos) {
+            displayPuntos.innerText = "0 pts";
         }
 
-        // 2. PUNTOS BALANCEADOS: EXÁMENES APROBADOS
-        db.ref('sistema/historial_examenes').once('value').then(snap => {
-            if (snap.exists()) {
-                Object.values(snap.val()).forEach(ex => {
-                    if (ex.resultados && ex.resultados[codigoActual]) {
-                        const nota = parseFloat(ex.resultados[codigoActual].nota);
-                        if (nota >= 6.0) totalPuntos += Math.round(nota * 15); // Hasta 150 pts por sacar un 10
+        return 0;
+    }
+
+
+    // Mientras Firebase responde, no mostramos un 0 falso.
+    if (displayPuntos) {
+        displayPuntos.innerText = "...";
+    }
+
+
+    try {
+
+        // =====================================================
+        // CONSULTAR DIRECTAMENTE FIREBASE
+        // =====================================================
+
+        const resultadosFirebase = await Promise.all([
+
+            // Datos reales del estudiante.
+            db.ref(
+                `clase/${codigoActual}`
+            ).once("value"),
+
+            // Resultados reales de exámenes.
+            db.ref(
+                "sistema/historial_examenes"
+            ).once("value")
+
+        ]);
+
+
+        const snapEstudiante =
+            resultadosFirebase[0];
+
+        const snapExamenes =
+            resultadosFirebase[1];
+
+
+        // =====================================================
+        // VALIDAR ESTUDIANTE
+        // =====================================================
+
+        if (!snapEstudiante.exists()) {
+
+            console.warn(
+                "No existe el estudiante en Firebase:",
+                codigoActual
+            );
+
+            if (displayPuntos) {
+                displayPuntos.innerText = "0 pts";
+            }
+
+            return 0;
+        }
+
+
+        const estudiante =
+            snapEstudiante.val() || {};
+
+
+        // Actualizamos también la memoria local
+        // con la versión REAL de Firebase.
+        datosEstudianteActual = estudiante;
+
+        localStorage.setItem(
+            "elegidos_cache_" + codigoActual,
+            JSON.stringify(estudiante)
+        );
+
+
+        let puntosGanados = 0;
+
+
+        // Para poder revisar fácilmente desde consola.
+        let puntosAsistencia = 0;
+        let puntosExamenes = 0;
+        let puntosRetos = 0;
+
+
+        // =====================================================
+        // 1. ASISTENCIA
+        // =====================================================
+        //
+        // +15 puntos por asistencia real.
+        // +5 adicionales si el registro dice "Puntual".
+        //
+        // Los permisos NO generan puntos.
+        // =====================================================
+
+        const asistencias =
+            estudiante.asistencias || {};
+
+
+        Object.values(asistencias).forEach(
+            registroOriginal => {
+
+                if (
+                    registroOriginal === null ||
+                    registroOriginal === undefined
+                ) {
+                    return;
+                }
+
+
+                let registro = "";
+
+                if (
+                    typeof registroOriginal === "string"
+                ) {
+
+                    registro =
+                        registroOriginal
+                            .trim()
+                            .toLowerCase();
+
+                } else {
+
+                    // Compatibilidad si algún registro
+                    // de Firebase está guardado como objeto.
+                    registro =
+                        JSON.stringify(
+                            registroOriginal
+                        ).toLowerCase();
+
+                }
+
+
+                // Permisos no generan puntos.
+                if (
+                    registro.startsWith("permiso") ||
+                    registro.includes('"permiso')
+                ) {
+                    return;
+                }
+
+
+                // Asistencia real.
+                puntosAsistencia += 15;
+
+
+                // Bono de puntualidad.
+                if (
+                    registro.includes("puntual")
+                ) {
+                    puntosAsistencia += 5;
+                }
+
+            }
+        );
+
+
+        puntosGanados += puntosAsistencia;
+
+
+        // =====================================================
+        // 2. EXÁMENES
+        // =====================================================
+        //
+        // Menos de 7 = 0
+        // 7.0 - 7.9 = 20
+        // 8.0 - 8.9 = 35
+        // 9.0 - 9.4 = 50
+        // 9.5 - 10  = 70
+        //
+        // SOLO resultados existentes en Firebase.
+        // =====================================================
+
+        if (snapExamenes.exists()) {
+
+            const historial =
+                snapExamenes.val() || {};
+
+
+            Object.values(historial).forEach(
+                examen => {
+
+                    if (
+                        !examen ||
+                        !examen.resultados ||
+                        !examen.resultados[codigoActual]
+                    ) {
+                        return;
                     }
-                });
-            }
-            
-            // 3. PUNTOS POR RETOS SOCIALES
-            if (datosEstudianteActual.puntos_sociales) {
-                totalPuntos += (datosEstudianteActual.puntos_sociales * 50); // 50 pts por cada reto dominical cumplido
-            }
 
-            // 4. RESTAR PUNTOS GASTADOS EN CANJES
-            let puntosGastados = 0;
-            if (datosEstudianteActual.recompensas_canjeadas) {
-                if (datosEstudianteActual.recompensas_canjeadas.stickers) puntosGastados += 400;
-                if (datosEstudianteActual.recompensas_canjeadas.gorra) puntosGastados += 1000;
-                if (datosEstudianteActual.recompensas_canjeadas.camisa) puntosGastados += 2000;
+
+                    const resultado =
+                        examen.resultados[codigoActual];
+
+
+                    if (
+                        resultado.nota === undefined ||
+                        resultado.nota === null ||
+                        resultado.nota === ""
+                    ) {
+                        return;
+                    }
+
+
+                    const nota =
+                        Number(resultado.nota);
+
+
+                    if (
+                        !Number.isFinite(nota)
+                    ) {
+                        return;
+                    }
+
+
+                    if (nota >= 9.5) {
+
+                        puntosExamenes += 70;
+
+                    } else if (nota >= 9.0) {
+
+                        puntosExamenes += 50;
+
+                    } else if (nota >= 8.0) {
+
+                        puntosExamenes += 35;
+
+                    } else if (nota >= 7.0) {
+
+                        puntosExamenes += 20;
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        puntosGanados += puntosExamenes;
+
+
+        // =====================================================
+        // 3. RETOS SOCIALES
+        // =====================================================
+        //
+        // 15 puntos por reto.
+        // =====================================================
+
+        const cantidadRetos =
+            Number(
+                estudiante.puntos_sociales
+            ) || 0;
+
+
+        puntosRetos =
+            cantidadRetos * 15;
+
+
+        puntosGanados += puntosRetos;
+
+
+        // =====================================================
+        // 4. PUNTOS GASTADOS — NUEVA ECONOMÍA
+        // =====================================================
+        //
+        // MUY IMPORTANTE:
+        //
+        // No usamos recompensas_canjeadas antiguas.
+        // Tampoco usamos puntos_gastados_total antiguo.
+        //
+        // La nueva economía comienza con su propio contador.
+        // =====================================================
+
+        const puntosGastados =
+            Number(
+                estudiante.puntos_gastados_v2
+            ) || 0;
+
+
+        // =====================================================
+        // 5. SALDO REAL
+        // =====================================================
+
+        const puntosFinales =
+            Math.max(
+                0,
+                puntosGanados - puntosGastados
+            );
+
+
+        actualizarPuntosEnPantalla(
+            puntosFinales
+        );
+
+
+        // Información para diagnóstico.
+        console.log(
+            "🌟 ELEGIDOS - Puntos",
+            {
+                estudiante: codigoActual,
+                asistencia: puntosAsistencia,
+                examenes: puntosExamenes,
+                retos: puntosRetos,
+                ganados: puntosGanados,
+                gastadosNuevaEconomia: puntosGastados,
+                saldo: puntosFinales
             }
+        );
 
-            const puntosFinales = Math.max(0, totalPuntos - puntosGastados);
-            actualizarPuntosEnPantalla(puntosFinales);
-        });
 
-        return totalPuntos;
-    };
+        return puntosFinales;
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error consultando puntos desde Firebase:",
+            error
+        );
+
+
+        // MUY IMPORTANTE:
+        // si Firebase falla, NO mostramos 0 como si fuera real.
+        if (displayPuntos) {
+            displayPuntos.innerText = "Error";
+        }
+
+
+        return 0;
+    }
+
+};
 
     function actualizarPuntosEnPantalla(pts) {
         const elPuntos = document.getElementById("display-puntos-lealtad");
@@ -4865,10 +5159,41 @@ if (
                     fecha_canje: new Date().toISOString()
                 };
 
-                // Bloqueos de seguridad
-                updates[`clase/${codigoActual}/ultimo_canje_mes`] = mesActualKey;
-                updates[`clase/${codigoActual}/recompensas_canjeadas/${tipoPremio}`] = true;
+               // =====================================================
+// REGISTRO REAL DEL GASTO DE PUNTOS
+// =====================================================
 
+// =====================================================
+// GASTO DE PUNTOS — NUEVA ECONOMÍA V2
+// =====================================================
+
+// Solamente tomamos en cuenta gastos realizados
+// desde que comenzó la nueva economía.
+const puntosGastadosPrevios =
+    Number(
+        datosEstudianteActual.puntos_gastados_v2
+    ) || 0;
+
+
+// Sumamos el costo real del nuevo canje.
+updates[
+    `clase/${codigoActual}/puntos_gastados_v2`
+] = puntosGastadosPrevios + costo;
+
+
+// Mantener la regla de máximo
+// un canje por persona al mes.
+updates[
+    `clase/${codigoActual}/ultimo_canje_mes`
+] = mesActualKey;
+
+
+// Mantener historial del premio.
+// Esto sirve para el bloqueo de la camisa
+// y para saber qué premios ha obtenido.
+updates[
+    `clase/${codigoActual}/recompensas_canjeadas/${tipoPremio}`
+] = true;
                 db.ref().update(updates).then(() => {
                     alert(`🎉 ¡FELICIDADES! Canje exitoso.\n\nHas canjeado: ${nombrePremioOficial}\nSe generó tu ticket de respaldo: ${ticketId}\n\n📦 NOTA IMPORTANTE:\nTu premio te será entregado físicamente a inicios del próximo mes durante tu clase presencial. ¡Felicidades por tu constancia!`);
                     if (typeof renderizarBoletosVinculados === 'function') renderizarBoletosVinculados();
