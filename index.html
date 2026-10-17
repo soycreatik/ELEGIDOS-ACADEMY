@@ -4268,17 +4268,36 @@ window.validarPinPermanente = function() {
                     if (isNaN(ts)) ts = examen.timestamp || Date.now();
                     
                     const fechaExamen = new Date(ts);
-                    const yaRealizado = examen.resultados && examen.resultados[codigoEstudiante];
-                    if (ahora < fechaExamen && !yaRealizado) return;
+                    // Solo aceptar una calificación si realmente existe en Firebase.
+const resultadoEstudiante =
+    examen.resultados &&
+    examen.resultados[codigoEstudiante];
 
-                    let mesExamen = fechaExamen.getMonth() + 1;
-                    if (mesExamen < 9) mesExamen = 9;
-                    if (mesExamen > 12) mesExamen = 12;
+if (!resultadoEstudiante) return;
 
-                    let notaFinal = 0.0;
-                    if (yaRealizado) notaFinal = parseFloat(examen.resultados[codigoEstudiante].nota);
-                    
-                    notasExamenes.push({ mes: mesExamen, nota: notaFinal });
+// La nota debe existir explícitamente en la base de datos.
+if (
+    resultadoEstudiante.nota === undefined ||
+    resultadoEstudiante.nota === null ||
+    resultadoEstudiante.nota === ""
+) {
+    return;
+}
+
+const notaFinal = Number(resultadoEstudiante.nota);
+
+// Seguridad: jamás mostrar/promediar valores inválidos.
+if (!Number.isFinite(notaFinal)) return;
+
+const mesExamen = fechaExamen.getMonth() + 1;
+
+// No forzar un examen de otro mes a septiembre o diciembre.
+if (mesExamen < 9 || mesExamen > 12) return;
+
+notasExamenes.push({
+    mes: mesExamen,
+    nota: notaFinal
+});
                 });
             }
 
@@ -4315,29 +4334,57 @@ window.validarPinPermanente = function() {
 
                 const totalEnMesVisual = clasesMes.length || 1;
                 const pctAsistenciaVisual = Math.round(((asistenciasMes + faltasJustificadas) / totalEnMesVisual) * 100);
-                let notaAsistenciaMes = clasesPasadasMes > 0 ? (asistenciasValidasMes / clasesPasadasMes) * 10 : 10;
+                // =====================================================
+// NOTAS REALES: ÚNICAMENTE RESULTADOS GUARDADOS EN FIREBASE
+// =====================================================
+const examenesDelMes = notasExamenes.filter(n => n.mes === mes.id);
 
-                const examenesDelMes = notasExamenes.filter(n => n.mes === mes.id);
-                let notaExamenesMes = 0;
-                if (examenesDelMes.length > 0) {
-                    const sumaMes = examenesDelMes.reduce((acc, curr) => acc + curr.nota, 0);
-                    notaExamenesMes = sumaMes / examenesDelMes.length;
-                    sumaNotasGlobal += sumaMes;
-                    totalExamenesGlobal += examenesDelMes.length;
-                }
+let notaExamenesMes = null;
 
-                let notaMesCombinada = null;
-                if (clasesPasadasMes > 0 || examenesDelMes.length > 0) {
-                    if (examenesDelMes.length > 0 && clasesPasadasMes > 0) notaMesCombinada = (notaExamenesMes + notaAsistenciaMes) / 2;
-                    else if (examenesDelMes.length > 0) notaMesCombinada = notaExamenesMes;
-                    else notaMesCombinada = notaAsistenciaMes;
-                }
+if (examenesDelMes.length > 0) {
+    const sumaMes = examenesDelMes.reduce(
+        (acumulado, examen) => acumulado + examen.nota,
+        0
+    );
 
-                let notaBadgeHTML = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">Por calificar</span>`;
-                if (notaMesCombinada !== null) {
-                    let clasePill = notaMesCombinada >= 9.0 ? "nota-excelente" : (notaMesCombinada >= 8.0 ? "nota-buena" : (notaMesCombinada >= 6.0 ? "nota-regular" : "nota-baja"));
-                    notaBadgeHTML = `<span class="calif-nota-pill ${clasePill}" title="${examenesDelMes.length} Exám. | Asis: ${notaAsistenciaMes.toFixed(1)}">${notaMesCombinada.toFixed(1)}</span>`;
-                }
+    notaExamenesMes = sumaMes / examenesDelMes.length;
+
+    sumaNotasGlobal += sumaMes;
+    totalExamenesGlobal += examenesDelMes.length;
+}
+
+// Si Firebase no tiene exámenes calificados,
+// NO inventamos una nota usando asistencia.
+let notaBadgeHTML = `
+    <span style="
+        color: #64748b;
+        font-size: 0.8rem;
+        font-style: italic;
+    ">
+        Sin calificación
+    </span>
+`;
+
+if (notaExamenesMes !== null) {
+
+    const clasePill =
+        notaExamenesMes >= 9.0
+            ? "nota-excelente"
+            : notaExamenesMes >= 8.0
+                ? "nota-buena"
+                : notaExamenesMes >= 6.0
+                    ? "nota-regular"
+                    : "nota-baja";
+
+    notaBadgeHTML = `
+        <span
+            class="calif-nota-pill ${clasePill}"
+            title="${examenesDelMes.length} evaluación(es) registrada(s) en Firebase"
+        >
+            ${notaExamenesMes.toFixed(1)}
+        </span>
+    `;
+}
 
                 htmlFilas += `<tr>
                     <td><strong style="color: #fff; font-size: 0.95rem; display: block;">${mes.nombre}</strong><span style="font-size: 0.7rem; color: #94a3b8;">${mes.desc}</span></td>
@@ -4352,36 +4399,184 @@ window.validarPinPermanente = function() {
 
             tbody.innerHTML = htmlFilas;
 
-            const promedioExamenesGlobal = totalExamenesGlobal > 0 ? (sumaNotasGlobal / totalExamenesGlobal) : 0.0; 
-            const pctAsistenciaGlobalPuro = totalClasesCuatrimestre > 0 ? Math.round((asistenciasCuatrimestre / totalClasesCuatrimestre) * 100) : 100;
-            const notaAsistenciaGlobal = (pctAsistenciaGlobalPuro / 100) * 10;
-            let notaGlobalCombinada = 0.0;
+            // =====================================================
+// PROMEDIO GLOBAL: SOLO EXÁMENES REALES DE FIREBASE
+// =====================================================
 
-            if (totalExamenesGlobal > 0 && totalClasesCuatrimestre > 0) notaGlobalCombinada = (promedioExamenesGlobal + notaAsistenciaGlobal) / 2;
-            else if (totalExamenesGlobal > 0) notaGlobalCombinada = promedioExamenesGlobal;
-            else if (totalClasesCuatrimestre > 0) notaGlobalCombinada = notaAsistenciaGlobal;
-            
-            document.getElementById("calif-promedio-global").innerText = (totalExamenesGlobal > 0 || totalClasesCuatrimestre > 0) ? notaGlobalCombinada.toFixed(1) : "N/A";
-            document.getElementById("calif-asistencia-pct").innerText = pctAsistenciaGlobalPuro + "%";
-            document.getElementById("calif-asistencia-conteo").innerText = `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
-            document.getElementById("calif-faltas-total").innerText = faltasTotales;
+const promedioExamenesGlobal =
+    totalExamenesGlobal > 0
+        ? sumaNotasGlobal / totalExamenesGlobal
+        : null;
 
-            const containerBadge = document.getElementById("calif-status-badge-container");
-            if (containerBadge) {
-                if (totalExamenesGlobal === 0 && totalClasesCuatrimestre === 0) containerBadge.innerHTML = `<span class="calif-status-badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">⚪ Sin Datos</span>`;
-                else if (notaGlobalCombinada >= 8.0) containerBadge.innerHTML = `<span class="calif-status-badge calif-status-seguro">🟢 Cierre Seguro</span>`;
-                else if (notaGlobalCombinada >= 6.0) containerBadge.innerHTML = `<span class="calif-status-badge calif-status-ajuste">🟡 Ajuste en Diciembre</span>`;
-                else containerBadge.innerHTML = `<span class="calif-status-badge calif-status-riesgo" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 Riesgo (Nota < 6.0)</span>`;
-            }
-            
-            const modalBody = document.querySelector("#modal-mis-calificaciones .calif-table-wrapper");
-            if(modalBody && !document.getElementById("nota-trabajo-final-reminder")) {
-                const reminderDiv = document.createElement("div");
-                reminderDiv.id = "nota-trabajo-final-reminder";
-                reminderDiv.style.cssText = "margin-top: 15px; padding: 15px; border-radius: 16px; background: rgba(139, 92, 246, 0.1); border: 1px dashed rgba(139, 92, 246, 0.4); text-align: center;";
-                reminderDiv.innerHTML = `<p style="color: #c4b5fd; font-size: 0.8rem; margin: 0; font-weight: 500;">📌 <strong>Nota Mínima Requerida: 6.0</strong><br>La Nota Mensual y Global es un promedio entre evaluaciones y asistencia válida (Máx. 40% permisos). El <strong>Trabajo Final</strong> será crucial para tu graduación.</p>`;
-                modalBody.parentNode.insertBefore(reminderDiv, modalBody.nextSibling);
-            }
+
+// =====================================================
+// ASISTENCIA REAL
+// Se muestra aparte y NO se convierte en una nota.
+// =====================================================
+
+const pctAsistenciaGlobalPuro =
+    totalClasesCuatrimestre > 0
+        ? Math.round(
+            (asistenciasCuatrimestre / totalClasesCuatrimestre) * 100
+        )
+        : null;
+
+
+// =====================================================
+// MOSTRAR PROMEDIO REAL DE EXÁMENES
+// =====================================================
+
+const elementoPromedio =
+    document.getElementById("calif-promedio-global");
+
+if (elementoPromedio) {
+    elementoPromedio.innerText =
+        promedioExamenesGlobal !== null
+            ? promedioExamenesGlobal.toFixed(1)
+            : "N/A";
+}
+
+
+// =====================================================
+// MOSTRAR ASISTENCIA
+// =====================================================
+
+const elementoAsistencia =
+    document.getElementById("calif-asistencia-pct");
+
+if (elementoAsistencia) {
+    elementoAsistencia.innerText =
+        pctAsistenciaGlobalPuro !== null
+            ? pctAsistenciaGlobalPuro + "%"
+            : "N/A";
+}
+
+
+const elementoConteo =
+    document.getElementById("calif-asistencia-conteo");
+
+if (elementoConteo) {
+    elementoConteo.innerText =
+        `${asistenciasCuatrimestre} de ${totalClasesCuatrimestre} clases`;
+}
+
+
+const elementoFaltas =
+    document.getElementById("calif-faltas-total");
+
+if (elementoFaltas) {
+    elementoFaltas.innerText = faltasTotales;
+}
+
+
+// =====================================================
+// ESTADO ACADÉMICO
+// Solo se calcula cuando existen notas reales.
+// =====================================================
+
+const containerBadge =
+    document.getElementById("calif-status-badge-container");
+
+if (containerBadge) {
+
+    if (promedioExamenesGlobal === null) {
+
+        containerBadge.innerHTML = `
+            <span
+                class="calif-status-badge"
+                style="
+                    background: rgba(148, 163, 184, 0.15);
+                    color: #94a3b8;
+                    border: 1px solid rgba(148, 163, 184, 0.3);
+                "
+            >
+                ⚪ Sin calificaciones
+            </span>
+        `;
+
+    } else if (promedioExamenesGlobal >= 8.0) {
+
+        containerBadge.innerHTML = `
+            <span class="calif-status-badge calif-status-seguro">
+                🟢 Buen rendimiento
+            </span>
+        `;
+
+    } else if (promedioExamenesGlobal >= 6.0) {
+
+        containerBadge.innerHTML = `
+            <span class="calif-status-badge calif-status-ajuste">
+                🟡 Promedio aprobado
+            </span>
+        `;
+
+    } else {
+
+        containerBadge.innerHTML = `
+            <span
+                class="calif-status-badge calif-status-riesgo"
+                style="
+                    background: rgba(239, 68, 68, 0.2);
+                    color: #fca5a5;
+                    border: 1px solid rgba(239, 68, 68, 0.4);
+                "
+            >
+                🔴 Promedio bajo 6.0
+            </span>
+        `;
+    }
+}
+
+
+// =====================================================
+// AVISO
+// =====================================================
+
+const modalBody =
+    document.querySelector(
+        "#modal-mis-calificaciones .calif-table-wrapper"
+    );
+
+if (
+    modalBody &&
+    !document.getElementById("nota-trabajo-final-reminder")
+) {
+
+    const reminderDiv =
+        document.createElement("div");
+
+    reminderDiv.id =
+        "nota-trabajo-final-reminder";
+
+    reminderDiv.style.cssText = `
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 16px;
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px dashed rgba(139, 92, 246, 0.4);
+        text-align: center;
+    `;
+
+    reminderDiv.innerHTML = `
+        <p
+            style="
+                color: #c4b5fd;
+                font-size: 0.8rem;
+                margin: 0;
+                font-weight: 500;
+            "
+        >
+            📌 Las calificaciones mostradas corresponden
+            únicamente a resultados registrados en Firebase.
+            La asistencia se muestra de forma independiente.
+        </p>
+    `;
+
+    modalBody.parentNode.insertBefore(
+        reminderDiv,
+        modalBody.nextSibling
+    );
+}
         });
     }
 
